@@ -2,7 +2,7 @@ import { XMLParser } from "fast-xml-parser";
 import { env } from "@/env.mjs";
 import { z } from "zod";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { MdClose } from "react-icons/md";
 
 const BaseItemSchema = z.object({
 	identifier: z.string(),
@@ -92,11 +92,12 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 
 const Page = async ({
 	params: { id },
-	searchParams: { identifier },
+	searchParams,
 }: {
 	params: { id: string };
-	searchParams: { identifier?: string };
+	searchParams: { identifier?: string; toc?: string };
 }) => {
+	const { identifier, toc = "open" } = searchParams;
 	const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/scorm/packages/${id}/imsmanifest.xml`, {
 		cache: "no-cache",
 	});
@@ -115,54 +116,79 @@ const Page = async ({
 	console.log(resources.find((resource) => resource.identifier === identifier)?.href);
 
 	return (
-		<main className="bg-slate-100 h-screen flex flex-row w-full">
-			<aside className="p-4 text-slate-600 flex-col max-w-sm bg-white">
-				{Array.isArray(firstOrganization.item) ? (
-					firstOrganization.item.map((item) => {
-						if (Array.isArray(item.item)) {
-							return (
-								<div key={item.identifier} className="flex-col">
-									<p className="text-slate-800 font-bold py-2">{item.title}</p>
-									{item.item.map((subItem) => (
-										<Link
-											className="ml-4 py-1 flex cursor-pointer"
-											key={subItem.identifier}
-											href={{
-												pathname: `/packages/${id}`,
-												query: { identifier: subItem.identifierref },
-											}}
-										>
-											{subItem.title}
-										</Link>
-									))}
-								</div>
-							);
-						}
-						return (
-							<Link
-								className="ml-4 py-1 flex cursor-pointer"
-								key={item.identifier}
-								href={{
-									pathname: `/packages/${id}`,
-									query: { identifier: item.identifierref },
-								}}
-							>
-								{item.title}
-							</Link>
-						);
-					})
-				) : (
+		<main className="bg-slate-100 h-screen flex flex-col w-full">
+			<header className="h-10 bg-white px-4 flex items-center">
+				<Link
+					href={{
+						pathname: `/packages/${id}`,
+						query: { ...searchParams, toc: "open" },
+					}}
+					className="text-slate-900 "
+				>
+					Table of Contents
+				</Link>
+			</header>
+			{toc === "open" && (
+				<aside className="p-4 fixed left-0 top-0 bottom-0 text-slate-600 bg-white flex flex-col">
 					<Link
-						className="ml-4 py-1 flex cursor-pointer"
 						href={{
 							pathname: `/packages/${id}`,
-							query: { identifier: firstOrganization.item.identifierref },
+							query: { ...searchParams, toc: "closed" },
 						}}
+						className="bg-slate-500 text-white p-1 rounded mb-4 flex self-end"
 					>
-						{firstOrganization.item.title}
+						<MdClose size={25} />
 					</Link>
-				)}
-			</aside>
+					<h3 className="text-2xl text-slate-700 font-bold mb-2">Table of Contents</h3>
+					{Array.isArray(firstOrganization.item) ? (
+						firstOrganization.item.map((item) => {
+							if (Array.isArray(item.item)) {
+								return (
+									<div key={item.identifier} className="flex-col">
+										<p className="text-slate-800 font-bold py-2">
+											{item.title}
+										</p>
+										{item.item.map((subItem) => (
+											<Link
+												className="ml-4 py-1 flex cursor-pointer"
+												key={subItem.identifier}
+												href={{
+													pathname: `/packages/${id}`,
+													query: { identifier: subItem.identifierref },
+												}}
+											>
+												{subItem.title}
+											</Link>
+										))}
+									</div>
+								);
+							}
+							return (
+								<Link
+									className="ml-4 py-1 flex cursor-pointer"
+									key={item.identifier}
+									href={{
+										pathname: `/packages/${id}`,
+										query: { identifier: item.identifierref },
+									}}
+								>
+									{item.title}
+								</Link>
+							);
+						})
+					) : (
+						<Link
+							className="ml-4 py-1 flex cursor-pointer"
+							href={{
+								pathname: `/packages/${id}`,
+								query: { identifier: firstOrganization.item.identifierref },
+							}}
+						>
+							{firstOrganization.item.title}
+						</Link>
+					)}
+				</aside>
+			)}
 			{identifier && (
 				<iframe
 					className="flex-1"
