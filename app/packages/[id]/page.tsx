@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MdClose } from "react-icons/md";
 import { s3Client } from "@/libs/s3";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
+import Scorm12API from "./Scorm12API";
 
 const BaseItemSchema = z.object({
 	identifier: z.string(),
@@ -97,9 +98,10 @@ const Page = async ({
 	searchParams,
 }: {
 	params: { id: string };
-	searchParams: { identifier?: string; toc?: string };
+	searchParams: { page?: string; toc?: string };
 }) => {
-	const { identifier, toc = "open" } = searchParams;
+	let html;
+	const { page, toc = "open" } = searchParams;
 
 	const res = await s3Client.send(
 		new GetObjectCommand({
@@ -121,6 +123,9 @@ const Page = async ({
 
 	const resources = getAllResources(scorm.resources.resource);
 
+	// Find first resource
+	console.log(resources.find((resource) => resource.identifier === page)?.href);
+
 	return (
 		<main className="bg-slate-100 h-screen flex flex-col w-full">
 			<header className="h-10 bg-white px-4 flex items-center">
@@ -134,75 +139,81 @@ const Page = async ({
 					Table of Contents
 				</Link>
 			</header>
-			{toc === "open" && (
-				<aside className="p-4 fixed left-0 top-0 bottom-0 text-slate-600 bg-white flex flex-col">
-					<Link
-						href={{
-							pathname: `/packages/${id}`,
-							query: { ...searchParams, toc: "closed" },
-						}}
-						className="bg-slate-500 text-white p-1 rounded mb-4 flex self-end"
-					>
-						<MdClose size={25} />
-					</Link>
-					<h3 className="text-2xl text-slate-700 font-bold mb-2">Table of Contents</h3>
-					{Array.isArray(firstOrganization.item) ? (
-						firstOrganization.item.map((item) => {
-							if (Array.isArray(item.item)) {
-								return (
-									<div key={item.identifier} className="flex-col">
-										<p className="text-slate-800 font-bold py-2">
-											{item.title}
-										</p>
-										{item.item.map((subItem) => (
-											<Link
-												className="ml-4 py-1 flex cursor-pointer"
-												key={subItem.identifier}
-												href={{
-													pathname: `/packages/${id}`,
-													query: { identifier: subItem.identifierref },
-												}}
-											>
-												{subItem.title}
-											</Link>
-										))}
-									</div>
-								);
-							}
-							return (
-								<Link
-									className="ml-4 py-1 flex cursor-pointer"
-									key={item.identifier}
-									href={{
-										pathname: `/packages/${id}`,
-										query: { identifier: item.identifierref },
-									}}
-								>
-									{item.title}
-								</Link>
-							);
-						})
-					) : (
+			<div className="flex-row flex flex-1">
+				{toc === "open" && (
+					<aside className="p-4 fixed sm:relative max-w-sm left-0 top-0 bottom-0 text-slate-600 bg-white flex flex-col">
 						<Link
-							className="ml-4 py-1 flex cursor-pointer"
 							href={{
 								pathname: `/packages/${id}`,
-								query: { identifier: firstOrganization.item.identifierref },
+								query: { ...searchParams, toc: "closed" },
 							}}
+							className="bg-slate-500 text-white p-1 rounded mb-4 flex self-end"
 						>
-							{firstOrganization.item.title}
+							<MdClose size={25} />
 						</Link>
-					)}
-				</aside>
-			)}
-			{identifier && (
-				<iframe
-					className="flex-1"
-					src={`${env.S3_URI}/packages/${id}/${
-						resources.find((resource) => resource.identifier === identifier)?.href
-					}`}
-				/>
-			)}
+						<h3 className="text-2xl text-slate-700 font-bold mb-2">
+							Table of Contents
+						</h3>
+						{Array.isArray(firstOrganization.item) ? (
+							firstOrganization.item.map((item) => {
+								if (Array.isArray(item.item)) {
+									return (
+										<div key={item.identifier} className="flex-col">
+											<p className="text-slate-800 font-bold py-2">
+												{item.title}
+											</p>
+											{item.item.map((subItem) => (
+												<Link
+													className="ml-4 py-1 flex cursor-pointer"
+													key={subItem.identifier}
+													href={{
+														pathname: `/packages/${id}`,
+														query: { page: subItem.identifierref },
+													}}
+												>
+													{subItem.title}
+												</Link>
+											))}
+										</div>
+									);
+								}
+								return (
+									<Link
+										className="ml-4 py-1 flex cursor-pointer"
+										key={item.identifier}
+										href={{
+											pathname: `/packages/${id}`,
+											query: { page: item.identifierref },
+										}}
+									>
+										{item.title}
+									</Link>
+								);
+							})
+						) : (
+							<Link
+								className="ml-4 py-1 flex cursor-pointer"
+								href={{
+									pathname: `/packages/${id}`,
+									query: { page: firstOrganization.item.identifierref },
+								}}
+							>
+								{firstOrganization.item.title}
+							</Link>
+						)}
+					</aside>
+				)}
+				{page && (
+					<Scorm12API>
+						<iframe
+							src={`/packages/${id}/${
+								resources.find((resource) => resource.identifier === page)?.href
+							}`}
+							className="flex-1 h-full"
+						/>
+					</Scorm12API>
+				)}
+			</div>
 		</main>
 	);
 };

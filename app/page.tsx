@@ -15,15 +15,15 @@ const Home = async () => {
 	return (
 		<main className="bg-slate-900">
 			<div className="flex flex-col items-center justify-center min-h-screen py-2">
-				<h1 className="text-6xl font-bold text-white">Test packages</h1>
-				<div className="flex mt-8">
+				<h1 className="text-6xl font-bold text-white">Packages</h1>
+				<div className="flex mt-12">
 					{res.CommonPrefixes?.map(
 						(prefix, index) =>
 							prefix.Prefix && (
 								<Link
 									key={index}
 									href={prefix.Prefix}
-									className="bg-slate-700 px-8 py-4 rounded"
+									className="bg-slate-700 px-8 py-4 rounded mr-4"
 								>
 									{prefix.Prefix.replace("packages", "").replaceAll("/", "")}
 								</Link>
