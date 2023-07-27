@@ -3,6 +3,8 @@ import { env } from "@/env.mjs";
 import { z } from "zod";
 import Link from "next/link";
 import { MdClose } from "react-icons/md";
+import { s3Client } from "@/libs/s3";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 const BaseItemSchema = z.object({
 	identifier: z.string(),
@@ -98,10 +100,17 @@ const Page = async ({
 	searchParams: { identifier?: string; toc?: string };
 }) => {
 	const { identifier, toc = "open" } = searchParams;
-	const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/scorm/packages/${id}/imsmanifest.xml`, {
-		cache: "no-cache",
-	});
-	const text = await res.text();
+
+	const res = await s3Client.send(
+		new GetObjectCommand({
+			Bucket: "krak-lms",
+			Key: `packages/${id}/imsmanifest.xml`,
+		})
+	);
+	const text = await res.Body?.transformToString();
+
+	if (!text) return <h1>404</h1>;
+
 	const parsedIMSManifest = parser.parse(text).manifest;
 
 	const scorm = IMSManifestSchema.parse(parsedIMSManifest);
@@ -111,9 +120,6 @@ const Page = async ({
 		: scorm.organizations.organization;
 
 	const resources = getAllResources(scorm.resources.resource);
-
-	// Find first resource
-	console.log(resources.find((resource) => resource.identifier === identifier)?.href);
 
 	return (
 		<main className="bg-slate-100 h-screen flex flex-col w-full">
@@ -192,7 +198,7 @@ const Page = async ({
 			{identifier && (
 				<iframe
 					className="flex-1"
-					src={`${env.NEXT_PUBLIC_SERVER_URL}/scorm/packages/${id}/${
+					src={`${env.S3_URI}/packages/${id}/${
 						resources.find((resource) => resource.identifier === identifier)?.href
 					}`}
 				/>
