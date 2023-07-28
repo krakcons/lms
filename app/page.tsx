@@ -23,7 +23,7 @@ const Home = async () => {
 								<Link
 									key={index}
 									href={prefix.Prefix}
-									className="bg-slate-700 px-8 py-4 rounded mr-4"
+									className="bg-slate-700 px-8 py-4 rounded mr-4 text-white"
 								>
 									{prefix.Prefix.replace("packages", "").replaceAll("/", "")}
 								</Link>

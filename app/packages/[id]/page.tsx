@@ -128,7 +128,7 @@ const Page = async ({
 
 	return (
 		<main className="bg-slate-100 h-screen flex flex-col w-full">
-			<header className="h-10 bg-white px-4 flex items-center">
+			<header className="h-10 bg-white px-4 flex items-center shadow">
 				<Link
 					href={{
 						pathname: `/packages/${id}`,
