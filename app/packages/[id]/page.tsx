@@ -1,79 +1,12 @@
+import { s3Client } from "@/libs/s3";
+import { IMSManifestSchema, Resource } from "@/types/scorm/content";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { XMLParser } from "fast-xml-parser";
-import { env } from "@/env.mjs";
-import { z } from "zod";
 import Link from "next/link";
 import { MdClose } from "react-icons/md";
-import { s3Client } from "@/libs/s3";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import Scorm12API from "./Scorm12API";
-
-const BaseItemSchema = z.object({
-	identifier: z.string(),
-	identifierref: z.string().optional(),
-	isvisible: z.boolean().optional(),
-	title: z.string(),
-});
-type BaseItem = z.infer<typeof BaseItemSchema>;
-
-const ItemShema = z.object({
-	...BaseItemSchema.shape,
-	item: BaseItemSchema.or(BaseItemSchema.array()).optional(),
-});
-type Item = z.infer<typeof ItemShema>;
-
-const OrganizationSchema = z.object({
-	identifier: z.string(),
-	title: z.string(),
-	item: ItemShema.or(ItemShema.array()),
-});
-type Organization = z.infer<typeof OrganizationSchema>;
-
-const FileSchema = z.object({
-	href: z.string(),
-});
-
-const ResourceSchema = z.object({
-	identifier: z.string(),
-	href: z.string().optional(),
-	file: FileSchema.or(FileSchema.array()),
-});
-type Resource = z.infer<typeof ResourceSchema>;
-
-const IMSManifestSchema = z.object({
-	metadata: z.object({
-		schema: z.string(),
-		schemaversion: z.number().or(z.string()).optional(),
-	}),
-	organizations: z.object({
-		default: z.string().optional(),
-		organization: OrganizationSchema.or(OrganizationSchema.array()),
-	}),
-	resources: z.object({
-		resource: ResourceSchema.or(ResourceSchema.array()),
-	}),
-});
-type IMSManifest = z.infer<typeof IMSManifestSchema>;
+import LMSProvider from "./LMSProvider";
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
-
-// Perform a depth-first search of the organization tree
-const getAllItems = (organization: Organization): BaseItem[] => {
-	const items: BaseItem[] = [];
-
-	const traverseItem = (item: Item | Item[]): void => {
-		if (Array.isArray(item)) {
-			item.forEach((subItem) => traverseItem(subItem));
-		} else if (item) {
-			items.push(item);
-			if (item.item) {
-				traverseItem(item.item);
-			}
-		}
-	};
-
-	traverseItem(organization.item);
-	return items;
-};
 
 const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 	const resources: Resource[] = [];
@@ -100,7 +33,6 @@ const Page = async ({
 	params: { id: string };
 	searchParams: { page?: string; toc?: string };
 }) => {
-	let html;
 	const { page, toc = "open" } = searchParams;
 
 	const res = await s3Client.send(
@@ -204,14 +136,14 @@ const Page = async ({
 					</aside>
 				)}
 				{page && (
-					<Scorm12API>
+					<LMSProvider version={scorm.metadata.schemaversion}>
 						<iframe
 							src={`/packages/${id}/${
 								resources.find((resource) => resource.identifier === page)?.href
 							}`}
 							className="flex-1 h-full"
 						/>
-					</Scorm12API>
+					</LMSProvider>
 				)}
 			</div>
 		</main>
