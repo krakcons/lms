@@ -16,18 +16,12 @@ const Home = async () => {
 					educational experience.
 				</div>
 				<SignedIn>
-					<Link
-						href="/dashboard"
-						className="border-white rounded py-2 border px-3 mt-8 sm:mt-14"
-					>
+					<Link href="/dashboard" className="btn mt-8 sm:mt-12">
 						Dashboard
 					</Link>
 				</SignedIn>
 				<SignedOut>
-					<Link
-						href="/sign-up"
-						className="border-white rounded py-2 border px-3 mt-8 sm:mt-14"
-					>
+					<Link href="/sign-up" className="btn mt-8 sm:mt-12">
 						Get Started
 					</Link>
 				</SignedOut>

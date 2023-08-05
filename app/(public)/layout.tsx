@@ -11,10 +11,7 @@ const Layout = ({ children }: Props) => {
 			<header className="border-b border-b-elevation-4 w-full h-14 flex justify-center items-center px-6">
 				<nav className="max-w-screen-lg w-full flex justify-end items-center">
 					<SignedIn>
-						<Link
-							href="/dashboard"
-							className="border-white rounded py-2 border px-3 text-sm mr-4"
-						>
+						<Link href="/dashboard" className="btn mr-4">
 							Dashboard
 						</Link>
 						<UserButton afterSignOutUrl="/" />
@@ -23,7 +20,7 @@ const Layout = ({ children }: Props) => {
 						<Link className="px-4 py-2 rounded mr-4" href="/sign-in">
 							Sign In
 						</Link>
-						<Link href="/sign-up" className="border-white rounded py-2 border px-3">
+						<Link href="/sign-up" className="btn">
 							Get Started
 						</Link>
 					</SignedOut>

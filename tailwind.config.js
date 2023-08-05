@@ -9,9 +9,9 @@ module.exports = {
 		extend: {
 			colors: {
 				"elevation-1": "#121212",
-				"elevation-2": "#FFFFFF1A",
-				"elevation-3": "#FFFFFF33",
-				"elevation-4": "#FFFFFF4D",
+				"elevation-2": "#FFFFFF0F",
+				"elevation-3": "#FFFFFF1F",
+				"elevation-4": "#FFFFFF2E",
 				"light-gray": "#EBEBEB",
 			},
 		},
