@@ -1,14 +1,19 @@
 import { s3Client } from "@/libs/s3";
 import { ListObjectsCommand } from "@aws-sdk/client-s3";
+import { auth } from "@clerk/nextjs";
 import Link from "next/link";
 
 type Props = {};
 
 const Page = async ({}: Props) => {
+	const { userId } = auth();
+
+	if (!userId) return null;
+
 	const res = await s3Client.send(
 		new ListObjectsCommand({
 			Bucket: "krak-lms",
-			Prefix: "packages/",
+			Prefix: "courses/" + `${userId}/`,
 			Delimiter: "/",
 		})
 	);
@@ -30,7 +35,9 @@ const Page = async ({}: Props) => {
 								href={prefix.Prefix}
 								className="bg-elevation-2 p-6 mb-4 text-sm"
 							>
-								{prefix.Prefix.replace("packages", "").replaceAll("/", "")}
+								{prefix.Prefix.replace("courses", "")
+									.replaceAll("/", "")
+									.replace(userId, "")}
 							</Link>
 						)
 				)}

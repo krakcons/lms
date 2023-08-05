@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 .btn {
-	@apply border-white rounded py-2 border px-3;
+	@apply border-white rounded py-2 border px-3 cursor-pointer;
 }
