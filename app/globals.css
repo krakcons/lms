@@ -3,24 +3,24 @@
 @tailwind utilities;
 
 .btn {
-  @apply cursor-pointer rounded border border-white px-3 py-2;
+	@apply cursor-pointer rounded border border-white px-3 py-2 transition-colors hover:bg-light-gray/5;
 }
 
 ::-webkit-scrollbar {
-  @apply h-1.5 w-1.5;
+	@apply h-1.5 w-1.5;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  @apply bg-elevation-2;
+	@apply bg-elevation-2;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-elevation-4;
+	@apply bg-elevation-4;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-elevation-3;
+	@apply bg-elevation-3;
 }

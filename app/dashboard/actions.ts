@@ -1,16 +1,26 @@
 "use server";
 
+import { db } from "@/libs/db/db";
+import { courseUsers, courses } from "@/libs/db/schema";
 import { s3Client } from "@/libs/s3";
+import { IMSManifestSchema } from "@/types/scorm/content";
 import { ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
+import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import mime from "mime-types";
+import { revalidatePath } from "next/cache";
 const zip = new JSZip();
 
-export const uploadCourse = async (formData: FormData) => {
-	const userid = auth().userId;
+const parser = new XMLParser({
+	ignoreAttributes: false,
+	attributeNamePrefix: "",
+});
 
-	if (!userid) {
+export const uploadCourse = async (formData: FormData) => {
+	const userId = auth().userId;
+
+	if (!userId) {
 		throw new Error("User not logged in");
 	}
 
@@ -25,11 +35,13 @@ export const uploadCourse = async (formData: FormData) => {
 			throw new Error("imsmanifest.xml not found");
 		}
 
+		const manifestText = await manifest.async("text");
+
 		// Check if file exists
 		const userCourses = await s3Client.send(
 			new ListObjectsCommand({
 				Bucket: "krak-lms",
-				Prefix: "courses/" + `${userid}/`,
+				Prefix: `courses/${userId}/`,
 				Delimiter: "/",
 			})
 		);
@@ -37,6 +49,17 @@ export const uploadCourse = async (formData: FormData) => {
 			if (prefix.Prefix?.includes(courseZip.name.replace(".zip", ""))) {
 				throw new Error("Course already exists");
 			}
+		});
+
+		const parsedIMSManifest = parser.parse(manifestText).manifest;
+		const scorm = IMSManifestSchema.parse(parsedIMSManifest);
+		const courseTitle = Array.isArray(scorm.organizations.organization)
+			? scorm.organizations.organization[0].title
+			: scorm.organizations.organization.title;
+
+		const newCourse = await db.insert(courses).values({
+			userId,
+			name: courseTitle,
 		});
 
 		const files = courseUnzipped.folder(".")?.files;
@@ -49,22 +72,20 @@ export const uploadCourse = async (formData: FormData) => {
 			await s3Client.send(
 				new PutObjectCommand({
 					Bucket: "krak-lms",
-					Key:
-						"courses/" +
-						`${userid}/` +
-						`${courseZip.name.replace(".zip", "")}/` +
-						relativePath,
+					Key: `courses/${newCourse.insertId}/` + relativePath,
 					ContentType: type ? type : undefined,
 					Body: buffer,
 				})
 			);
-			console.log(
-				"Uploaded " +
-					"courses/" +
-					`${userid}/` +
-					`${courseZip.name.replace(".zip", "")}/` +
-					relativePath
-			);
 		}
+
+		await db.insert(courseUsers).values({
+			courseId: Number(newCourse.insertId),
+			userId,
+			data: null,
+		});
 	}
+	revalidatePath("/dashboard");
 };
+
+export const deleteCourse = async (courseId: number) => {};

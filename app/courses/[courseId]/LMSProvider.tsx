@@ -2,8 +2,12 @@
 
 import { addToObject, findNestedValue } from "@/libs/helpers";
 import { ScormVersion } from "@/types/scorm/content";
-import { Scorm12ErrorCode, Scorm12ErrorMessage } from "@/types/scorm/versions/12";
+import {
+	Scorm12ErrorCode,
+	Scorm12ErrorMessage,
+} from "@/types/scorm/versions/12";
 import { useEffect, useRef, useState } from "react";
+import { updateCourseData } from "./actions";
 
 declare global {
 	interface Window {
@@ -14,24 +18,37 @@ declare global {
 type Props = {
 	children: React.ReactNode;
 	version: ScormVersion;
+	courseId: string;
+	initialData: any;
 };
 
-const useSCORM = ({ version }: { version: ScormVersion }) => {
-	const [data, setData] = useState<any>({
-		cmi: {
-			core: {
-				lesson_status: "not attempted",
-				lesson_location: "0",
+const useSCORM = ({
+	version,
+	initialData,
+}: {
+	version: ScormVersion;
+	initialData: any;
+}) => {
+	const [data, setData] = useState<any>(
+		initialData ?? {
+			cmi: {
+				core: {
+					lesson_status: "not attempted",
+					lesson_location: "0",
+				},
 			},
-		},
-	});
+		}
+	);
 	const error = useRef<number | undefined>();
 	const initialized = useRef<boolean>(false);
 
 	// Log error
 	useEffect(() => {
 		if (error.current) {
-			console.log("Error: ", Scorm12ErrorMessage[error.current as Scorm12ErrorCode].short);
+			console.log(
+				"Error: ",
+				Scorm12ErrorMessage[error.current as Scorm12ErrorCode].short
+			);
 		}
 	}, [error]);
 
@@ -92,7 +109,8 @@ const useSCORM = ({ version }: { version: ScormVersion }) => {
 			LMSGetDiagnostic: (code: number): string => {
 				console.log("LMSGetDiagnostic", code);
 				if (code && Object.values(Scorm12ErrorCode).includes(code)) {
-					return Scorm12ErrorMessage[code as Scorm12ErrorCode].diagnostic;
+					return Scorm12ErrorMessage[code as Scorm12ErrorCode]
+						.diagnostic;
 				} else {
 					return "";
 				}
@@ -110,10 +128,12 @@ const useSCORM = ({ version }: { version: ScormVersion }) => {
 	return { data };
 };
 
-const LMSProvider = ({ children, version }: Props) => {
-	const { data } = useSCORM({ version });
+const LMSProvider = ({ children, version, courseId, initialData }: Props) => {
+	const { data } = useSCORM({ version, initialData });
 
-	console.log(data);
+	useEffect(() => {
+		updateCourseData(Number(courseId), data);
+	}, [data, courseId]);
 
 	return <>{children}</>;
 };

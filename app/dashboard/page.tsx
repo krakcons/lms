@@ -1,22 +1,18 @@
-import { s3Client } from "@/libs/s3";
-import { ListObjectsCommand } from "@aws-sdk/client-s3";
+import { db } from "@/libs/db/db";
+import { courses } from "@/libs/db/schema";
 import { auth } from "@clerk/nextjs";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 
-type Props = {};
-
-const Page = async ({}: Props) => {
+const Page = async () => {
 	const { userId } = auth();
 
 	if (!userId) return null;
 
-	const res = await s3Client.send(
-		new ListObjectsCommand({
-			Bucket: "krak-lms",
-			Prefix: "courses/" + `${userId}/`,
-			Delimiter: "/",
-		})
-	);
+	const data = await db
+		.select()
+		.from(courses)
+		.where(eq(courses.userId, userId));
 
 	return (
 		<>
@@ -27,20 +23,15 @@ const Page = async ({}: Props) => {
 				</Link>
 			</div>
 			<div className="flex flex-col">
-				{res.CommonPrefixes?.map(
-					(prefix, index) =>
-						prefix.Prefix && (
-							<Link
-								key={index}
-								href={prefix.Prefix}
-								className="group mb-4 bg-elevation-2 p-6 text-sm transition-colors hover:bg-elevation-3"
-							>
-								{prefix.Prefix.replace("courses", "")
-									.replaceAll("/", "")
-									.replace(userId, "")}
-							</Link>
-						)
-				)}
+				{data.map((course) => (
+					<Link
+						key={course.id}
+						href={`/dashboard/courses/${course.id}`}
+						className="mb-4 bg-elevation-2 p-6 text-sm transition-colors hover:bg-elevation-3"
+					>
+						{course.name}
+					</Link>
+				))}
 			</div>
 		</>
 	);

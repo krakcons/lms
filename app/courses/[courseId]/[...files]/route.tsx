@@ -4,9 +4,9 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 export const GET = async (
 	request: Request,
 	{
-		params: { files, id, userId },
+		params: { files, courseId },
 	}: {
-		params: { files: string[]; id: string; userId: string };
+		params: { files: string[]; courseId: string; userId: string };
 	}
 ) => {
 	const url = files.join("/");
@@ -14,7 +14,7 @@ export const GET = async (
 	const file = await s3Client.send(
 		new GetObjectCommand({
 			Bucket: "krak-lms",
-			Key: `courses/${userId}/${id}/${url}`,
+			Key: `courses/${courseId}/${url}`,
 		})
 	);
 	const body = (await file.Body) as ReadableStream<Uint8Array>;
