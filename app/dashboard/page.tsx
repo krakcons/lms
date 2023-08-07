@@ -33,7 +33,7 @@ const Page = async ({}: Props) => {
 							<Link
 								key={index}
 								href={prefix.Prefix}
-								className="bg-elevation-2 p-6 mb-4 text-sm"
+								className="bg-elevation-2 p-6 mb-4 text-sm hover:bg-elevation-3 transition-colors"
 							>
 								{prefix.Prefix.replace("courses", "")
 									.replaceAll("/", "")
