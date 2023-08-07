@@ -25,6 +25,7 @@
     "formidable": "^3.5.0",
     "houseform": "^1.11.0",
     "jszip": "^3.10.1",
+    "mime-types": "^2.1.35",
     "next": "13.4.12",
     "postcss": "8.4.27",
     "react": "18.2.0",
@@ -38,6 +39,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/mime-types": "^2.1.1",
     "prettier": "^3.0.1",
     "prettier-plugin-tailwindcss": "^0.4.1"
   }

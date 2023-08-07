@@ -4,7 +4,7 @@ import { s3Client } from "@/libs/s3";
 import { ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
 import JSZip from "jszip";
-
+import mime from "mime-types";
 const zip = new JSZip();
 
 export const uploadCourse = async (formData: FormData) => {
@@ -44,6 +44,7 @@ export const uploadCourse = async (formData: FormData) => {
 		for (const relativePath in files) {
 			const file = files[relativePath];
 			const buffer = await file.async("nodebuffer");
+			const type = mime.lookup(relativePath);
 
 			await s3Client.send(
 				new PutObjectCommand({
@@ -53,6 +54,7 @@ export const uploadCourse = async (formData: FormData) => {
 						`${userid}/` +
 						`${courseZip.name.replace(".zip", "")}/` +
 						relativePath,
+					ContentType: type ? type : undefined,
 					Body: buffer,
 				})
 			);

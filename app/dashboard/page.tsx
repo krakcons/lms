@@ -20,7 +20,7 @@ const Page = async ({}: Props) => {
 
 	return (
 		<>
-			<div className="flex w-full justify-between items-center mb-12">
+			<div className="mb-12 flex w-full items-center justify-between">
 				<h1 className="text-2xl sm:text-4xl">Courses</h1>
 				<Link href="/dashboard/upload" className="btn">
 					Upload
@@ -33,7 +33,7 @@ const Page = async ({}: Props) => {
 							<Link
 								key={index}
 								href={prefix.Prefix}
-								className="bg-elevation-2 p-6 mb-4 text-sm hover:bg-elevation-3 transition-colors"
+								className="group mb-4 bg-elevation-2 p-6 text-sm transition-colors hover:bg-elevation-3"
 							>
 								{prefix.Prefix.replace("courses", "")
 									.replaceAll("/", "")

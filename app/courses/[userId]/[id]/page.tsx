@@ -3,10 +3,14 @@ import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { XMLParser } from "fast-xml-parser";
 import Link from "next/link";
-import { MdClose } from "react-icons/md";
+import { redirect } from "next/navigation";
+import { MdList } from "react-icons/md";
 import LMSProvider from "./LMSProvider";
 
-const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
+const parser = new XMLParser({
+	ignoreAttributes: false,
+	attributeNamePrefix: "",
+});
 
 const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 	const resources: Resource[] = [];
@@ -27,18 +31,18 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 };
 
 const Page = async ({
-	params: { id },
+	params: { id, userId },
 	searchParams,
 }: {
-	params: { id: string };
+	params: { id: string; userId: string };
 	searchParams: { page?: string; toc?: string };
 }) => {
-	const { page, toc = "open" } = searchParams;
+	const { page, toc = "closed" } = searchParams;
 
 	const res = await s3Client.send(
 		new GetObjectCommand({
 			Bucket: "krak-lms",
-			Key: `packages/${id}/imsmanifest.xml`,
+			Key: `courses/${userId}/${id}/imsmanifest.xml`,
 		})
 	);
 	const text = await res.Body?.transformToString();
@@ -55,52 +59,51 @@ const Page = async ({
 
 	const resources = getAllResources(scorm.resources.resource);
 
-	// Find first resource
-	console.log(resources.find((resource) => resource.identifier === page)?.href);
+	if (!page) {
+		redirect(`/courses/${userId}/${id}?page=${resources[0].identifier}`);
+	}
 
 	return (
-		<main className="bg-slate-100 h-screen flex flex-col w-full">
-			<header className="h-10 bg-white px-4 flex items-center shadow">
-				<Link
-					href={{
-						pathname: `/packages/${id}`,
-						query: { ...searchParams, toc: "open" },
-					}}
-					className="text-slate-900 "
-				>
-					Table of Contents
-				</Link>
-			</header>
-			<div className="flex-row flex flex-1">
+		<main className="flex h-screen w-full flex-col bg-slate-100">
+			<Link
+				href={{
+					pathname: `/courses/${userId}/${id}`,
+					query: {
+						...searchParams,
+						toc: toc === "open" ? "closed" : "open",
+					},
+				}}
+				className="absolute right-4 top-4 rounded bg-white p-2 text-black shadow-xl"
+			>
+				<MdList size={25} />
+			</Link>
+			<div className="flex flex-1 flex-row">
 				{toc === "open" && (
-					<aside className="p-4 fixed sm:relative max-w-sm left-0 top-0 bottom-0 text-slate-600 bg-white flex flex-col">
-						<Link
-							href={{
-								pathname: `/packages/${id}`,
-								query: { ...searchParams, toc: "closed" },
-							}}
-							className="bg-slate-500 text-white p-1 rounded mb-4 flex self-end"
-						>
-							<MdClose size={25} />
-						</Link>
-						<h3 className="text-2xl text-slate-700 font-bold mb-2">
+					<aside className="fixed bottom-0 left-0 top-0 flex max-w-sm flex-col bg-white p-4 text-slate-600 sm:relative">
+						<h3 className="mb-2 text-2xl font-bold text-slate-700">
 							Table of Contents
 						</h3>
 						{Array.isArray(firstOrganization.item) ? (
 							firstOrganization.item.map((item) => {
 								if (Array.isArray(item.item)) {
 									return (
-										<div key={item.identifier} className="flex-col">
-											<p className="text-slate-800 font-bold py-2">
+										<div
+											key={item.identifier}
+											className="flex-col"
+										>
+											<p className="py-2 font-bold text-slate-800">
 												{item.title}
 											</p>
 											{item.item.map((subItem) => (
 												<Link
-													className="ml-4 py-1 flex cursor-pointer"
+													className="ml-4 flex cursor-pointer py-1"
 													key={subItem.identifier}
 													href={{
-														pathname: `/packages/${id}`,
-														query: { page: subItem.identifierref },
+														pathname: `/courses/${userId}/${id}`,
+														query: {
+															toc,
+															page: subItem.identifierref,
+														},
 													}}
 												>
 													{subItem.title}
@@ -111,11 +114,14 @@ const Page = async ({
 								}
 								return (
 									<Link
-										className="ml-4 py-1 flex cursor-pointer"
+										className="ml-4 flex cursor-pointer py-1"
 										key={item.identifier}
 										href={{
-											pathname: `/packages/${id}`,
-											query: { page: item.identifierref },
+											pathname: `/courses/${userId}/${id}`,
+											query: {
+												toc,
+												page: item.identifierref,
+											},
 										}}
 									>
 										{item.title}
@@ -124,10 +130,13 @@ const Page = async ({
 							})
 						) : (
 							<Link
-								className="ml-4 py-1 flex cursor-pointer"
+								className="ml-4 flex cursor-pointer py-1"
 								href={{
-									pathname: `/packages/${id}`,
-									query: { page: firstOrganization.item.identifierref },
+									pathname: `/courses/${userId}/${id}`,
+									query: {
+										page: firstOrganization.item
+											.identifierref,
+									},
 								}}
 							>
 								{firstOrganization.item.title}
@@ -138,10 +147,10 @@ const Page = async ({
 				{page && (
 					<LMSProvider version={scorm.metadata.schemaversion}>
 						<iframe
-							src={`/packages/${id}/${
-								resources.find((resource) => resource.identifier === page)?.href
-							}`}
-							className="flex-1 h-full"
+							src={`/courses/${userId}/${id}/${resources.find(
+								(resource) => resource.identifier === page
+							)?.href}`}
+							className="h-full flex-1"
 						/>
 					</LMSProvider>
 				)}

@@ -19,6 +19,8 @@ export const GET = async (
 	);
 	const body = (await file.Body) as ReadableStream<Uint8Array>;
 
+	console.log("file", file.ContentType);
+
 	return new Response(body, {
 		status: 200,
 		headers: {

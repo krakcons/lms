@@ -43,7 +43,10 @@ export const addToObject = (obj: any, key: string, value: any): any => {
 
 	for (let i = 0; i < keys.length - 1; i++) {
 		const currentKey = keys[i];
-		if (!currentObj[currentKey] || typeof currentObj[currentKey] !== "object") {
+		if (
+			!currentObj[currentKey] ||
+			typeof currentObj[currentKey] !== "object"
+		) {
 			currentObj[currentKey] = {};
 		}
 		currentObj = currentObj[currentKey];
@@ -90,7 +93,10 @@ export const formatFileSize = (bytes: number, si = false, dp = 1) => {
 	do {
 		bytes /= thresh;
 		++u;
-	} while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+	} while (
+		Math.round(Math.abs(bytes) * r) / r >= thresh &&
+		u < units.length - 1
+	);
 
 	return bytes.toFixed(dp) + " " + units[u];
 };

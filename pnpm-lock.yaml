@@ -53,6 +53,9 @@ dependencies:
   jszip:
     specifier: ^3.10.1
     version: 3.10.1
+  mime-types:
+    specifier: ^2.1.35
+    version: 2.1.35
   next:
     specifier: 13.4.12
     version: 13.4.12(react-dom@18.2.0)(react@18.2.0)
@@ -88,6 +91,9 @@ dependencies:
     version: 3.21.4
 
 devDependencies:
+  '@types/mime-types':
+    specifier: ^2.1.1
+    version: 2.1.1
   prettier:
     specifier: ^3.0.1
     version: 3.0.1
@@ -1470,6 +1476,10 @@ packages:
   /@types/keygrip@1.0.2:
     resolution: {integrity: sha512-GJhpTepz2udxGexqos8wgaBx4I/zWIDPh/KOGEwAqtuGDkOUJu5eFvwmdBX4AmB8Odsr+9pHCQqiAqDL/yKMKw==}
     dev: false
+
+  /@types/mime-types@2.1.1:
+    resolution: {integrity: sha512-vXOTGVSLR2jMw440moWTC7H19iUyLtP3Z1YTj7cSsubOICinjMxFeb/V57v9QdyyPGbbWolUFSSmSiRSn94tFw==}
+    dev: true
 
   /@types/mime@1.3.2:
     resolution: {integrity: sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==}
