@@ -1,8 +1,41 @@
 import { db } from "@/libs/db/db";
 import { courseUsers, courses } from "@/libs/db/schema";
+import { filterUserForClient } from "@/libs/users";
+import { clerkClient } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
+import Image from "next/image";
 import Link from "next/link";
 import { deleteCourse } from "../../actions";
+
+const getCourseUsers = async (courseId: number) => {
+	const courseUsersList = await db
+		.select()
+		.from(courseUsers)
+		.where(eq(courseUsers.courseId, Number(courseId)));
+
+	const userId = courseUsersList.map((courseUser) => courseUser.userId);
+
+	const clerkUsers = (
+		await clerkClient.users.getUserList({
+			userId,
+		})
+	).map(filterUserForClient);
+
+	return courseUsersList.map((courseUser) => {
+		const user = clerkUsers.find(
+			(clerkUser) => courseUser.userId === clerkUser.id
+		);
+
+		if (!user) throw new Error("User not found");
+
+		return {
+			...courseUser,
+			user: {
+				...user,
+			},
+		};
+	});
+};
 
 const Page = async ({
 	params: { courseId },
@@ -16,10 +49,7 @@ const Page = async ({
 
 	if (!data || !data.length) throw new Error("Course not found");
 
-	const users = await db
-		.select()
-		.from(courseUsers)
-		.where(eq(courseUsers.courseId, Number(courseId)));
+	const users = await getCourseUsers(Number(courseId));
 
 	const course = data[0];
 
@@ -41,12 +71,34 @@ const Page = async ({
 			</div>
 			<div className="mb-8">
 				<h2 className="mb-4 text-lg sm:text-xl">Users</h2>
+				<div className="mb-4 h-[1px] bg-elevation-4" />
 				{users.map((user) => (
 					<div
 						key={user.id}
-						className="li flex-1 overflow-hidden text-ellipsis"
+						className="mb-4 flex flex-1 items-center justify-between overflow-hidden text-ellipsis"
 					>
-						{user.userId}
+						<div className="flex items-center">
+							<Image
+								src={user.user.imageUrl}
+								height={40}
+								width={40}
+								className="mr-4 rounded-full"
+								alt="User Image"
+							/>
+							<div>
+								<p className="text-sm sm:text-base">
+									{user.user.firstName} {user.user.lastName}
+								</p>
+								{user.user.emailAddresses.length > 0 && (
+									<p className="mt-1 text-xs opacity-70 sm:text-sm">
+										{
+											user.user.emailAddresses[0]
+												.emailAddress
+										}
+									</p>
+								)}
+							</div>
+						</div>
 					</div>
 				))}
 			</div>
