@@ -27,7 +27,7 @@ const Page = async () => {
 					<Link
 						key={course.id}
 						href={`/dashboard/courses/${course.id}`}
-						className="mb-4 bg-elevation-2 p-6 text-sm transition-colors hover:bg-elevation-3"
+						className="li"
 					>
 						{course.name}
 					</Link>

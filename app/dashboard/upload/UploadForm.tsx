@@ -93,10 +93,7 @@ const UploadForm = () => {
 			uploadCourse(formData),
 			{
 				loading: "Uploading",
-				success: () => {
-					router.push("/dashboard");
-					return `Uploaded course`;
-				},
+				success: "Uploaded course",
 				error: (err) => `${err.toString()}`,
 			},
 			{

@@ -15,7 +15,7 @@ const Layout = ({ children }: Props) => {
 				></Link>
 				<UserButton afterSignOutUrl="/" />
 			</div>
-			<main className="mx-auto w-full min-w-0 max-w-screen-lg flex-1 p-6 sm:p-12">
+			<main className="mx-auto flex w-full min-w-0 max-w-screen-lg flex-1 flex-col p-6 sm:p-12">
 				{children}
 			</main>
 		</div>

@@ -2,8 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+.btn-base {
+	@apply cursor-pointer rounded border px-2 py-2 text-sm transition-colors sm:px-3 sm:py-2 sm:text-base;
+}
+
 .btn {
-	@apply cursor-pointer rounded border border-white px-3 py-2 transition-colors hover:bg-light-gray/5;
+	@apply btn-base border-white hover:bg-light-gray/5;
+}
+
+.btn-error {
+	@apply btn-base border-red-700 bg-red-700 text-white hover:bg-red-500/90;
+}
+
+.container {
+	@apply p-4 sm:p-6;
+}
+
+.li {
+	@apply container mb-4 bg-elevation-2 text-xs transition-colors hover:bg-elevation-3 sm:text-sm;
 }
 
 ::-webkit-scrollbar {

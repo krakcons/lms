@@ -4,12 +4,18 @@ import { db } from "@/libs/db/db";
 import { courseUsers, courses } from "@/libs/db/schema";
 import { s3Client } from "@/libs/s3";
 import { IMSManifestSchema } from "@/types/scorm/content";
-import { ListObjectsCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+	DeleteObjectsCommand,
+	ListObjectsCommand,
+	PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
+import { eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import mime from "mime-types";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 const zip = new JSZip();
 
 const parser = new XMLParser({
@@ -85,7 +91,52 @@ export const uploadCourse = async (formData: FormData) => {
 			data: null,
 		});
 	}
+
 	revalidatePath("/dashboard");
+	redirect("/dashboard");
 };
 
-export const deleteCourse = async (courseId: number) => {};
+export const deleteCourse = async (courseId: number) => {
+	console.log("Deleting course", courseId);
+
+	const userId = auth().userId;
+
+	if (!userId) {
+		throw new Error("User not logged in");
+	}
+
+	console.log(userId);
+
+	// get all files in the course
+	const courseFiles = await s3Client.send(
+		new ListObjectsCommand({
+			Bucket: "krak-lms",
+			Prefix: `courses/${courseId}/`,
+		})
+	);
+
+	console.log("Files", courseFiles.Contents?.length);
+
+	// delete the files
+	if (courseFiles.Contents) {
+		const deleted = await s3Client.send(
+			new DeleteObjectsCommand({
+				Bucket: "krak-lms",
+				Delete: {
+					Objects: courseFiles.Contents.map((item) => ({
+						Key: item.Key,
+					})), // array of keys to be deleted
+				},
+			})
+		);
+		console.log("Deleted", deleted.Deleted?.length);
+	} else {
+		console.log("No files found");
+	}
+
+	// delete the course
+	await db.delete(courses).where(eq(courses.id, courseId));
+
+	revalidatePath("/dashboard");
+	redirect("/dashboard");
+};

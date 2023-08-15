@@ -2,6 +2,7 @@ import { db } from "@/libs/db/db";
 import { courseUsers, courses } from "@/libs/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
+import { deleteCourse } from "../../actions";
 
 const Page = async ({
 	params: { courseId },
@@ -22,6 +23,12 @@ const Page = async ({
 
 	const course = data[0];
 
+	const deleteCourseAction = async () => {
+		"use server";
+
+		await deleteCourse(Number(courseId));
+	};
+
 	return (
 		<>
 			<div className="mb-12 flex w-full items-center justify-between">
@@ -32,16 +39,32 @@ const Page = async ({
 					Visit
 				</Link>
 			</div>
-			<div>
-				<h2 className="mb-4 text-xl">Users</h2>
+			<div className="mb-8">
+				<h2 className="mb-4 text-lg sm:text-xl">Users</h2>
 				{users.map((user) => (
 					<div
 						key={user.id}
-						className="mb-4 bg-elevation-2 p-6 text-sm transition-colors hover:bg-elevation-3"
+						className="li flex-1 overflow-hidden text-ellipsis"
 					>
 						{user.userId}
 					</div>
 				))}
+			</div>
+			<div className="">
+				<h2 className="mb-4 text-lg sm:text-xl">Danger Zone</h2>
+				<div className="flex items-center justify-between border border-red-700 p-4">
+					<span>
+						<p className="mb-1 text-sm sm:text-base">
+							Delete this course
+						</p>
+						<p className="text-xs opacity-80 sm:text-sm">
+							This action is perminant
+						</p>
+					</span>
+					<form action={deleteCourseAction}>
+						<button className="btn-error">Delete</button>
+					</form>
+				</div>
 			</div>
 		</>
 	);
