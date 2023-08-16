@@ -30,10 +30,13 @@ export const ResourceSchema = z.object({
 export type Resource = z.infer<typeof ResourceSchema>;
 
 export const ScormVersionSchema = z
-	.literal(1.2)
-	.or(z.literal("CAM 1.3"))
-	.or(z.literal("2004 3rd Edition"));
-export type ScormVersion = z.infer<typeof ScormVersionSchema>;
+	.enum([
+		"CAM 1.3",
+		"2004 2nd Edition",
+		"2004 3rd Edition",
+		"2004 4th Edition",
+	])
+	.or(z.literal(1.2));
 
 export const IMSManifestSchema = z.object({
 	metadata: z.object({

@@ -88,7 +88,7 @@ const Page = async ({
 		const newCourseUser = {
 			courseId: Number(courseId),
 			userId,
-			data: getInitialScormData(scorm.metadata.schemaversion),
+			data: getInitialScormData(`${scorm.metadata.schemaversion}`),
 		};
 		const res = await db.insert(courseUsers).values(newCourseUser);
 		if (res.insertId) {
@@ -98,7 +98,7 @@ const Page = async ({
 		}
 	}
 
-	const initialData = courseUser[0] ? courseUser[0].data : {};
+	console.log("DATA", courseUser[0].data as Record<string, any>);
 
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
@@ -183,9 +183,9 @@ const Page = async ({
 				)}
 				{page && (
 					<LMSProvider
-						version={scorm.metadata.schemaversion}
-						courseId={courseId}
-						initialData={initialData}
+						version={`${scorm.metadata.schemaversion}`}
+						courseId={Number(courseId)}
+						data={courseUser[0].data as Record<string, any>}
 					>
 						<iframe
 							src={`/courses/${courseId}/${resources.find(

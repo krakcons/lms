@@ -1,6 +1,6 @@
 "use client";
 
-import { ScormVersion } from "@/types/scorm/content";
+import { Course } from "@/types/course";
 import {
 	Scorm12ErrorCode,
 	Scorm12ErrorMessage,
@@ -16,16 +16,16 @@ declare global {
 
 type Props = {
 	children: React.ReactNode;
-	version: ScormVersion;
-	courseId: string;
-	initialData: any;
+	version: Course["version"];
+	courseId: number;
+	data: Record<string, any>;
 };
 
 const useSCORM = ({
 	version,
 	initialData,
 }: {
-	version: ScormVersion;
+	version: Course["version"];
 	initialData: Record<string, any>;
 }) => {
 	const [data, setData] = useState<Record<string, any>>(initialData);
@@ -42,7 +42,7 @@ const useSCORM = ({
 		}
 	}, [error]);
 
-	if (version === 1.2) {
+	if (version === "1.2") {
 		window.API = {
 			LMSInitialize: (): boolean => {
 				console.log("LMSInitialize");
@@ -57,26 +57,32 @@ const useSCORM = ({
 				return true;
 			},
 			LMSGetValue: (key: string): string => {
+				if (!key || key === "") {
+					return "";
+				}
 				console.log("LMSGetValue", key);
 
 				const value = data[key];
 
-				if (!value) {
+				if (value === undefined) {
 					error.current = Scorm12ErrorCode.GeneralException;
+					console.log("Error: couldn't find value for key", key);
 				}
 
-				return value;
+				return `${value}`;
 			},
 			LMSSetValue: (key: string, value: string): string => {
 				console.log("LMSSetValue", key, value);
 				if (!key || key === "") {
+					console.log("Error: key is empty", key);
 					return "false";
 				}
 
-				const newData = { ...data, [key]: value };
-
-				setData({
-					...newData,
+				setData((prev) => {
+					return {
+						...prev,
+						[key]: value,
+					};
 				});
 
 				return "true";
@@ -116,11 +122,19 @@ const useSCORM = ({
 	return { data };
 };
 
-const LMSProvider = ({ children, version, courseId, initialData }: Props) => {
-	const { data } = useSCORM({ version, initialData });
+const LMSProvider = ({
+	children,
+	version,
+	courseId,
+	data: initialData,
+}: Props) => {
+	const { data } = useSCORM({
+		version,
+		initialData,
+	});
 
 	useEffect(() => {
-		updateCourseData(Number(courseId), data);
+		updateCourseData(courseId, data);
 	}, [data, courseId]);
 
 	return <>{children}</>;

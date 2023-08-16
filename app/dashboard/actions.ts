@@ -66,6 +66,7 @@ export const uploadCourse = async (formData: FormData) => {
 		const newCourse = await db.insert(courses).values({
 			userId,
 			name: courseTitle,
+			version: `${scorm.metadata.schemaversion}`,
 		});
 
 		const files = courseUnzipped.folder(".")?.files;

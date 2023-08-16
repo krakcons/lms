@@ -14,6 +14,7 @@ export const filterUserForClient = ({
 		firstName,
 		username,
 		imageUrl,
-		emailAddresses,
+		emailAddress:
+			emailAddresses.length > 0 ? emailAddresses[0].emailAddress : null,
 	};
 };

@@ -1,13 +1,17 @@
 import { db } from "@/libs/db/db";
 import { courseUsers, courses } from "@/libs/db/schema";
 import { filterUserForClient } from "@/libs/users";
+import { CourseUser } from "@/types/courseUser";
+import { WithUser } from "@/types/users";
 import { clerkClient } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
-import Image from "next/image";
 import Link from "next/link";
 import { deleteCourse } from "../../actions";
+import UsersTable from "./UsersTable";
 
-const getCourseUsers = async (courseId: number) => {
+const getCourseUsers = async (
+	courseId: number
+): Promise<WithUser<CourseUser>[]> => {
 	const courseUsersList = await db
 		.select()
 		.from(courseUsers)
@@ -30,9 +34,7 @@ const getCourseUsers = async (courseId: number) => {
 
 		return {
 			...courseUser,
-			user: {
-				...user,
-			},
+			user,
 		};
 	});
 };
@@ -48,15 +50,14 @@ const Page = async ({
 		.where(eq(courses.id, Number(courseId)));
 
 	if (!data || !data.length) throw new Error("Course not found");
-
-	const users = await getCourseUsers(Number(courseId));
-
 	const course = data[0];
+
+	const users = await getCourseUsers(course.id);
 
 	const deleteCourseAction = async () => {
 		"use server";
 
-		await deleteCourse(Number(courseId));
+		await deleteCourse(course.id);
 	};
 
 	return (
@@ -65,42 +66,16 @@ const Page = async ({
 				<h1 className="mr-4 overflow-hidden text-ellipsis whitespace-nowrap text-2xl sm:text-4xl">
 					{course.name}
 				</h1>
-				<Link href={`/courses/${course.id}`} className="btn">
+				<Link
+					href={`/courses/${course.id}`}
+					className="btn"
+					target="_blank"
+				>
 					Visit
 				</Link>
 			</div>
 			<div className="mb-8">
-				<h2 className="mb-4 text-lg sm:text-xl">Users</h2>
-				<div className="mb-4 h-[1px] bg-elevation-4" />
-				{users.map((user) => (
-					<div
-						key={user.id}
-						className="mb-4 flex flex-1 items-center justify-between overflow-hidden text-ellipsis"
-					>
-						<div className="flex items-center">
-							<Image
-								src={user.user.imageUrl}
-								height={40}
-								width={40}
-								className="mr-4 rounded-full"
-								alt="User Image"
-							/>
-							<div>
-								<p className="text-sm sm:text-base">
-									{user.user.firstName} {user.user.lastName}
-								</p>
-								{user.user.emailAddresses.length > 0 && (
-									<p className="mt-1 text-xs opacity-70 sm:text-sm">
-										{
-											user.user.emailAddresses[0]
-												.emailAddress
-										}
-									</p>
-								)}
-							</div>
-						</div>
-					</div>
-				))}
+				<UsersTable courseUsers={users} version={course.version} />
 			</div>
 			<div className="">
 				<h2 className="mb-4 text-lg sm:text-xl">Danger Zone</h2>
