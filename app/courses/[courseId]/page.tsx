@@ -1,6 +1,7 @@
 import { db } from "@/libs/db/db";
 import { courseUsers } from "@/libs/db/schema";
 import { s3Client } from "@/libs/s3";
+import { getInitialScormData } from "@/libs/scorm";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
@@ -70,20 +71,34 @@ const Page = async ({
 		redirect(`/courses/${courseId}?page=${resources[0].identifier}`);
 	}
 
-	const courseUser = await db
+	// Get course user
+	let courseUser = await db
 		.select()
 		.from(courseUsers)
 		.where(
 			and(
-				eq(courseUsers.id, Number(courseId)),
+				eq(courseUsers.courseId, Number(courseId)),
 				eq(courseUsers.userId, userId)
 			)
 		);
 
-	if (!courseUser.length)
-		throw new Error("You do not have access to this course.");
+	// If no course user exists, create one
+	if (courseUser.length === 0) {
+		console.log("Creating course user");
+		const newCourseUser = {
+			courseId: Number(courseId),
+			userId,
+			data: getInitialScormData(scorm.metadata.schemaversion),
+		};
+		const res = await db.insert(courseUsers).values(newCourseUser);
+		if (res.insertId) {
+			courseUser = [{ ...newCourseUser, id: Number(res.insertId) }];
+		} else {
+			throw new Error("Failed to create course user");
+		}
+	}
 
-	const initialData = courseUser[0].data;
+	const initialData = courseUser[0] ? courseUser[0].data : {};
 
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">

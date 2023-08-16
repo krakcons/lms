@@ -10,10 +10,15 @@ export const updateCourseData = async (courseId: number, data: any) => {
 
 	if (!userId) throw new Error("User not logged in");
 
+	console.log("Updating course data", courseId, data);
+
 	await db
 		.update(courseUsers)
 		.set({ data })
 		.where(
-			and(eq(courseUsers.id, courseId), eq(courseUsers.userId, userId))
+			and(
+				eq(courseUsers.courseId, courseId),
+				eq(courseUsers.userId, userId)
+			)
 		);
 };

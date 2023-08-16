@@ -1,6 +1,5 @@
 "use client";
 
-import { addToObject, findNestedValue } from "@/libs/helpers";
 import { ScormVersion } from "@/types/scorm/content";
 import {
 	Scorm12ErrorCode,
@@ -27,18 +26,9 @@ const useSCORM = ({
 	initialData,
 }: {
 	version: ScormVersion;
-	initialData: any;
+	initialData: Record<string, any>;
 }) => {
-	const [data, setData] = useState<any>(
-		initialData ?? {
-			cmi: {
-				core: {
-					lesson_status: "not attempted",
-					lesson_location: "0",
-				},
-			},
-		}
-	);
+	const [data, setData] = useState<Record<string, any>>(initialData);
 	const error = useRef<number | undefined>();
 	const initialized = useRef<boolean>(false);
 
@@ -69,7 +59,7 @@ const useSCORM = ({
 			LMSGetValue: (key: string): string => {
 				console.log("LMSGetValue", key);
 
-				const value = findNestedValue(key, data);
+				const value = data[key];
 
 				if (!value) {
 					error.current = Scorm12ErrorCode.GeneralException;
@@ -83,9 +73,7 @@ const useSCORM = ({
 					return "false";
 				}
 
-				const newData = addToObject(data, key, value);
-
-				// TODO: Store data
+				const newData = { ...data, [key]: value };
 
 				setData({
 					...newData,

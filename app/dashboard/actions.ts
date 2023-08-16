@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/libs/db/db";
-import { courseUsers, courses } from "@/libs/db/schema";
+import { courses } from "@/libs/db/schema";
 import { s3Client } from "@/libs/s3";
 import { IMSManifestSchema } from "@/types/scorm/content";
 import {
@@ -84,12 +84,6 @@ export const uploadCourse = async (formData: FormData) => {
 				})
 			);
 		}
-
-		await db.insert(courseUsers).values({
-			courseId: Number(newCourse.insertId),
-			userId,
-			data: null,
-		});
 	}
 
 	revalidatePath("/dashboard");
