@@ -1,8 +1,10 @@
-import { db } from "@/libs/db/db";
-import { courses } from "@/libs/db/schema";
+import { buttonVariants } from "@/components/ui/button";
+import { db } from "@/lib/db/db";
+import { courses } from "@/lib/db/schema";
 import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
+import CourseTable from "./CourseTable";
 
 const Page = async () => {
 	const { userId } = auth();
@@ -17,21 +19,13 @@ const Page = async () => {
 	return (
 		<>
 			<div className="mb-12 flex w-full items-center justify-between">
-				<h1 className="text-2xl sm:text-4xl">Courses</h1>
-				<Link href="/dashboard/upload" className="btn">
+				<h1>Courses</h1>
+				<Link href="/dashboard/upload" className={buttonVariants()}>
 					Upload
 				</Link>
 			</div>
 			<div className="flex flex-col">
-				{data.map((course) => (
-					<Link
-						key={course.id}
-						href={`/dashboard/courses/${course.id}`}
-						className="li"
-					>
-						{course.name}
-					</Link>
-				))}
+				<CourseTable data={data} />
 			</div>
 		</>
 	);

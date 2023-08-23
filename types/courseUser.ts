@@ -1,4 +1,4 @@
-import { courseUsers } from "@/libs/db/schema";
+import { courseUsers } from "@/lib/db/schema";
 import { InferModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
 import { WithUser } from "./users";

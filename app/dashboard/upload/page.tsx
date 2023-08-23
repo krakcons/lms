@@ -5,7 +5,7 @@ type Props = {};
 const Page = ({}: Props) => {
 	return (
 		<main>
-			<h1 className="text-2xl sm:text-4xl mb-12">Upload Course</h1>
+			<h1 className="mb-12">Upload Course</h1>
 			<UploadForm />
 		</main>
 	);

@@ -1,7 +1,7 @@
 "use server";
 
-import { db } from "@/libs/db/db";
-import { courseUsers } from "@/libs/db/schema";
+import { db } from "@/lib/db/db";
+import { courseUsers } from "@/lib/db/schema";
 import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 

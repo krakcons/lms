@@ -1,3 +1,4 @@
+import { buttonVariants } from "@/components/ui/button";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
@@ -8,19 +9,28 @@ type Props = {
 const Layout = ({ children }: Props) => {
 	return (
 		<>
-			<header className="border-b border-b-elevation-4 w-full h-14 flex justify-center items-center px-6">
-				<nav className="max-w-screen-lg w-full flex justify-end items-center">
+			<header className="border-b-elevation-4 flex h-14 w-full items-center justify-center border-b px-6">
+				<nav className="flex w-full max-w-screen-lg items-center justify-end">
 					<SignedIn>
-						<Link href="/dashboard" className="btn mr-4">
+						<Link
+							href="/dashboard"
+							className={buttonVariants({ className: "mr-4" })}
+						>
 							Dashboard
 						</Link>
 						<UserButton afterSignOutUrl="/" />
 					</SignedIn>
 					<SignedOut>
-						<Link className="px-4 py-2 rounded mr-4" href="/sign-in">
+						<Link
+							href="/sign-in"
+							className={buttonVariants({ className: "mr-4" })}
+						>
 							Sign In
 						</Link>
-						<Link href="/sign-up" className="btn">
+						<Link
+							href="/sign-up"
+							className={buttonVariants({ className: "mr-4" })}
+						>
 							Get Started
 						</Link>
 					</SignedOut>

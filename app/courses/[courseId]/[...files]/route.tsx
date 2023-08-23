@@ -1,4 +1,4 @@
-import { s3Client } from "@/libs/s3";
+import { s3Client } from "@/lib/s3";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 export const GET = async (

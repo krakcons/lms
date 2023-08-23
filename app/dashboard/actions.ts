@@ -1,8 +1,8 @@
 "use server";
 
-import { db } from "@/libs/db/db";
-import { courses } from "@/libs/db/schema";
-import { s3Client } from "@/libs/s3";
+import { db } from "@/lib/db/db";
+import { courses } from "@/lib/db/schema";
+import { s3Client } from "@/lib/s3";
 import { IMSManifestSchema } from "@/types/scorm/content";
 import {
 	DeleteObjectsCommand,

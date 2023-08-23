@@ -1,15 +1,23 @@
-import { db } from "@/libs/db/db";
-import { courseUsers } from "@/libs/db/schema";
-import { s3Client } from "@/libs/s3";
-import { getInitialScormData } from "@/libs/scorm";
+import { buttonVariants } from "@/components/ui/button";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
+import { db } from "@/lib/db/db";
+import { courseUsers } from "@/lib/db/schema";
+import { s3Client } from "@/lib/s3";
+import { getInitialScormData } from "@/lib/scorm";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
+import { List } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MdList } from "react-icons/md";
 import LMSProvider from "./LMSProvider";
 
 const parser = new XMLParser({
@@ -40,9 +48,9 @@ const Page = async ({
 	searchParams,
 }: {
 	params: { courseId: string };
-	searchParams: { page?: string; toc?: string };
+	searchParams: { page?: string };
 }) => {
-	const { page, toc = "closed" } = searchParams;
+	const { page } = searchParams;
 	const userId = auth().userId;
 
 	if (!userId) throw new Error("User not found");
@@ -102,24 +110,21 @@ const Page = async ({
 
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
-			<Link
-				href={{
-					pathname: `/courses/${courseId}`,
-					query: {
-						...searchParams,
-						toc: toc === "open" ? "closed" : "open",
-					},
-				}}
-				className="absolute right-4 top-4 rounded bg-white p-2 text-black shadow-xl"
-			>
-				<MdList size={25} />
-			</Link>
-			<div className="flex flex-1 flex-row">
-				{toc === "open" && (
-					<aside className="fixed bottom-0 left-0 top-0 flex max-w-sm flex-col bg-white p-4 text-slate-600 sm:relative">
-						<h3 className="mb-2 text-2xl font-bold text-slate-700">
-							Table of Contents
-						</h3>
+			<Sheet>
+				<SheetTrigger>
+					<div
+						className={buttonVariants({
+							variant: "secondary",
+							size: "icon",
+							className: "fixed right-4 top-4",
+						})}
+					>
+						<List />
+					</div>
+				</SheetTrigger>
+				<SheetContent>
+					<SheetHeader>
+						<SheetTitle>Table of Contents</SheetTitle>
 						{Array.isArray(firstOrganization.item) ? (
 							firstOrganization.item.map((item) => {
 								if (Array.isArray(item.item)) {
@@ -128,9 +133,7 @@ const Page = async ({
 											key={item.identifier}
 											className="flex-col"
 										>
-											<p className="py-2 font-bold text-slate-800">
-												{item.title}
-											</p>
+											<p>{item.title}</p>
 											{item.item.map((subItem) => (
 												<Link
 													className="ml-4 flex cursor-pointer py-1"
@@ -138,7 +141,6 @@ const Page = async ({
 													href={{
 														pathname: `/courses/${courseId}`,
 														query: {
-															toc,
 															page: subItem.identifierref,
 														},
 													}}
@@ -156,7 +158,6 @@ const Page = async ({
 										href={{
 											pathname: `/courses/${courseId}`,
 											query: {
-												toc,
 												page: item.identifierref,
 											},
 										}}
@@ -179,8 +180,10 @@ const Page = async ({
 								{firstOrganization.item.title}
 							</Link>
 						)}
-					</aside>
-				)}
+					</SheetHeader>
+				</SheetContent>
+			</Sheet>
+			<div className="flex flex-1 flex-row">
 				{page && (
 					<LMSProvider
 						version={`${scorm.metadata.schemaversion}`}

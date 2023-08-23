@@ -1,7 +1,7 @@
 "use client";
-import { formatFileSize } from "@/libs/helpers";
+import { Button } from "@/components/ui/button";
+import { formatFileSize } from "@/lib/helpers";
 import { Field, Form } from "houseform";
-import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-hot-toast";
@@ -36,26 +36,22 @@ const Dropzone = ({
 	return (
 		<>
 			{value ? (
-				<div className="flex items-center justify-between overflow-x-auto bg-elevation-2 p-4 sm:p-8">
+				<div className="flex items-center justify-between overflow-x-auto bg-secondary p-4 sm:p-8">
 					<div className="mr-4 flex flex-col">
-						<p className="mb-3 text-sm font-bold sm:text-base">
-							Name
-						</p>
-						<p className="text-sm sm:text-base">{value.name}</p>
+						<p className="font-bold">Name</p>
+						<p className="whitespace-nowrap">{value.name}</p>
 					</div>
 					<div className="mr-4 flex flex-col">
-						<p className="mb-3 whitespace-nowrap text-sm font-bold sm:text-base">
-							Size
-						</p>
-						<p className="whitespace-nowrap text-sm sm:text-base">
+						<p className="font-bold">Size</p>
+						<p className="whitespace-nowrap">
 							{formatFileSize(value.size)}
 						</p>
 					</div>
 					<div className="flex flex-col">
-						<p className="mb-3 whitespace-nowrap text-sm font-bold sm:text-base">
+						<p className="whitespace-nowrap font-bold">
 							Last Modified
 						</p>
-						<p className="whitespace-nowrap text-sm sm:text-base">
+						<p className="whitespace-nowrap">
 							{new Date(value.lastModified).toDateString()}
 						</p>
 					</div>
@@ -63,9 +59,9 @@ const Dropzone = ({
 			) : (
 				<section
 					{...getRootProps()}
-					className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded border border-light-gray ${
+					className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded border border-primary ${
 						isDragActive
-							? "border-solid bg-elevation-2"
+							? "border-solid bg-primary-foreground"
 							: "border-dashed"
 					} ${value ? "hidden" : ""}`}
 				>
@@ -85,7 +81,6 @@ const Dropzone = ({
 };
 
 const UploadForm = () => {
-	const router = useRouter();
 	const action = async (data: { file: File }) => {
 		const formData = new FormData();
 		formData.append("file", data.file);
@@ -121,12 +116,10 @@ const UploadForm = () => {
 					</Field>
 					{isValid && (
 						<>
-							<button onClick={submit} className="btn mr-4 mt-8">
+							<Button onClick={submit} className="mr-4 mt-8">
 								Upload
-							</button>
-							<button onClick={reset} className="btn">
-								Clear
-							</button>
+							</Button>
+							<Button onClick={reset}>Clear</Button>
 						</>
 					)}
 				</div>
