@@ -38,13 +38,7 @@ const InviteUserSchema = z.object({
 });
 type InviteUser = z.infer<typeof InviteUserSchema>;
 
-const InviteUserDialog = ({
-	courseId,
-	version,
-}: {
-	courseId: string;
-	version: Course["version"];
-}) => {
+const InviteUserDialog = ({ course }: { course: Course }) => {
 	const [open, setOpen] = useState(false);
 	const { toast } = useToast();
 	const form = useForm<InviteUser>({
@@ -56,9 +50,8 @@ const InviteUserDialog = ({
 
 	const onSubmit = async ({ email }: InviteUser) => {
 		inviteUser({
-			courseId,
+			course,
 			email,
-			version,
 		}).then(() => {
 			toast({
 				title: "Successfully Invited",

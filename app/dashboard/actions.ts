@@ -1,5 +1,7 @@
 "use server";
 
+import InviteUser from "@/emails/InviteUser";
+import { env } from "@/env.mjs";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
@@ -18,7 +20,10 @@ import JSZip from "jszip";
 import mime from "mime-types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Resend } from "resend";
 const zip = new JSZip();
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -141,26 +146,35 @@ export const deleteCourse = async (courseId: string) => {
 };
 
 export const inviteUser = async ({
-	courseId,
+	course,
 	email,
-	version,
 }: {
-	courseId: string;
 	email: string;
-	version: Course["version"];
+	course: Course;
 }) => {
+	const courseUserId = crypto.randomUUID();
 	const res = await db.insert(courseUsers).values({
-		id: crypto.randomUUID(),
-		courseId: courseId,
+		id: courseUserId,
+		courseId: course.id,
 		email,
-		data: getInitialScormData(version),
+		data: getInitialScormData(course.version),
 	});
 
 	if (res.insertId) {
-		// Send email
+		resend.emails.send({
+			from: "onboarding@resend.dev",
+			to: email,
+			subject: course.name,
+			react: InviteUser({
+				email,
+				course: course.name,
+				organization: "Krak LMS",
+				href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course.id}?courseUserId=${courseUserId}`,
+			}),
+		});
 	} else {
 		throw new Error("Failed to create course user");
 	}
 
-	revalidatePath(`/dashboard/courses/${courseId}`);
+	revalidatePath(`/dashboard/courses/${course.id}`);
 };

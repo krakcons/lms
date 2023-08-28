@@ -41,10 +41,7 @@ const Page = async ({
 				<h2 className="mr-4 overflow-hidden text-ellipsis whitespace-nowrap">
 					{course.name}
 				</h2>
-				<InviteUserDialog
-					courseId={courseId}
-					version={course.version}
-				/>
+				<InviteUserDialog course={course} />
 			</div>
 			<DataTable data={usersWithVersion} columns={columns} />
 			<div className="mt-8">
