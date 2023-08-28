@@ -1,8 +1,18 @@
-import { int, json, mysqlEnum, mysqlTable, text } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
+import {
+	json,
+	mysqlEnum,
+	mysqlTable,
+	text,
+	varchar,
+} from "drizzle-orm/mysql-core";
 
 export const courses = mysqlTable("courses", {
-	id: int("id").autoincrement().primaryKey(),
-	userId: text("userId").notNull(),
+	id: varchar("id", { length: 255 })
+		.primaryKey()
+		.notNull()
+		.default(sql`(uuid())`),
+	userId: varchar("userId", { length: 255 }).primaryKey().notNull(),
 	name: text("name").notNull(),
 	version: mysqlEnum("version", [
 		"1.2",
@@ -14,8 +24,11 @@ export const courses = mysqlTable("courses", {
 });
 
 export const courseUsers = mysqlTable("courseUsers", {
-	id: int("id").autoincrement().primaryKey(),
-	courseId: int("courseId").notNull(),
-	email: text("email").notNull(),
+	id: varchar("id", { length: 255 })
+		.primaryKey()
+		.notNull()
+		.default(sql`(uuid())`),
+	courseId: varchar("courseId", { length: 255 }).primaryKey().notNull(),
+	email: text("email").notNull().unique(),
 	data: json("data"),
 });

@@ -1,8 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db/db";
-import { courses } from "@/lib/db/schema";
+import { courseUsers, courses } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
+import { getInitialScormData } from "@/lib/scorm";
+import { Course } from "@/types/course";
 import { IMSManifestSchema } from "@/types/scorm/content";
 import {
 	DeleteObjectsCommand,
@@ -63,7 +65,9 @@ export const uploadCourse = async (formData: FormData) => {
 			? scorm.organizations.organization[0].title
 			: scorm.organizations.organization.title;
 
+		const insertId = crypto.randomUUID();
 		const newCourse = await db.insert(courses).values({
+			id: insertId,
 			userId,
 			name: courseTitle,
 			version: `${scorm.metadata.schemaversion}`,
@@ -79,7 +83,7 @@ export const uploadCourse = async (formData: FormData) => {
 			await s3Client.send(
 				new PutObjectCommand({
 					Bucket: "krak-lms",
-					Key: `courses/${newCourse.insertId}/` + relativePath,
+					Key: `courses/${insertId}/` + relativePath,
 					ContentType: type ? type : undefined,
 					Body: buffer,
 				})
@@ -91,7 +95,7 @@ export const uploadCourse = async (formData: FormData) => {
 	redirect("/dashboard");
 };
 
-export const deleteCourse = async (courseId: number) => {
+export const deleteCourse = async (courseId: string) => {
 	console.log("Deleting course", courseId);
 
 	const userId = auth().userId;
@@ -134,4 +138,29 @@ export const deleteCourse = async (courseId: number) => {
 
 	revalidatePath("/dashboard");
 	redirect("/dashboard");
+};
+
+export const inviteUser = async ({
+	courseId,
+	email,
+	version,
+}: {
+	courseId: string;
+	email: string;
+	version: Course["version"];
+}) => {
+	const res = await db.insert(courseUsers).values({
+		id: crypto.randomUUID(),
+		courseId: courseId,
+		email,
+		data: getInitialScormData(version),
+	});
+
+	if (res.insertId) {
+		// Send email
+	} else {
+		throw new Error("Failed to create course user");
+	}
+
+	revalidatePath(`/dashboard/courses/${courseId}`);
 };

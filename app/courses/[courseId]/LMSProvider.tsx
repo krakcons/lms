@@ -17,9 +17,9 @@ declare global {
 type Props = {
 	children: React.ReactNode;
 	version: Course["version"];
-	courseId: number;
+	courseId: string;
 	data: Record<string, any>;
-	courseUserId: number;
+	courseUserId: string;
 };
 
 const useSCORM = ({
@@ -136,8 +136,8 @@ const LMSProvider = ({
 	});
 
 	useEffect(() => {
-		updateCourseData(courseId, data);
-	}, [data, courseId]);
+		updateCourseData(courseId, data, courseUserId);
+	}, [data, courseId, courseUserId]);
 
 	return <>{children}</>;
 };

@@ -4,6 +4,7 @@ import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { deleteCourse } from "../../actions";
+import InviteUserDialog from "./InviteUserDialog";
 import { columns } from "./columns";
 
 const Page = async ({
@@ -14,7 +15,7 @@ const Page = async ({
 	const data = await db
 		.select()
 		.from(courses)
-		.where(eq(courses.id, Number(courseId)));
+		.where(eq(courses.id, courseId));
 
 	if (!data || !data.length) throw new Error("Course not found");
 	const course = data[0];
@@ -40,11 +41,13 @@ const Page = async ({
 				<h2 className="mr-4 overflow-hidden text-ellipsis whitespace-nowrap">
 					{course.name}
 				</h2>
+				<InviteUserDialog
+					courseId={courseId}
+					version={course.version}
+				/>
 			</div>
-			<div className="mb-8">
-				<DataTable data={usersWithVersion} columns={columns} />
-			</div>
-			<div className="">
+			<DataTable data={usersWithVersion} columns={columns} />
+			<div className="mt-8">
 				<h4 className="mb-4">Danger Zone</h4>
 				<form action={deleteCourseAction}>
 					<Button variant="destructive">Delete Course</Button>

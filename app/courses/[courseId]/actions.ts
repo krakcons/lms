@@ -5,9 +5,9 @@ import { courseUsers } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export const updateCourseData = async (
-	courseId: number,
+	courseId: string,
 	data: any,
-	courseUserId: number
+	courseUserId: string
 ) => {
 	console.log("Updating course data", courseId, data);
 

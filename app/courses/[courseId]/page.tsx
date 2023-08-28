@@ -73,7 +73,9 @@ const Page = async ({
 	const resources = getAllResources(scorm.resources.resource);
 
 	if (!page) {
-		redirect(`/courses/${courseId}?page=${resources[0].identifier}`);
+		redirect(
+			`/courses/${courseId}?courseUserId=${courseUserId}&page=${resources[0].identifier}`
+		);
 	}
 
 	// Get course user
@@ -82,8 +84,8 @@ const Page = async ({
 		.from(courseUsers)
 		.where(
 			and(
-				eq(courseUsers.courseId, Number(courseId)),
-				eq(courseUsers.id, Number(courseUserId))
+				eq(courseUsers.courseId, courseId),
+				eq(courseUsers.id, courseUserId)
 			)
 		);
 
@@ -170,9 +172,9 @@ const Page = async ({
 				{page && (
 					<LMSProvider
 						version={`${scorm.metadata.schemaversion}`}
-						courseId={Number(courseId)}
+						courseId={courseId}
 						data={courseUser[0].data as Record<string, any>}
-						courseUserId={Number(courseUserId)}
+						courseUserId={courseUserId}
 					>
 						<iframe
 							src={`/courses/${courseId}/${resources.find(
