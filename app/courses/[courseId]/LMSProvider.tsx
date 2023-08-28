@@ -19,6 +19,7 @@ type Props = {
 	version: Course["version"];
 	courseId: number;
 	data: Record<string, any>;
+	courseUserId: number;
 };
 
 const useSCORM = ({
@@ -127,6 +128,7 @@ const LMSProvider = ({
 	version,
 	courseId,
 	data: initialData,
+	courseUserId,
 }: Props) => {
 	const { data } = useSCORM({
 		version,

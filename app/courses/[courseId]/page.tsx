@@ -9,10 +9,8 @@ import {
 import { db } from "@/lib/db/db";
 import { courseUsers } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
-import { getInitialScormData } from "@/lib/scorm";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import { List } from "lucide-react";
@@ -48,12 +46,11 @@ const Page = async ({
 	searchParams,
 }: {
 	params: { courseId: string };
-	searchParams: { page?: string };
+	searchParams: { page?: string; courseUserId?: string };
 }) => {
-	const { page } = searchParams;
-	const userId = auth().userId;
+	const { page, courseUserId } = searchParams;
 
-	if (!userId) throw new Error("User not found");
+	if (!courseUserId) throw new Error("User not found");
 
 	const res = await s3Client.send(
 		new GetObjectCommand({
@@ -86,27 +83,13 @@ const Page = async ({
 		.where(
 			and(
 				eq(courseUsers.courseId, Number(courseId)),
-				eq(courseUsers.userId, userId)
+				eq(courseUsers.id, Number(courseUserId))
 			)
 		);
 
-	// If no course user exists, create one
 	if (courseUser.length === 0) {
-		console.log("Creating course user");
-		const newCourseUser = {
-			courseId: Number(courseId),
-			userId,
-			data: getInitialScormData(`${scorm.metadata.schemaversion}`),
-		};
-		const res = await db.insert(courseUsers).values(newCourseUser);
-		if (res.insertId) {
-			courseUser = [{ ...newCourseUser, id: Number(res.insertId) }];
-		} else {
-			throw new Error("Failed to create course user");
-		}
+		throw new Error("User not found");
 	}
-
-	console.log("DATA", courseUser[0].data as Record<string, any>);
 
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
@@ -189,6 +172,7 @@ const Page = async ({
 						version={`${scorm.metadata.schemaversion}`}
 						courseId={Number(courseId)}
 						data={courseUser[0].data as Record<string, any>}
+						courseUserId={Number(courseUserId)}
 					>
 						<iframe
 							src={`/courses/${courseId}/${resources.find(

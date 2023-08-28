@@ -1,11 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { formatFileSize } from "@/lib/helpers";
-import { Field, Form } from "houseform";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Upload } from "lucide-react";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { toast } from "react-hot-toast";
-import { MdOutlineFileUpload } from "react-icons/md";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { uploadCourse } from "../actions";
 
@@ -66,7 +67,7 @@ const Dropzone = ({
 					} ${value ? "hidden" : ""}`}
 				>
 					<input {...getInputProps({ name: "file", type: "file" })} />
-					<MdOutlineFileUpload size={40} className="mb-4" />
+					<Upload size={40} className="mb-4" />
 					<p className="flex">
 						Drag & Drop, or{" "}
 						<span className="px-1 text-blue-400 hover:underline">
@@ -81,50 +82,59 @@ const Dropzone = ({
 };
 
 const UploadForm = () => {
-	const action = async (data: { file: File }) => {
+	const { toast } = useToast();
+	const {
+		reset,
+		control,
+		handleSubmit,
+		formState: { isValid },
+	} = useForm<{ file: File }>({
+		resolver: zodResolver(
+			z.object({
+				file: z.instanceof(File),
+			})
+		),
+		defaultValues: {
+			file: undefined,
+		},
+	});
+
+	const action = (data: { file: File }) => {
 		const formData = new FormData();
 		formData.append("file", data.file);
-		toast.promise(
-			uploadCourse(formData),
-			{
-				loading: "Uploading",
-				success: "Uploaded course",
-				error: (err) => `${err.toString()}`,
-			},
-			{
-				className: "bg-elevation-2 text-white",
-				success: {
-					duration: 5000,
-				},
-			}
-		);
+		toast({
+			title: "Uploading...",
+			description: "Your file is being uploaded",
+		});
+		uploadCourse(formData).then(() => {
+			toast({
+				title: "Upload Successful",
+				description: "Your file has been uploaded",
+			});
+		});
 	};
 
 	return (
-		<Form onSubmit={action}>
-			{({ submit, isValid, reset }) => (
-				<div className="flex-1">
-					<Field<File | undefined>
-						name="file"
-						onMountValidate={z.instanceof(File)}
-						onChangeValidate={z.instanceof(File)}
-						initialValue={undefined}
-					>
-						{({ value, setValue }) => (
-							<Dropzone value={value} setValue={setValue} />
-						)}
-					</Field>
-					{isValid && (
-						<>
-							<Button onClick={submit} className="mr-4 mt-8">
-								Upload
-							</Button>
-							<Button onClick={reset}>Clear</Button>
-						</>
+		<form onSubmit={handleSubmit(action)}>
+			<div className="flex-1">
+				<Controller
+					name="file"
+					control={control}
+					rules={{ required: true }}
+					render={({ field: { value, onChange } }) => (
+						<Dropzone value={value} setValue={onChange} />
 					)}
-				</div>
-			)}
-		</Form>
+				/>
+				{isValid && (
+					<>
+						<Button type="submit" className="mr-4 mt-8">
+							Upload
+						</Button>
+						<Button onClick={() => reset()}>Clear</Button>
+					</>
+				)}
+			</div>
+		</form>
 	);
 };
 

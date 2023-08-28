@@ -3,17 +3,15 @@
 import { parseCourseUserData } from "@/lib/scorm";
 import { Course } from "@/types/course";
 import { CourseUser } from "@/types/courseUser";
-import { WithUser } from "@/types/users";
 import { createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper<
-	WithUser<CourseUser> & { version: Course["version"] }
+	CourseUser & { version: Course["version"] }
 >();
 
 export const columns = [
-	columnHelper.accessor("user", {
+	columnHelper.accessor("email", {
 		header: "User",
-		cell: (info) => info.row.original.user.emailAddress,
 	}),
 	columnHelper.accessor("data", {
 		header: "Status",

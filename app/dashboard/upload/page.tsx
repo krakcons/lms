@@ -1,8 +1,6 @@
 import UploadForm from "./UploadForm";
 
-type Props = {};
-
-const Page = ({}: Props) => {
+const Page = () => {
 	return (
 		<main>
 			<h1 className="mb-12">Upload Course</h1>

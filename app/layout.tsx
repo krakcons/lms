@@ -1,7 +1,7 @@
+import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
 import { Providers } from "./Providers";
 import "./globals.css";
 
@@ -21,16 +21,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 				>
 					<Providers>
 						{children}
-						<Toaster
-							toastOptions={{
-								style: {
-									backgroundColor: "rgb(235 235 235)",
-									borderRadius: 4,
-									maxWidth: "auto",
-								},
-								position: "bottom-center",
-							}}
-						/>
+						<Toaster />
 					</Providers>
 				</body>
 			</html>

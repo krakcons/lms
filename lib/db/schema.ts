@@ -16,6 +16,6 @@ export const courses = mysqlTable("courses", {
 export const courseUsers = mysqlTable("courseUsers", {
 	id: int("id").autoincrement().primaryKey(),
 	courseId: int("courseId").notNull(),
-	userId: text("userId").notNull(),
+	email: text("email").notNull(),
 	data: json("data"),
 });
