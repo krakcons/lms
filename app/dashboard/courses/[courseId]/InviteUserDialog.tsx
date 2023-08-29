@@ -59,7 +59,6 @@ const InviteUserDialog = ({ course }: { course: Course }) => {
 					description: `User ${email} has been sent an invitation to join this course.`,
 				});
 				setOpen(false);
-				form.reset();
 			})
 			.catch((err) => {
 				toast({
@@ -68,6 +67,7 @@ const InviteUserDialog = ({ course }: { course: Course }) => {
 					variant: "destructive",
 				});
 			});
+		form.reset();
 	};
 
 	return (
