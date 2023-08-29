@@ -52,13 +52,22 @@ const InviteUserDialog = ({ course }: { course: Course }) => {
 		inviteUser({
 			course,
 			email,
-		}).then(() => {
-			toast({
-				title: "Successfully Invited",
-				description: `User ${email} has been sent an invitation to join this course.`,
+		})
+			.then(() => {
+				toast({
+					title: "Successfully Invited",
+					description: `User ${email} has been sent an invitation to join this course.`,
+				});
+				setOpen(false);
+				form.reset();
+			})
+			.catch((err) => {
+				toast({
+					title: "Uh oh! Something went wrong.",
+					description: err.message,
+					variant: "destructive",
+				});
 			});
-			setOpen(false);
-		});
 	};
 
 	return (

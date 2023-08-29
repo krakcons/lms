@@ -4,6 +4,7 @@ import {
 	mysqlEnum,
 	mysqlTable,
 	text,
+	uniqueIndex,
 	varchar,
 } from "drizzle-orm/mysql-core";
 
@@ -12,7 +13,7 @@ export const courses = mysqlTable("courses", {
 		.primaryKey()
 		.notNull()
 		.default(sql`(uuid())`),
-	userId: varchar("userId", { length: 255 }).primaryKey().notNull(),
+	userId: varchar("userId", { length: 255 }).notNull(),
 	name: text("name").notNull(),
 	version: mysqlEnum("version", [
 		"1.2",
@@ -23,12 +24,23 @@ export const courses = mysqlTable("courses", {
 	]).notNull(),
 });
 
-export const courseUsers = mysqlTable("courseUsers", {
-	id: varchar("id", { length: 255 })
-		.primaryKey()
-		.notNull()
-		.default(sql`(uuid())`),
-	courseId: varchar("courseId", { length: 255 }).primaryKey().notNull(),
-	email: text("email").notNull().unique(),
-	data: json("data"),
-});
+export const courseUsers = mysqlTable(
+	"courseUsers",
+	{
+		id: varchar("id", { length: 255 })
+			.primaryKey()
+			.notNull()
+			.default(sql`(uuid())`),
+		courseId: varchar("courseId", { length: 255 }).notNull(),
+		email: varchar("email", { length: 255 }).notNull(),
+		data: json("data"),
+	},
+	(table) => {
+		return {
+			emailCourseIdx: uniqueIndex("email_course_idx").on(
+				table.email,
+				table.courseId
+			),
+		};
+	}
+);

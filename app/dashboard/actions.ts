@@ -14,7 +14,7 @@ import {
 	PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import mime from "mime-types";
@@ -153,6 +153,21 @@ export const inviteUser = async ({
 	course: Course;
 }) => {
 	const courseUserId = crypto.randomUUID();
+
+	const existingCourseUser = await db
+		.select()
+		.from(courseUsers)
+		.where(
+			and(
+				eq(courseUsers.email, email),
+				eq(courseUsers.courseId, course.id)
+			)
+		);
+
+	if (existingCourseUser.length > 0) {
+		throw new Error("User is already invited to this course");
+	}
+
 	const res = await db.insert(courseUsers).values({
 		id: courseUserId,
 		courseId: course.id,
@@ -173,7 +188,7 @@ export const inviteUser = async ({
 			}),
 		});
 	} else {
-		throw new Error("Failed to create course user");
+		throw new Error("Server error, please try again later");
 	}
 
 	revalidatePath(`/dashboard/courses/${course.id}`);
