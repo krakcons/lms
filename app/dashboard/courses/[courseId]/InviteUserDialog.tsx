@@ -25,7 +25,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { Course } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
@@ -38,7 +37,7 @@ const InviteUserSchema = z.object({
 });
 type InviteUser = z.infer<typeof InviteUserSchema>;
 
-const InviteUserDialog = ({ course }: { course: Course }) => {
+const InviteUserDialog = ({ courseId }: { courseId: string }) => {
 	const [open, setOpen] = useState(false);
 	const { toast } = useToast();
 	const form = useForm<InviteUser>({
@@ -50,7 +49,7 @@ const InviteUserDialog = ({ course }: { course: Course }) => {
 
 	const onSubmit = async ({ email }: InviteUser) => {
 		inviteUser({
-			course,
+			courseId,
 			email,
 		})
 			.then(() => {

@@ -6,7 +6,6 @@ import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
 import { getInitialScormData } from "@/lib/scorm";
-import { Course } from "@/types/course";
 import { IMSManifestSchema } from "@/types/scorm/content";
 import {
 	DeleteObjectsCommand,
@@ -146,13 +145,26 @@ export const deleteCourse = async (courseId: string) => {
 };
 
 export const inviteUser = async ({
-	course,
+	courseId,
 	email,
 }: {
 	email: string;
-	course: Course;
+	courseId: string;
 }) => {
-	const courseUserId = crypto.randomUUID();
+	const userId = auth().userId;
+
+	if (!userId) {
+		throw new Error("User not logged in");
+	}
+
+	const course = await db
+		.select()
+		.from(courses)
+		.where(and(eq(courses.id, courseId), eq(courses.userId, userId)));
+
+	if (course.length === 0) {
+		throw new Error("Course not found");
+	}
 
 	const existingCourseUser = await db
 		.select()
@@ -160,7 +172,7 @@ export const inviteUser = async ({
 		.where(
 			and(
 				eq(courseUsers.email, email),
-				eq(courseUsers.courseId, course.id)
+				eq(courseUsers.courseId, courseId)
 			)
 		);
 
@@ -168,26 +180,28 @@ export const inviteUser = async ({
 		throw new Error("User is already invited to this course");
 	}
 
+	const courseUserId = crypto.randomUUID();
+
 	await resend.emails.send({
 		from: "support@billyhawkes.com",
 		to: email,
-		subject: course.name,
+		subject: course[0].name,
 		react: InviteUser({
 			email,
-			course: course.name,
+			course: course[0].name,
 			organization: "Krak LMS",
-			href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course.id}?courseUserId=${courseUserId}`,
+			href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course[0].id}?courseUserId=${courseUserId}`,
 		}),
 	});
 
 	await db.insert(courseUsers).values({
 		id: courseUserId,
-		courseId: course.id,
+		courseId: course[0].id,
 		email,
-		data: getInitialScormData(course.version),
+		data: getInitialScormData(course[0].version),
 	});
 
-	revalidatePath(`/dashboard/courses/${course.id}`);
+	revalidatePath(`/dashboard/courses/${course[0].id}`);
 };
 
 export const deleteCourseUser = async ({
@@ -224,4 +238,46 @@ export const deleteCourseUser = async ({
 		);
 
 	revalidatePath(`/dashboard/courses/${courseId}`);
+};
+
+export const joinCourse = async ({
+	email,
+	courseId,
+}: {
+	email: string;
+	courseId: string;
+}) => {
+	const existingCourseUser = await db
+		.select()
+		.from(courseUsers)
+		.where(
+			and(
+				eq(courseUsers.email, email),
+				eq(courseUsers.courseId, courseId)
+			)
+		);
+	if (existingCourseUser.length > 0) {
+		redirect(
+			`/courses/${courseId}?courseUserId=${existingCourseUser[0].id}`
+		);
+	}
+
+	const course = await db
+		.select()
+		.from(courses)
+		.where(eq(courses.id, courseId));
+
+	if (course.length === 0) {
+		throw new Error("Course not found");
+	}
+
+	const courseUserId = crypto.randomUUID();
+	await db.insert(courseUsers).values({
+		id: courseUserId,
+		courseId: courseId,
+		email: email === "" ? "Anonymous" : email,
+		data: getInitialScormData(course[0].version),
+	});
+
+	redirect(`/courses/${courseId}?courseUserId=${courseUserId}`);
 };

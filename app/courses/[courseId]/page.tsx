@@ -50,7 +50,9 @@ const Page = async ({
 }) => {
 	const { page, courseUserId } = searchParams;
 
-	if (!courseUserId) throw new Error("User not found");
+	if (!courseUserId) {
+		redirect(`/courses/${courseId}/public`);
+	}
 
 	const res = await s3Client.send(
 		new GetObjectCommand({
