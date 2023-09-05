@@ -11,6 +11,8 @@ export const GET = async (
 ) => {
 	const url = files.join("/");
 
+	console.log("URL", url);
+
 	const file = await s3Client.send(
 		new GetObjectCommand({
 			Bucket: "krak-lms",
@@ -18,7 +20,6 @@ export const GET = async (
 		})
 	);
 	const body = (await file.Body) as ReadableStream<Uint8Array>;
-
 	return new Response(body, {
 		status: 200,
 		headers: {

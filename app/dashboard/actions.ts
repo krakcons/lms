@@ -168,28 +168,60 @@ export const inviteUser = async ({
 		throw new Error("User is already invited to this course");
 	}
 
-	const res = await db.insert(courseUsers).values({
+	await resend.emails.send({
+		from: "support@billyhawkes.com",
+		to: email,
+		subject: course.name,
+		react: InviteUser({
+			email,
+			course: course.name,
+			organization: "Krak LMS",
+			href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course.id}?courseUserId=${courseUserId}`,
+		}),
+	});
+
+	await db.insert(courseUsers).values({
 		id: courseUserId,
 		courseId: course.id,
 		email,
 		data: getInitialScormData(course.version),
 	});
 
-	if (res.insertId) {
-		resend.emails.send({
-			from: "onboarding@resend.dev",
-			to: email,
-			subject: course.name,
-			react: InviteUser({
-				email,
-				course: course.name,
-				organization: "Krak LMS",
-				href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course.id}?courseUserId=${courseUserId}`,
-			}),
-		});
-	} else {
-		throw new Error("Server error, please try again later");
+	revalidatePath(`/dashboard/courses/${course.id}`);
+};
+
+export const deleteCourseUser = async ({
+	courseUserId,
+	courseId,
+}: {
+	courseUserId: string;
+	courseId: string;
+}) => {
+	const userId = auth().userId;
+
+	if (!userId) {
+		throw new Error("User not logged in");
 	}
 
-	revalidatePath(`/dashboard/courses/${course.id}`);
+	// Verify the user owns the course
+	const course = await db
+		.select()
+		.from(courses)
+		.where(and(eq(courses.id, courseId), eq(courses.userId, userId)));
+
+	if (course.length === 0) {
+		throw new Error("Course not found");
+	}
+
+	// Delete the course user
+	await db
+		.delete(courseUsers)
+		.where(
+			and(
+				eq(courseUsers.id, courseUserId),
+				eq(courseUsers.courseId, courseId)
+			)
+		);
+
+	revalidatePath(`/dashboard/courses/${courseId}`);
 };

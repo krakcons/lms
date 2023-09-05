@@ -106,12 +106,19 @@ const UploadForm = () => {
 			title: "Uploading...",
 			description: "Your file is being uploaded",
 		});
-		uploadCourse(formData).then(() => {
-			toast({
-				title: "Upload Successful",
-				description: "Your file has been uploaded",
-			});
-		});
+		uploadCourse(formData)
+			.then(() => {
+				toast({
+					title: "Upload Successful",
+					description: "Your file has been uploaded",
+				});
+			})
+			.catch((err) =>
+				toast({
+					title: "Uh oh! Something went wrong.",
+					description: err.message,
+				})
+			);
 	};
 
 	return (

@@ -10,6 +10,9 @@ export const getInitialScormData = (version: Course["version"]) => {
 			return {
 				"cmi.core.lesson_status": "not attempted",
 				"cmi.core.lesson_location": "0",
+				"cmi.core.lesson_mode": "browse",
+				"cmi.launch_data": "",
+				"cmi.suspend_data": "",
 			};
 		default:
 			break;

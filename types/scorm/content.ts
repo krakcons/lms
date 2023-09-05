@@ -3,7 +3,6 @@ import { z } from "zod";
 export const BaseItemSchema = z.object({
 	identifier: z.string(),
 	identifierref: z.string().optional(),
-	isvisible: z.boolean().optional(),
 	title: z.string(),
 });
 

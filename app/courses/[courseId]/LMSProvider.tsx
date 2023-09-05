@@ -57,13 +57,19 @@ const useSCORM = ({
 
 				return true;
 			},
+			LMSCommit: (): boolean => {
+				console.log("LMSCommit");
+
+				return true;
+			},
 			LMSGetValue: (key: string): string => {
 				if (!key || key === "") {
 					return "";
 				}
-				console.log("LMSGetValue", key);
 
 				const value = data[key];
+
+				console.log("LMSGetValue", key, value);
 
 				if (value === undefined) {
 					error.current = Scorm12ErrorCode.GeneralException;

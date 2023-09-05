@@ -93,6 +93,13 @@ const Page = async ({
 		throw new Error("User not found");
 	}
 
+	console.log(
+		"Page",
+		`/courses/${courseId}/${resources.find(
+			(resource) => resource.identifier === page
+		)?.href}`
+	);
+
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
 			<Sheet>
@@ -127,6 +134,7 @@ const Page = async ({
 														pathname: `/courses/${courseId}`,
 														query: {
 															page: subItem.identifierref,
+															courseUserId,
 														},
 													}}
 												>
@@ -144,6 +152,7 @@ const Page = async ({
 											pathname: `/courses/${courseId}`,
 											query: {
 												page: item.identifierref,
+												courseUserId,
 											},
 										}}
 									>
@@ -159,6 +168,7 @@ const Page = async ({
 									query: {
 										page: firstOrganization.item
 											.identifierref,
+										courseUserId,
 									},
 								}}
 							>
