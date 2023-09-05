@@ -140,6 +140,9 @@ export const deleteCourse = async (courseId: string) => {
 	// delete the course
 	await db.delete(courses).where(eq(courses.id, courseId));
 
+	// Delete the course users
+	await db.delete(courseUsers).where(eq(courseUsers.courseId, courseId));
+
 	revalidatePath("/dashboard");
 	redirect("/dashboard");
 };
