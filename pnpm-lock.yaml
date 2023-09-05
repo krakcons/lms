@@ -86,6 +86,9 @@ dependencies:
   eslint-config-next:
     specifier: 13.4.12
     version: 13.4.12(eslint@8.45.0)(typescript@5.1.6)
+  export-to-csv:
+    specifier: ^1.0.0
+    version: 1.0.0
   fast-xml-parser:
     specifier: ^4.2.7
     version: 4.2.7
@@ -4789,6 +4792,10 @@ packages:
       onetime: 6.0.0
       signal-exit: 3.0.7
       strip-final-newline: 3.0.0
+    dev: false
+
+  /export-to-csv@1.0.0:
+    resolution: {integrity: sha512-PMwskctJEbZMXZ3sRWcJHlaobY5b9JvbpB7+jpJF5FGrIh1ASWWI0IB4JrooIK9Kv+7GE+czp+gHKFFGkk8/ig==}
     dev: false
 
   /ext@1.7.0:

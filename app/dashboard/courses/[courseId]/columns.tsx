@@ -68,9 +68,6 @@ export const columns = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem className="cursor-pointer">
-							View data
-						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={async () =>
 								await deleteCourseUser({

@@ -4,6 +4,7 @@ import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { deleteCourse } from "../../actions";
+import ExportCSVButton from "./ExportCSVButton";
 import InviteUserDialog from "./InviteUserDialog";
 import PublicLinkButton from "./PublicLinkButton";
 import { columns } from "./columns";
@@ -43,6 +44,7 @@ const Page = async ({
 					{course.name}
 				</h2>
 				<div className="flex">
+					<ExportCSVButton usersWithVersion={usersWithVersion} />
 					<PublicLinkButton courseId={courseId} />
 					<InviteUserDialog courseId={courseId} />
 				</div>
