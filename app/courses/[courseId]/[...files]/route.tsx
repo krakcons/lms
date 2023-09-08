@@ -9,7 +9,11 @@ export const GET = async (
 		params: { files: string[]; courseId: string; userId: string };
 	}
 ) => {
-	const url = files.join("/");
+	let url = files.join("/");
+
+	if (url === "scormcontent/0") {
+		url = "scormcontent/index.html";
+	}
 
 	console.log("URL", url);
 

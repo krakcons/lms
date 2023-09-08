@@ -96,6 +96,11 @@ const Page = async ({
 	}
 
 	console.log(
+		"Resource",
+		resources.find((resource) => resource.identifier === page)
+	);
+
+	console.log(
 		"Page",
 		`/courses/${courseId}/${resources.find(
 			(resource) => resource.identifier === page

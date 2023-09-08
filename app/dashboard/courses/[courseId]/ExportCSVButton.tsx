@@ -21,23 +21,29 @@ const ExportCSVButton = ({
 }: {
 	usersWithVersion: (CourseUser & { version: Course["version"] })[];
 }) => {
-	if (!usersWithVersion) {
-		toast({
-			title: "No users to export",
-			description: "There are no users to export.",
-		});
-	}
-
-	const csv = generateCsv(csvConfig)(
-		usersWithVersion.map(({ data, id, courseId, ...rest }) => {
-			const { status, score } = parseCourseUserData(data, rest.version);
-			return {
-				...rest,
-				status,
-				...score,
-			};
-		})
-	);
+	const downloadCSV = () => {
+		if (!usersWithVersion || usersWithVersion.length === 0) {
+			toast({
+				title: "No users to export",
+				description: "There are no users to export.",
+			});
+		} else {
+			const csv = generateCsv(csvConfig)(
+				usersWithVersion.map(({ data, id, courseId, ...rest }) => {
+					const { status, score } = parseCourseUserData(
+						data,
+						rest.version
+					);
+					return {
+						...rest,
+						status,
+						...score,
+					};
+				})
+			);
+			download(csvConfig)(csv);
+		}
+	};
 
 	return (
 		<TooltipProvider>
@@ -47,9 +53,7 @@ const ExportCSVButton = ({
 						variant="outline"
 						size="icon"
 						className="mr-3"
-						onClick={() => {
-							download(csvConfig)(csv);
-						}}
+						onClick={downloadCSV}
 					>
 						<Download />
 					</Button>
