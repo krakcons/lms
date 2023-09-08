@@ -25,7 +25,7 @@ export const columns = [
 		header: "Course User Id",
 	}),
 	columnHelper.accessor("email", {
-		header: "User",
+		header: "Email",
 	}),
 	columnHelper.accessor("data", {
 		header: "Status",
