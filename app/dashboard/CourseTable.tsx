@@ -27,6 +27,12 @@ const CourseTable = ({ data }: Props) => {
 			data={data}
 			columns={columns}
 			onRowClick={(row) => router.push(`/dashboard/courses/${row.id}`)}
+			options={{
+				filter: {
+					column: "name",
+					placeholder: "Search courses...",
+				},
+			}}
 		/>
 	);
 };

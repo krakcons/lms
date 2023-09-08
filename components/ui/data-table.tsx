@@ -2,8 +2,10 @@
 
 import {
 	ColumnDef,
+	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getPaginationRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
@@ -16,7 +18,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import React from "react";
 import { Button } from "./button";
+import { Input } from "./input";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -27,17 +31,51 @@ interface DataTableProps<TData, TValue> {
 export const DataTable = <TData, TValue>({
 	columns,
 	data,
+	options,
 	onRowClick,
-}: DataTableProps<TData, TValue>) => {
+}: DataTableProps<TData, TValue> & {
+	options?: {
+		filter?: {
+			column: string;
+			placeholder: string;
+		};
+	};
+}) => {
+	const [columnFilters, setColumnFilters] =
+		React.useState<ColumnFiltersState>([]);
+
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		onColumnFiltersChange: setColumnFilters,
+		getFilteredRowModel: getFilteredRowModel(),
+		state: {
+			columnFilters,
+		},
 	});
 
 	return (
 		<div>
+			{options && options.filter && (
+				<div className="flex items-center py-4">
+					<Input
+						placeholder={options.filter.placeholder}
+						value={
+							(table
+								.getColumn(options.filter.column)
+								?.getFilterValue() as string) ?? ""
+						}
+						onChange={(event) =>
+							table
+								.getColumn(options.filter!.column)
+								?.setFilterValue(event.target.value)
+						}
+						className="max-w-sm"
+					/>
+				</div>
+			)}
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>

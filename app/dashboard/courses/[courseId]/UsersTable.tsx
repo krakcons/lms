@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -85,3 +86,24 @@ export const columns = [
 		},
 	}),
 ];
+
+type Props = {
+	usersWithVersion: (CourseUser & { version: Course["version"] })[];
+};
+
+const UsersTable = ({ usersWithVersion }: Props) => {
+	return (
+		<DataTable
+			data={usersWithVersion}
+			columns={columns}
+			options={{
+				filter: {
+					column: "email",
+					placeholder: "Search emails...",
+				},
+			}}
+		/>
+	);
+};
+
+export default UsersTable;

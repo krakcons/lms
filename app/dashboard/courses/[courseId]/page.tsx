@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,7 +6,7 @@ import { deleteCourse } from "../../actions";
 import ExportCSVButton from "./ExportCSVButton";
 import InviteUserDialog from "./InviteUserDialog";
 import PublicLinkButton from "./PublicLinkButton";
-import { columns } from "./columns";
+import UsersTable from "./UsersTable";
 
 const Page = async ({
 	params: { courseId },
@@ -49,7 +48,7 @@ const Page = async ({
 					<InviteUserDialog courseId={courseId} />
 				</div>
 			</div>
-			<DataTable data={usersWithVersion} columns={columns} />
+			<UsersTable usersWithVersion={usersWithVersion} />
 			<div className="mt-8">
 				<h4 className="mb-4">Danger Zone</h4>
 				<form action={deleteCourseAction}>
