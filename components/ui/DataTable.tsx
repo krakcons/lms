@@ -67,7 +67,7 @@ export const DataTable = <TData, TValue>({
 
 	return (
 		<div>
-			<div className="flex items-center py-4">
+			<div className="flex items-center pb-4">
 				<Input
 					placeholder={filter.placeholder}
 					value={
@@ -80,7 +80,7 @@ export const DataTable = <TData, TValue>({
 							.getColumn(filter.column)
 							?.setFilterValue(event.target.value)
 					}
-					className="max-w-sm"
+					className="mr-2 max-w-sm"
 				/>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>

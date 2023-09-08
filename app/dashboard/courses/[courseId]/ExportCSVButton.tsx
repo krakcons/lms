@@ -26,7 +26,14 @@ const ExportCSVButton = ({
 				description: "There are no users to export.",
 			});
 		} else {
-			const csv = generateCsv(csvConfig)(expandedUsers.flat(Infinity));
+			const csv = generateCsv(csvConfig)(
+				expandedUsers.map(({ score, id, courseId, ...rest }) => {
+					return {
+						...rest,
+						...score,
+					};
+				})
+			);
 			download(csvConfig)(csv);
 		}
 	};
