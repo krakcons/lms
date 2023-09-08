@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { getExpandedUsers } from "@/lib/users";

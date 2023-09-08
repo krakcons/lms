@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "@/components/ui/use-toast";
+} from "@/components/ui/Tooltip";
+import { toast } from "@/components/ui/useToast";
 import { env } from "@/env.mjs";
 import { Link } from "lucide-react";
 

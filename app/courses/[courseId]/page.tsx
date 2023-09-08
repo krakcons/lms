@@ -1,11 +1,11 @@
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/Button";
 import {
 	Sheet,
 	SheetContent,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/ui/Sheet";
 import { db } from "@/lib/db/db";
 import { courseUsers } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";

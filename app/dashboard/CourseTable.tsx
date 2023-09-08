@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/DataTable";
 import { Course } from "@/types/course";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
@@ -27,11 +27,9 @@ const CourseTable = ({ data }: Props) => {
 			data={data}
 			columns={columns}
 			onRowClick={(row) => router.push(`/dashboard/courses/${row.id}`)}
-			options={{
-				filter: {
-					column: "name",
-					placeholder: "Search courses...",
-				},
+			filter={{
+				column: "name",
+				placeholder: "Search courses...",
 			}}
 		/>
 	);

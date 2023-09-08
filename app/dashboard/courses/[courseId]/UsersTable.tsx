@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/Button";
+import { DataTable } from "@/components/ui/DataTable";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/DropDownMenu";
 import { CourseUserWithExpandedData } from "@/lib/users";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -80,11 +80,9 @@ const UsersTable = ({ expandedUsers }: Props) => {
 		<DataTable
 			data={expandedUsers}
 			columns={columns}
-			options={{
-				filter: {
-					column: "email",
-					placeholder: "Search emails...",
-				},
+			filter={{
+				column: "email",
+				placeholder: "Search emails...",
 			}}
 		/>
 	);

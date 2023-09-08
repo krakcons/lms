@@ -1,6 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/useToast";
 import { formatFileSize } from "@/lib/helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";

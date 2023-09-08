@@ -18,16 +18,16 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/Table";
 import React from "react";
-import { Button } from "./button";
+import { Button } from "./Button";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { Input } from "./input";
+} from "./DropDownMenu";
+import { Input } from "./Input";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -38,14 +38,12 @@ interface DataTableProps<TData, TValue> {
 export const DataTable = <TData, TValue>({
 	columns,
 	data,
-	options,
+	filter,
 	onRowClick,
 }: DataTableProps<TData, TValue> & {
-	options?: {
-		filter?: {
-			column: string;
-			placeholder: string;
-		};
+	filter: {
+		column: string;
+		placeholder: string;
 	};
 }) => {
 	const [columnFilters, setColumnFilters] =
@@ -70,22 +68,20 @@ export const DataTable = <TData, TValue>({
 	return (
 		<div>
 			<div className="flex items-center py-4">
-				{options && options.filter && (
-					<Input
-						placeholder={options.filter.placeholder}
-						value={
-							(table
-								.getColumn(options.filter.column)
-								?.getFilterValue() as string) ?? ""
-						}
-						onChange={(event) =>
-							table
-								.getColumn(options.filter!.column)
-								?.setFilterValue(event.target.value)
-						}
-						className="max-w-sm"
-					/>
-				)}
+				<Input
+					placeholder={filter.placeholder}
+					value={
+						(table
+							.getColumn(filter.column)
+							?.getFilterValue() as string) ?? ""
+					}
+					onChange={(event) =>
+						table
+							.getColumn(filter.column)
+							?.setFilterValue(event.target.value)
+					}
+					className="max-w-sm"
+				/>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" className="ml-auto">
