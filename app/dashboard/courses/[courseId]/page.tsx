@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
+import { getExpandedUsers } from "@/lib/users";
 import { eq } from "drizzle-orm";
 import { deleteCourse } from "../../actions";
 import ExportCSVButton from "./ExportCSVButton";
@@ -25,16 +26,14 @@ const Page = async ({
 		.select()
 		.from(courseUsers)
 		.where(eq(courseUsers.courseId, course.id));
-	const usersWithVersion = users.map((user) => ({
-		...user,
-		version: course.version,
-	}));
 
 	const deleteCourseAction = async () => {
 		"use server";
 
 		await deleteCourse(course.id);
 	};
+
+	const expandedUsers = getExpandedUsers(users, course.version);
 
 	return (
 		<>
@@ -43,12 +42,12 @@ const Page = async ({
 					{course.name}
 				</h2>
 				<div className="flex">
-					<ExportCSVButton usersWithVersion={usersWithVersion} />
+					<ExportCSVButton expandedUsers={expandedUsers} />
 					<PublicLinkButton courseId={courseId} />
 					<InviteUserDialog courseId={courseId} />
 				</div>
 			</div>
-			<UsersTable usersWithVersion={usersWithVersion} />
+			<UsersTable expandedUsers={expandedUsers} />
 			<div className="mt-8">
 				<h4 className="mb-4">Danger Zone</h4>
 				<form action={deleteCourseAction}>

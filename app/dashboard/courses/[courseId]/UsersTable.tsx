@@ -10,40 +10,24 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { parseCourseUserData } from "@/lib/scorm";
-import { Course } from "@/types/course";
-import { CourseUser } from "@/types/courseUser";
+import { CourseUserWithExpandedData } from "@/lib/users";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { deleteCourseUser } from "../../actions";
 
-const columnHelper = createColumnHelper<
-	CourseUser & { version: Course["version"] }
->();
+const columnHelper = createColumnHelper<CourseUserWithExpandedData>();
 
-export const columns = [
-	columnHelper.accessor("id", {
-		header: "Course User Id",
-	}),
+const columns = [
 	columnHelper.accessor("email", {
 		header: "Email",
 	}),
-	columnHelper.accessor("data", {
+	columnHelper.accessor("status", {
 		header: "Status",
-		cell: (info) => {
-			return parseCourseUserData(
-				info.row.original.data,
-				info.row.original.version
-			).status;
-		},
 	}),
-	columnHelper.accessor("data", {
+	columnHelper.display({
 		header: "Score",
 		cell: (info) => {
-			const score = parseCourseUserData(
-				info.row.original.data,
-				info.row.original.version
-			).score;
+			const score = info.row.original.score;
 
 			if (score && score.max && score.raw) {
 				return `${score.raw}/${score.max}`;
@@ -88,13 +72,13 @@ export const columns = [
 ];
 
 type Props = {
-	usersWithVersion: (CourseUser & { version: Course["version"] })[];
+	expandedUsers: CourseUserWithExpandedData[];
 };
 
-const UsersTable = ({ usersWithVersion }: Props) => {
+const UsersTable = ({ expandedUsers }: Props) => {
 	return (
 		<DataTable
-			data={usersWithVersion}
+			data={expandedUsers}
 			columns={columns}
 			options={{
 				filter: {

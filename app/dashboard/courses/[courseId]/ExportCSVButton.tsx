@@ -8,39 +8,25 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { parseCourseUserData } from "@/lib/scorm";
-import { Course } from "@/types/course";
-import { CourseUser } from "@/types/courseUser";
+import { CourseUserWithExpandedData } from "@/lib/users";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Download } from "lucide-react";
 
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
 
 const ExportCSVButton = ({
-	usersWithVersion,
+	expandedUsers,
 }: {
-	usersWithVersion: (CourseUser & { version: Course["version"] })[];
+	expandedUsers: CourseUserWithExpandedData[];
 }) => {
 	const downloadCSV = () => {
-		if (!usersWithVersion || usersWithVersion.length === 0) {
+		if (expandedUsers.length === 0) {
 			toast({
 				title: "No users to export",
 				description: "There are no users to export.",
 			});
 		} else {
-			const csv = generateCsv(csvConfig)(
-				usersWithVersion.map(({ data, id, courseId, ...rest }) => {
-					const { status, score } = parseCourseUserData(
-						data,
-						rest.version
-					);
-					return {
-						...rest,
-						status,
-						...score,
-					};
-				})
-			);
+			const csv = generateCsv(csvConfig)(expandedUsers.flat(Infinity));
 			download(csvConfig)(csv);
 		}
 	};
