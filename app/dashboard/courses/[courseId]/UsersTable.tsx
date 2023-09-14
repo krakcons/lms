@@ -1,5 +1,16 @@
 "use client";
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -53,17 +64,43 @@ const columns = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							onClick={async () =>
-								await deleteCourseUser({
-									courseId: courseUser.courseId,
-									courseUserId: courseUser.id,
-								})
-							}
-							className="cursor-pointer"
-						>
-							Delete User
-						</DropdownMenuItem>
+						<AlertDialog>
+							<AlertDialogTrigger>
+								<DropdownMenuItem
+									className="cursor-pointer"
+									onSelect={(e) => e.preventDefault()}
+								>
+									Delete User
+								</DropdownMenuItem>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										Are you absolutely sure?
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										This action cannot be undone. This
+										action will permanently delete this user
+										and all their data.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										Cancel
+									</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={async () =>
+											await deleteCourseUser({
+												courseId: courseUser.courseId,
+												courseUserId: courseUser.id,
+											})
+										}
+									>
+										Continue
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);

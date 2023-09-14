@@ -1,3 +1,14 @@
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
@@ -50,9 +61,30 @@ const Page = async ({
 			<UsersTable expandedUsers={expandedUsers} />
 			<div className="mt-8">
 				<h4 className="mb-4">Danger Zone</h4>
-				<form action={deleteCourseAction}>
-					<Button variant="destructive">Delete Course</Button>
-				</form>
+				<AlertDialog>
+					<AlertDialogTrigger>
+						<Button variant="destructive">Delete Course</Button>
+					</AlertDialogTrigger>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								Are you absolutely sure?
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								This action cannot be undone. This action will
+								permanently this course and all its users.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancel</AlertDialogCancel>
+							<form action={deleteCourseAction}>
+								<AlertDialogAction type="submit">
+									Continue
+								</AlertDialogAction>
+							</form>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
 			</div>
 		</>
 	);
