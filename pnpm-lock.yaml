@@ -9,7 +9,7 @@ dependencies:
     specifier: ^3.385.0
     version: 3.410.0
   '@clerk/nextjs':
-    specifier: ^4.23.2
+    specifier: ^4.23.5
     version: 4.23.5(next@13.4.19)(react-dom@18.2.0)(react@18.2.0)
   '@clerk/themes':
     specifier: ^1.7.5
