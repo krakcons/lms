@@ -1,6 +1,7 @@
-import { buttonVariants } from "@/components/ui/button";
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import OrganizationProfile from "./OrganizationProfile";
+import OrganizationSwitcher from "./OrganizationSwitcher";
 import ThemeButton from "./ThemeButton";
 
 type Props = {
@@ -11,18 +12,18 @@ const Layout = ({ children }: Props) => {
 	return (
 		<div className="flex flex-1 flex-col">
 			<nav className="border-elevation-2 flex items-center justify-between border-b px-4 py-2">
-				<Link
-					href={"/dashboard"}
-					className={buttonVariants({
-						variant: "ghost",
-						size: "sm",
-					})}
-				>
-					Courses
-				</Link>
-				<div className="flex items-center justify-center gap-2">
-					<ThemeButton />
+				<div className="flex items-center justify-center gap-4">
 					<OrganizationSwitcher />
+					<Link
+						href="/dashboard"
+						className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+					>
+						Courses
+					</Link>
+					<OrganizationProfile />
+				</div>
+				<div className="flex items-center justify-center gap-3">
+					<ThemeButton />
 					<UserButton afterSignOutUrl="/" />
 				</div>
 			</nav>
