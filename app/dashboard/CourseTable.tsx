@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "@/components/ui/DataTable";
+import { DataTable } from "@/components/ui/data-table";
 import { Course } from "@/types/course";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";

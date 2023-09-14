@@ -18,16 +18,16 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/Table";
+} from "@/components/ui/table";
 import React from "react";
-import { Button } from "./Button";
+import { Button } from "./button";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
-} from "./DropDownMenu";
-import { Input } from "./Input";
+} from "./dropdown-menu";
+import { Input } from "./input";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

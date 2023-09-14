@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from "@/components/ui/Tooltip";
-import { toast } from "@/components/ui/useToast";
+} from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/use-toast";
 import { CourseUserWithExpandedData } from "@/lib/users";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Download } from "lucide-react";
