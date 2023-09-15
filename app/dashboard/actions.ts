@@ -2,6 +2,7 @@
 
 import InviteUser from "@/emails/InviteUser";
 import { env } from "@/env.mjs";
+import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
@@ -12,7 +13,6 @@ import {
 	ListObjectsCommand,
 	PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
@@ -30,11 +30,7 @@ const parser = new XMLParser({
 });
 
 export const uploadCourse = async (formData: FormData) => {
-	const userId = auth().userId;
-
-	if (!userId) {
-		throw new Error("User not logged in");
-	}
+	const { teamId } = getAuth();
 
 	const courseZip = formData.get("file") as File | null;
 	if (courseZip) {
@@ -53,7 +49,7 @@ export const uploadCourse = async (formData: FormData) => {
 		const userCourses = await s3Client.send(
 			new ListObjectsCommand({
 				Bucket: "krak-lms",
-				Prefix: `courses/${userId}/`,
+				Prefix: `courses/${teamId}/`,
 				Delimiter: "/",
 			})
 		);
@@ -70,9 +66,9 @@ export const uploadCourse = async (formData: FormData) => {
 			: scorm.organizations.organization.title;
 
 		const insertId = crypto.randomUUID();
-		const newCourse = await db.insert(courses).values({
+		await db.insert(courses).values({
 			id: insertId,
-			userId,
+			teamId,
 			name: courseTitle,
 			version: `${scorm.metadata.schemaversion}`,
 		});
@@ -102,13 +98,7 @@ export const uploadCourse = async (formData: FormData) => {
 export const deleteCourse = async (courseId: string) => {
 	console.log("Deleting course", courseId);
 
-	const userId = auth().userId;
-
-	if (!userId) {
-		throw new Error("User not logged in");
-	}
-
-	console.log(userId);
+	const { teamId } = getAuth();
 
 	// get all files in the course
 	const courseFiles = await s3Client.send(
@@ -137,8 +127,10 @@ export const deleteCourse = async (courseId: string) => {
 		console.log("No files found");
 	}
 
-	// delete the course
-	await db.delete(courses).where(eq(courses.id, courseId));
+	// delete the course if it exists and the user owns it and is currently on the team
+	await db
+		.delete(courses)
+		.where(and(eq(courses.id, courseId), eq(courses.teamId, teamId)));
 
 	// Delete the course users
 	await db.delete(courseUsers).where(eq(courseUsers.courseId, courseId));
@@ -154,16 +146,12 @@ export const inviteUser = async ({
 	email: string;
 	courseId: string;
 }) => {
-	const userId = auth().userId;
-
-	if (!userId) {
-		throw new Error("User not logged in");
-	}
+	const { teamId } = getAuth();
 
 	const course = await db
 		.select()
 		.from(courses)
-		.where(and(eq(courses.id, courseId), eq(courses.userId, userId)));
+		.where(and(eq(courses.id, courseId), eq(courses.teamId, teamId)));
 
 	if (course.length === 0) {
 		throw new Error("Course not found");
@@ -214,17 +202,13 @@ export const deleteCourseUser = async ({
 	courseUserId: string;
 	courseId: string;
 }) => {
-	const userId = auth().userId;
-
-	if (!userId) {
-		throw new Error("User not logged in");
-	}
+	const { teamId } = getAuth();
 
 	// Verify the user owns the course
 	const course = await db
 		.select()
 		.from(courses)
-		.where(and(eq(courses.id, courseId), eq(courses.userId, userId)));
+		.where(and(eq(courses.id, courseId), eq(courses.teamId, teamId)));
 
 	if (course.length === 0) {
 		throw new Error("Course not found");

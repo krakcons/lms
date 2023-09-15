@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./Providers";
 import "./globals.css";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -14,18 +13,28 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<ClerkProvider>
-			<html lang="en" suppressHydrationWarning>
-				<body
-					className={`${inter.className} flex min-h-screen flex-col`}
-				>
-					<Providers>
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${inter.className} flex min-h-screen flex-col`}>
+				<Providers>
+					<ClerkProvider
+						appearance={{
+							variables: {
+								colorPrimary: "hsl(220.9 39.3% 11%)",
+								colorDanger: "hsl(0 84.2% 60.2%)",
+								colorBackground: "hsl(0 0% 100%)",
+								colorText: "hsl(224 71.4% 4.1%)",
+								colorTextOnPrimaryBackground:
+									"hsl(210 20% 98%)",
+								borderRadius: "0.5rem",
+							},
+						}}
+					>
 						{children}
 						<Toaster />
-					</Providers>
-				</body>
-			</html>
-		</ClerkProvider>
+					</ClerkProvider>
+				</Providers>
+			</body>
+		</html>
 	);
 };
 

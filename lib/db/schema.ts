@@ -13,7 +13,7 @@ export const courses = mysqlTable("courses", {
 		.primaryKey()
 		.notNull()
 		.default(sql`(uuid())`),
-	userId: varchar("userId", { length: 255 }).notNull(),
+	teamId: varchar("teamId", { length: 255 }).notNull(),
 	name: text("name").notNull(),
 	version: mysqlEnum("version", [
 		"1.2",
