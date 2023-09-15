@@ -29,7 +29,7 @@ import { ChevronsUpDown, PlusCircle } from "lucide-react";
 const TeamSwitcher = () => {
 	const [open, setOpen] = React.useState(false);
 	const { user } = useUser();
-	const { openCreateOrganization, openOrganizationProfile } = useClerk();
+	const { openCreateOrganization } = useClerk();
 	const { organization } = useOrganization();
 	const { userMemberships, setActive } = useOrganizationList({
 		userMemberships: {

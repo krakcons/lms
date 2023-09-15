@@ -2,7 +2,7 @@
 
 import { useClerk, useOrganization } from "@clerk/nextjs";
 
-const OrganizationProfile = () => {
+const TeamProfile = () => {
 	const { openOrganizationProfile } = useClerk();
 	const { organization } = useOrganization();
 
@@ -18,4 +18,4 @@ const OrganizationProfile = () => {
 	);
 };
 
-export default OrganizationProfile;
+export default TeamProfile;
