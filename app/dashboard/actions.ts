@@ -45,20 +45,6 @@ export const uploadCourse = async (formData: FormData) => {
 
 		const manifestText = await manifest.async("text");
 
-		// Check if file exists
-		const userCourses = await s3Client.send(
-			new ListObjectsCommand({
-				Bucket: "krak-lms",
-				Prefix: `courses/${teamId}/`,
-				Delimiter: "/",
-			})
-		);
-		userCourses.CommonPrefixes?.forEach((prefix) => {
-			if (prefix.Prefix?.includes(courseZip.name.replace(".zip", ""))) {
-				throw new Error("Course already exists");
-			}
-		});
-
 		const parsedIMSManifest = parser.parse(manifestText).manifest;
 		const scorm = IMSManifestSchema.parse(parsedIMSManifest);
 		const courseTitle = Array.isArray(scorm.organizations.organization)
