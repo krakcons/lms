@@ -1,20 +1,18 @@
 import { buttonVariants } from "@/components/ui/button";
+import { getAuth } from "@/lib/auth";
 import { db } from "@/lib/db/db";
 import { courses } from "@/lib/db/schema";
-import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import CourseTable from "./CourseTable";
 
 const Page = async () => {
-	const { userId } = auth();
-
-	if (!userId) return null;
+	const { teamId } = getAuth();
 
 	const data = await db
 		.select()
 		.from(courses)
-		.where(eq(courses.userId, userId));
+		.where(eq(courses.teamId, teamId));
 
 	return (
 		<>

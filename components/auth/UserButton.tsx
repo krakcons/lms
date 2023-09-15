@@ -50,7 +50,13 @@ const UserButton = () => {
 					<DropdownMenuItem onClick={() => openUserProfile()}>
 						Account
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => openCreateOrganization()}>
+					<DropdownMenuItem
+						onClick={() =>
+							openCreateOrganization({
+								afterCreateOrganizationUrl: "/dashboard",
+							})
+						}
+					>
 						New Team
 					</DropdownMenuItem>
 				</DropdownMenuGroup>

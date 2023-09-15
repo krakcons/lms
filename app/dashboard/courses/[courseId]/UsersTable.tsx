@@ -21,7 +21,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CourseUserWithExpandedData } from "@/lib/users";
+import { CourseUserWithExpandedData } from "@/lib/course-users";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { deleteCourseUser } from "../../actions";

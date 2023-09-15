@@ -10,9 +10,9 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { getExpandedUsers } from "@/lib/course-users";
 import { db } from "@/lib/db/db";
 import { courseUsers, courses } from "@/lib/db/schema";
-import { getExpandedUsers } from "@/lib/users";
 import { eq } from "drizzle-orm";
 import { deleteCourse } from "../../actions";
 import ExportCSVButton from "./ExportCSVButton";

@@ -25,17 +25,44 @@ import {
 	useUser,
 } from "@clerk/nextjs";
 import { ChevronsUpDown, PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+const useTeam = () => {
+	const router = useRouter();
+	const { organization } = useOrganization();
+	const { user } = useUser();
+
+	if (organization)
+		return {
+			team: {
+				name: organization.name,
+				type: "team",
+				imageUrl: organization.imageUrl,
+			},
+		};
+	else if (user)
+		return {
+			team: {
+				name: user.fullName,
+				type: "personal",
+				imageUrl: user.imageUrl,
+			},
+		};
+	else return { team: null };
+};
 
 const TeamSwitcher = () => {
 	const [open, setOpen] = React.useState(false);
 	const { user } = useUser();
+	const { team } = useTeam();
 	const { openCreateOrganization } = useClerk();
-	const { organization } = useOrganization();
 	const { userMemberships, setActive } = useOrganizationList({
 		userMemberships: {
 			infinite: true,
 		},
 	});
+
+	if (!team || !user) return null;
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -49,15 +76,15 @@ const TeamSwitcher = () => {
 				>
 					<Avatar className="mr-2 h-6 w-6">
 						<AvatarImage
-							src={organization?.imageUrl ?? user?.imageUrl}
-							alt={`${organization?.name} icon` ?? "User icon"}
+							src={team.imageUrl}
+							alt={`${team.name} icon` ?? "User icon"}
 						/>
 						<AvatarFallback>
-							{user?.firstName ? user.firstName[0] : "U"}
+							{team.name ? team.name[0] : "T"}
 						</AvatarFallback>
 					</Avatar>
 					<p className="truncate">
-						{organization?.name ?? user?.fullName ?? "Personal"}
+						{team.type === "team" ? team.name : "Personal"}
 					</p>
 					<ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
 				</Button>
@@ -81,17 +108,17 @@ const TeamSwitcher = () => {
 							>
 								<Avatar className="mr-2 h-5 w-5">
 									<AvatarImage
-										src={user?.imageUrl}
+										src={user.imageUrl}
 										alt="User icon"
 										className="grayscale"
 									/>
 									<AvatarFallback>
-										{user?.firstName
+										{user.firstName
 											? user.firstName[0]
 											: "U"}
 									</AvatarFallback>
 								</Avatar>
-								{user?.fullName ?? "Personal"}
+								{user.fullName ?? "Personal"}
 							</CommandItem>
 						</CommandGroup>
 						<CommandGroup heading="Teams">
@@ -127,7 +154,10 @@ const TeamSwitcher = () => {
 						<CommandGroup>
 							<CommandItem
 								onSelect={() => {
-									openCreateOrganization();
+									openCreateOrganization({
+										afterCreateOrganizationUrl:
+											"/dashboard",
+									});
 									setOpen(false);
 								}}
 							>
