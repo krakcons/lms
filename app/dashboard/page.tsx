@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button";
+import { db } from "@/db/db";
+import { courses } from "@/db/schema";
 import { getAuth } from "@/lib/auth";
-import { db } from "@/lib/db/db";
-import { courses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import CourseTable from "./CourseTable";

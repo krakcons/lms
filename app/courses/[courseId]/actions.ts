@@ -1,23 +1,20 @@
 "use server";
 
-import { db } from "@/lib/db/db";
-import { courseUsers } from "@/lib/db/schema";
+import { db } from "@/db/db";
+import { learners } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export const updateCourseData = async (
 	courseId: string,
 	data: any,
-	courseUserId: string
+	learnerId: string
 ) => {
 	console.log("Updating course data", courseId, data);
 
 	await db
-		.update(courseUsers)
+		.update(learners)
 		.set({ data })
 		.where(
-			and(
-				eq(courseUsers.courseId, courseId),
-				eq(courseUsers.id, courseUserId)
-			)
+			and(eq(learners.courseId, courseId), eq(learners.id, learnerId))
 		);
 };

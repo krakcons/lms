@@ -1,10 +1,10 @@
 "use server";
 
-import InviteUser from "@/emails/InviteUser";
+import { db } from "@/db/db";
+import { courses, learners } from "@/db/schema";
+import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
 import { getAuth } from "@/lib/auth";
-import { db } from "@/lib/db/db";
-import { courseUsers, courses } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3";
 import { getInitialScormData } from "@/lib/scorm";
 import { IMSManifestSchema } from "@/types/scorm/content";
@@ -119,13 +119,13 @@ export const deleteCourse = async (courseId: string) => {
 		.where(and(eq(courses.id, courseId), eq(courses.teamId, teamId)));
 
 	// Delete the course users
-	await db.delete(courseUsers).where(eq(courseUsers.courseId, courseId));
+	await db.delete(learners).where(eq(learners.courseId, courseId));
 
 	revalidatePath("/dashboard");
 	redirect("/dashboard");
 };
 
-export const inviteUser = async ({
+export const inviteLearner = async ({
 	courseId,
 	email,
 }: {
@@ -143,36 +143,31 @@ export const inviteUser = async ({
 		throw new Error("Course not found");
 	}
 
-	const existingCourseUser = await db
+	const learner = await db
 		.select()
-		.from(courseUsers)
-		.where(
-			and(
-				eq(courseUsers.email, email),
-				eq(courseUsers.courseId, courseId)
-			)
-		);
+		.from(learners)
+		.where(and(eq(learners.email, email), eq(learners.courseId, courseId)));
 
-	if (existingCourseUser.length > 0) {
-		throw new Error("User is already invited to this course");
+	if (learner.length > 0) {
+		throw new Error("Learner is already invited to this course");
 	}
 
-	const courseUserId = crypto.randomUUID();
+	const learnerId = crypto.randomUUID();
 
 	await resend.emails.send({
 		from: "support@billyhawkes.com",
 		to: email,
 		subject: course[0].name,
-		react: InviteUser({
+		react: LearnerInvite({
 			email,
 			course: course[0].name,
 			organization: "Krak LMS",
-			href: `${env.NEXT_PUBLIC_SERVER_URL}/courses/${course[0].id}?courseUserId=${courseUserId}`,
+			href: `${env.NEXT_PUBLIC_SITE_URL}/courses/${course[0].id}?learnerId=${learnerId}`,
 		}),
 	});
 
-	await db.insert(courseUsers).values({
-		id: courseUserId,
+	await db.insert(learners).values({
+		id: learnerId,
 		courseId: course[0].id,
 		email,
 		data: getInitialScormData(course[0].version),
@@ -181,11 +176,11 @@ export const inviteUser = async ({
 	revalidatePath(`/dashboard/courses/${course[0].id}`);
 };
 
-export const deleteCourseUser = async ({
-	courseUserId,
+export const deleteLearner = async ({
+	learnerId,
 	courseId,
 }: {
-	courseUserId: string;
+	learnerId: string;
 	courseId: string;
 }) => {
 	const { teamId } = getAuth();
@@ -202,12 +197,9 @@ export const deleteCourseUser = async ({
 
 	// Delete the course user
 	await db
-		.delete(courseUsers)
+		.delete(learners)
 		.where(
-			and(
-				eq(courseUsers.id, courseUserId),
-				eq(courseUsers.courseId, courseId)
-			)
+			and(eq(learners.id, learnerId), eq(learners.courseId, courseId))
 		);
 
 	revalidatePath(`/dashboard/courses/${courseId}`);
@@ -220,19 +212,13 @@ export const joinCourse = async ({
 	email: string;
 	courseId: string;
 }) => {
-	const existingCourseUser = await db
+	const learner = await db
 		.select()
-		.from(courseUsers)
-		.where(
-			and(
-				eq(courseUsers.email, email),
-				eq(courseUsers.courseId, courseId)
-			)
-		);
-	if (existingCourseUser.length > 0) {
-		redirect(
-			`/courses/${courseId}?courseUserId=${existingCourseUser[0].id}`
-		);
+		.from(learners)
+		.where(and(eq(learners.email, email), eq(learners.courseId, courseId)));
+
+	if (learner.length > 0) {
+		redirect(`/courses/${courseId}?learnerId=${learner[0].id}`);
 	}
 
 	const course = await db
@@ -244,13 +230,13 @@ export const joinCourse = async ({
 		throw new Error("Course not found");
 	}
 
-	const courseUserId = crypto.randomUUID();
-	await db.insert(courseUsers).values({
-		id: courseUserId,
+	const learnerId = crypto.randomUUID();
+	await db.insert(learners).values({
+		id: learnerId,
 		courseId: courseId,
 		email: email === "" ? "Anonymous" : email,
 		data: getInitialScormData(course[0].version),
 	});
 
-	redirect(`/courses/${courseId}?courseUserId=${courseUserId}`);
+	redirect(`/courses/${courseId}?learnerId=${learnerId}`);
 };

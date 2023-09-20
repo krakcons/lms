@@ -19,7 +19,7 @@ type Props = {
 	version: Course["version"];
 	courseId: string;
 	data: Record<string, any>;
-	courseUserId: string;
+	learnerId: string;
 };
 
 const useSCORM = ({
@@ -134,7 +134,7 @@ const LMSProvider = ({
 	version,
 	courseId,
 	data: initialData,
-	courseUserId,
+	learnerId,
 }: Props) => {
 	const { data } = useSCORM({
 		version,
@@ -142,8 +142,8 @@ const LMSProvider = ({
 	});
 
 	useEffect(() => {
-		updateCourseData(courseId, data, courseUserId);
-	}, [data, courseId, courseUserId]);
+		updateCourseData(courseId, data, learnerId);
+	}, [data, courseId, learnerId]);
 
 	return <>{children}</>;
 };

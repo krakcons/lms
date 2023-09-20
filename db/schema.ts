@@ -24,8 +24,8 @@ export const courses = mysqlTable("courses", {
 	]).notNull(),
 });
 
-export const courseUsers = mysqlTable(
-	"courseUsers",
+export const learners = mysqlTable(
+	"learners",
 	{
 		id: varchar("id", { length: 255 })
 			.primaryKey()

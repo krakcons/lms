@@ -10,13 +10,13 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { getExpandedUsers } from "@/lib/course-users";
-import { db } from "@/lib/db/db";
-import { courseUsers, courses } from "@/lib/db/schema";
+import { db } from "@/db/db";
+import { courses, learners } from "@/db/schema";
+import { getExpandedLearners } from "@/lib/learner";
 import { eq } from "drizzle-orm";
 import { deleteCourse } from "../../actions";
 import ExportCSVButton from "./ExportCSVButton";
-import InviteUserDialog from "./InviteUserDialog";
+import InviteLearnerDialog from "./InviteLearnerDialog";
 import PublicLinkButton from "./PublicLinkButton";
 import UsersTable from "./UsersTable";
 
@@ -33,10 +33,10 @@ const Page = async ({
 	if (!data || !data.length) throw new Error("Course not found");
 	const course = data[0];
 
-	const users = await db
+	const learner = await db
 		.select()
-		.from(courseUsers)
-		.where(eq(courseUsers.courseId, course.id));
+		.from(learners)
+		.where(eq(learners.courseId, course.id));
 
 	const deleteCourseAction = async () => {
 		"use server";
@@ -44,7 +44,7 @@ const Page = async ({
 		await deleteCourse(course.id);
 	};
 
-	const expandedUsers = getExpandedUsers(users, course.version);
+	const expandedLearners = getExpandedLearners(learner, course.version);
 
 	return (
 		<>
@@ -53,12 +53,12 @@ const Page = async ({
 					{course.name}
 				</h2>
 				<div className="flex">
-					<ExportCSVButton expandedUsers={expandedUsers} />
+					<ExportCSVButton expandedLearners={expandedLearners} />
 					<PublicLinkButton courseId={courseId} />
-					<InviteUserDialog courseId={courseId} />
+					<InviteLearnerDialog courseId={courseId} />
 				</div>
 			</div>
-			<UsersTable expandedUsers={expandedUsers} />
+			<UsersTable expandedLearners={expandedLearners} />
 			<div className="mt-8">
 				<h4 className="mb-4">Danger Zone</h4>
 				<AlertDialog>

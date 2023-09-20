@@ -1,5 +1,5 @@
 import { Course } from "@/types/course";
-import { FullCourseUser } from "@/types/courseUser";
+import { FullLearner } from "@/types/learner";
 import { Scorm12DataSchema } from "@/types/scorm/versions/12";
 
 export const getInitialScormData = (version: Course["version"]) => {
@@ -19,10 +19,10 @@ export const getInitialScormData = (version: Course["version"]) => {
 	}
 };
 
-export const parseCourseUserData = (
+export const parseLearnerData = (
 	data: unknown,
 	version: Course["version"]
-): FullCourseUser["data"] => {
+): FullLearner["data"] => {
 	switch (version) {
 		case "1.2": {
 			const parsedData = Scorm12DataSchema.parse(data);

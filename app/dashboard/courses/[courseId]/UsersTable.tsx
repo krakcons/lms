@@ -21,12 +21,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CourseUserWithExpandedData } from "@/lib/course-users";
+import { ExpandedLearner } from "@/lib/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { deleteCourseUser } from "../../actions";
+import { deleteLearner } from "../../actions";
 
-const columnHelper = createColumnHelper<CourseUserWithExpandedData>();
+const columnHelper = createColumnHelper<ExpandedLearner>();
 
 const columns = [
 	columnHelper.accessor("email", {
@@ -51,7 +51,7 @@ const columns = [
 		id: "actions",
 		header: "",
 		cell: ({ row }) => {
-			const courseUser = row.original;
+			const learner = row.original;
 
 			return (
 				<DropdownMenu>
@@ -70,7 +70,7 @@ const columns = [
 									className="cursor-pointer"
 									onSelect={(e) => e.preventDefault()}
 								>
-									Delete User
+									Remove Learner
 								</DropdownMenuItem>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
@@ -90,9 +90,9 @@ const columns = [
 									</AlertDialogCancel>
 									<AlertDialogAction
 										onClick={async () =>
-											await deleteCourseUser({
-												courseId: courseUser.courseId,
-												courseUserId: courseUser.id,
+											await deleteLearner({
+												courseId: learner.courseId,
+												learnerId: learner.id,
 											})
 										}
 									>
@@ -109,13 +109,13 @@ const columns = [
 ];
 
 type Props = {
-	expandedUsers: CourseUserWithExpandedData[];
+	expandedLearners: ExpandedLearner[];
 };
 
-const UsersTable = ({ expandedUsers }: Props) => {
+const UsersTable = ({ expandedLearners }: Props) => {
 	return (
 		<DataTable
-			data={expandedUsers}
+			data={expandedLearners}
 			columns={columns}
 			filter={{
 				column: "email",

@@ -8,26 +8,26 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { CourseUserWithExpandedData } from "@/lib/course-users";
+import { ExpandedLearner } from "@/lib/learner";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Download } from "lucide-react";
 
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
 
 const ExportCSVButton = ({
-	expandedUsers,
+	expandedLearners,
 }: {
-	expandedUsers: CourseUserWithExpandedData[];
+	expandedLearners: ExpandedLearner[];
 }) => {
 	const downloadCSV = () => {
-		if (expandedUsers.length === 0) {
+		if (expandedLearners.length === 0) {
 			toast({
 				title: "No users to export",
 				description: "There are no users to export.",
 			});
 		} else {
 			const csv = generateCsv(csvConfig)(
-				expandedUsers.map(({ score, id, courseId, ...rest }) => {
+				expandedLearners.map(({ score, id, courseId, ...rest }) => {
 					return {
 						...rest,
 						...score,

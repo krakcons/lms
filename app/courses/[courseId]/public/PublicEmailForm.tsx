@@ -11,24 +11,19 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LearnerInvite, LearnerInviteSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const PublicUserInviteSchema = z.object({
-	email: z.string().email(),
-});
-type PublicUserInvite = z.infer<typeof PublicUserInviteSchema>;
 
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
-	const form = useForm<PublicUserInvite>({
-		resolver: zodResolver(PublicUserInviteSchema),
+	const form = useForm<LearnerInvite>({
+		resolver: zodResolver(LearnerInviteSchema),
 		defaultValues: {
 			email: "",
 		},
 	});
 
-	const onSubmit = async ({ email }: PublicUserInvite) => {
+	const onSubmit = async ({ email }: LearnerInvite) => {
 		await joinCourse({ email, courseId });
 	};
 

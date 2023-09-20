@@ -1,7 +1,7 @@
 import { Course } from "@/types/course";
-import { CourseUser } from "@/types/courseUser";
+import { Learner } from "@/types/learner";
 import { User } from "@clerk/nextjs/server";
-import { parseCourseUserData } from "./scorm";
+import { parseLearnerData } from "./scorm";
 
 export const filterUserForClient = ({
 	lastName,
@@ -22,16 +22,16 @@ export const filterUserForClient = ({
 	};
 };
 
-export const getExpandedUsers = (
-	users: CourseUser[],
+export const getExpandedLearners = (
+	learners: Learner[],
 	version: Course["version"]
 ) => {
-	return users.map(({ data, ...rest }) => {
-		const parsedData = parseCourseUserData(data, version);
+	return learners.map(({ data, ...rest }) => {
+		const parsedData = parseLearnerData(data, version);
 		return {
 			...rest,
 			...parsedData,
 		};
 	});
 };
-export type CourseUserWithExpandedData = ReturnType<typeof getExpandedUsers>[0];
+export type ExpandedLearner = ReturnType<typeof getExpandedLearners>[0];

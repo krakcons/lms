@@ -6,8 +6,8 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { db } from "@/lib/db/db";
-import { courseUsers } from "@/lib/db/schema";
+import { db } from "@/db/db";
+import { learners } from "@/db/schema";
 import { s3Client } from "@/lib/s3";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
@@ -46,11 +46,11 @@ const Page = async ({
 	searchParams,
 }: {
 	params: { courseId: string };
-	searchParams: { page?: string; courseUserId?: string };
+	searchParams: { page?: string; learnerId?: string };
 }) => {
-	const { page, courseUserId } = searchParams;
+	const { page, learnerId } = searchParams;
 
-	if (!courseUserId) {
+	if (!learnerId) {
 		redirect(`/courses/${courseId}/public`);
 	}
 
@@ -76,23 +76,20 @@ const Page = async ({
 
 	if (!page) {
 		redirect(
-			`/courses/${courseId}?courseUserId=${courseUserId}&page=${resources[0].identifier}`
+			`/courses/${courseId}?learnerId=${learnerId}&page=${resources[0].identifier}`
 		);
 	}
 
 	// Get course user
-	let courseUser = await db
+	let learner = await db
 		.select()
-		.from(courseUsers)
+		.from(learners)
 		.where(
-			and(
-				eq(courseUsers.courseId, courseId),
-				eq(courseUsers.id, courseUserId)
-			)
+			and(eq(learners.courseId, courseId), eq(learners.id, learnerId))
 		);
 
-	if (courseUser.length === 0) {
-		throw new Error("User not found");
+	if (learner.length === 0) {
+		throw new Error("Learner not found");
 	}
 
 	console.log(
@@ -141,7 +138,7 @@ const Page = async ({
 														pathname: `/courses/${courseId}`,
 														query: {
 															page: subItem.identifierref,
-															courseUserId,
+															learnerId,
 														},
 													}}
 												>
@@ -159,7 +156,7 @@ const Page = async ({
 											pathname: `/courses/${courseId}`,
 											query: {
 												page: item.identifierref,
-												courseUserId,
+												learnerId,
 											},
 										}}
 									>
@@ -175,7 +172,7 @@ const Page = async ({
 									query: {
 										page: firstOrganization.item
 											.identifierref,
-										courseUserId,
+										learnerId,
 									},
 								}}
 							>
@@ -190,8 +187,8 @@ const Page = async ({
 					<LMSProvider
 						version={`${scorm.metadata.schemaversion}`}
 						courseId={courseId}
-						data={courseUser[0].data as Record<string, any>}
-						courseUserId={courseUserId}
+						data={learner[0].data as Record<string, any>}
+						learnerId={learnerId}
 					>
 						<iframe
 							src={`/courses/${courseId}/${resources.find(

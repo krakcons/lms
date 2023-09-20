@@ -25,30 +25,25 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
+import { LearnerInvite, LearnerInviteSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { inviteUser } from "../../actions";
+import { inviteLearner } from "../../actions";
 
-const InviteUserSchema = z.object({
-	email: z.string().email(),
-});
-type InviteUser = z.infer<typeof InviteUserSchema>;
-
-const InviteUserDialog = ({ courseId }: { courseId: string }) => {
+const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	const [open, setOpen] = useState(false);
 	const { toast } = useToast();
-	const form = useForm<InviteUser>({
-		resolver: zodResolver(InviteUserSchema),
+	const form = useForm<LearnerInvite>({
+		resolver: zodResolver(LearnerInviteSchema),
 		defaultValues: {
 			email: "",
 		},
 	});
 
-	const onSubmit = async ({ email }: InviteUser) => {
-		inviteUser({
+	const onSubmit = async ({ email }: LearnerInvite) => {
+		inviteLearner({
 			courseId,
 			email,
 		})
@@ -81,7 +76,7 @@ const InviteUserDialog = ({ courseId }: { courseId: string }) => {
 								</Button>
 							</TooltipTrigger>
 							<TooltipContent side="bottom">
-								<p>Invite User</p>
+								<p>Invite Learner</p>
 							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
@@ -120,4 +115,4 @@ const InviteUserDialog = ({ courseId }: { courseId: string }) => {
 	);
 };
 
-export default InviteUserDialog;
+export default InviteLearnerDialog;

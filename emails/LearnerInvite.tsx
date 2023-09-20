@@ -17,7 +17,7 @@ interface Props {
 	organization?: string;
 }
 
-export const InviteUser = ({
+export const LearnerInvite = ({
 	href,
 	email = "dave@gmail.com",
 	course = "Golfing Tutorial",
@@ -52,4 +52,4 @@ export const InviteUser = ({
 	</Html>
 );
 
-export default InviteUser;
+export default LearnerInvite;
