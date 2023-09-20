@@ -1,18 +1,10 @@
 import { buttonVariants } from "@/components/ui/button";
-import { db } from "@/db/db";
-import { courses } from "@/db/schema";
-import { getAuth } from "@/lib/auth";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
+import { serverTrpc } from "../_trpc/server";
 import CourseTable from "./CourseTable";
 
 const Page = async () => {
-	const { teamId } = getAuth();
-
-	const data = await db
-		.select()
-		.from(courses)
-		.where(eq(courses.teamId, teamId));
+	const courses = await serverTrpc.course.find();
 
 	return (
 		<>
@@ -23,7 +15,7 @@ const Page = async () => {
 				</Link>
 			</div>
 			<div className="flex flex-col">
-				<CourseTable data={data} />
+				<CourseTable data={courses} />
 			</div>
 		</>
 	);

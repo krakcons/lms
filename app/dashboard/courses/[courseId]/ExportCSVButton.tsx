@@ -28,9 +28,15 @@ const ExportCSVButton = ({
 		} else {
 			const csv = generateCsv(csvConfig)(
 				expandedLearners.map(({ score, id, courseId, ...rest }) => {
+					let scoreString = "N/A";
+
+					if (score && score.max && score.raw) {
+						scoreString = `${score.raw}/${score.max}`;
+					}
+
 					return {
 						...rest,
-						...score,
+						score: scoreString,
 					};
 				})
 			);

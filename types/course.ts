@@ -1,6 +1,12 @@
 import { courses } from "@/db/schema";
-import { InferModel } from "drizzle-orm";
 import { createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
-export type Course = InferModel<typeof courses, "select">;
 export const CourseSchema = createSelectSchema(courses);
+export type Course = typeof courses.$inferSelect;
+
+export const DeleteCourseSchema = CourseSchema.shape.id;
+export type DeleteCourse = z.infer<typeof DeleteCourseSchema>;
+
+export const SelectCourseSchema = CourseSchema.shape.id;
+export type SelectCourse = z.infer<typeof SelectCourseSchema>;

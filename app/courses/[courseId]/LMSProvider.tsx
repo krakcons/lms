@@ -1,12 +1,12 @@
 "use client";
 
+import { trpc } from "@/app/_trpc/client";
 import { Course } from "@/types/course";
 import {
 	Scorm12ErrorCode,
 	Scorm12ErrorMessage,
 } from "@/types/scorm/versions/12";
 import { useEffect, useRef, useState } from "react";
-import { updateCourseData } from "./actions";
 
 declare global {
 	interface Window {
@@ -136,14 +136,15 @@ const LMSProvider = ({
 	data: initialData,
 	learnerId,
 }: Props) => {
+	const { mutate } = trpc.learner.update.useMutation();
 	const { data } = useSCORM({
 		version,
 		initialData,
 	});
 
 	useEffect(() => {
-		updateCourseData(courseId, data, learnerId);
-	}, [data, courseId, learnerId]);
+		mutate({ courseId, data, id: learnerId });
+	}, [data, courseId, learnerId, mutate]);
 
 	return <>{children}</>;
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { trpc } from "@/app/_trpc/client";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -24,13 +25,66 @@ import {
 import { ExpandedLearner } from "@/lib/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { deleteLearner } from "../../actions";
 
 const columnHelper = createColumnHelper<ExpandedLearner>();
+
+const LearnerActions = ({ learner }: { learner: ExpandedLearner }) => {
+	const { mutate } = trpc.learner.delete.useMutation();
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" className="h-8 w-8 p-0">
+					<span className="sr-only">Open menu</span>
+					<MoreHorizontal className="h-4 w-4" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel>Actions</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<AlertDialog>
+					<AlertDialogTrigger>
+						<DropdownMenuItem
+							className="cursor-pointer"
+							onSelect={(e) => e.preventDefault()}
+						>
+							Remove Learner
+						</DropdownMenuItem>
+					</AlertDialogTrigger>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								Are you absolutely sure?
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								This action cannot be undone. This action will
+								permanently delete this user and all their data.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancel</AlertDialogCancel>
+							<AlertDialogAction
+								onClick={() => mutate(learner.id)}
+							>
+								Continue
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+};
 
 const columns = [
 	columnHelper.accessor("email", {
 		header: "Email",
+		cell: (info) => {
+			if (info.row.original.email) {
+				return info.row.original.email;
+			} else {
+				return "Anonymous";
+			}
+		},
 	}),
 	columnHelper.accessor("status", {
 		header: "Status",
@@ -53,57 +107,7 @@ const columns = [
 		cell: ({ row }) => {
 			const learner = row.original;
 
-			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<AlertDialog>
-							<AlertDialogTrigger>
-								<DropdownMenuItem
-									className="cursor-pointer"
-									onSelect={(e) => e.preventDefault()}
-								>
-									Remove Learner
-								</DropdownMenuItem>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>
-										Are you absolutely sure?
-									</AlertDialogTitle>
-									<AlertDialogDescription>
-										This action cannot be undone. This
-										action will permanently delete this user
-										and all their data.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>
-										Cancel
-									</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={async () =>
-											await deleteLearner({
-												courseId: learner.courseId,
-												learnerId: learner.id,
-											})
-										}
-									>
-										Continue
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			);
+			return <LearnerActions learner={learner} />;
 		},
 	}),
 ];

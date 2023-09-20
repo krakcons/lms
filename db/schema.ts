@@ -1,10 +1,9 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
 	json,
 	mysqlEnum,
 	mysqlTable,
 	text,
-	uniqueIndex,
 	varchar,
 } from "drizzle-orm/mysql-core";
 
@@ -24,23 +23,23 @@ export const courses = mysqlTable("courses", {
 	]).notNull(),
 });
 
-export const learners = mysqlTable(
-	"learners",
-	{
-		id: varchar("id", { length: 255 })
-			.primaryKey()
-			.notNull()
-			.default(sql`(uuid())`),
-		courseId: varchar("courseId", { length: 255 }).notNull(),
-		email: varchar("email", { length: 255 }).notNull(),
-		data: json("data"),
-	},
-	(table) => {
-		return {
-			emailCourseIdx: uniqueIndex("email_course_idx").on(
-				table.email,
-				table.courseId
-			),
-		};
-	}
-);
+export const coursesRelations = relations(courses, ({ many }) => ({
+	learners: many(learners),
+}));
+
+export const learners = mysqlTable("learners", {
+	id: varchar("id", { length: 255 })
+		.primaryKey()
+		.notNull()
+		.default(sql`(uuid())`),
+	courseId: varchar("courseId", { length: 255 }).notNull(),
+	email: varchar("email", { length: 255 }),
+	data: json("data"),
+});
+
+export const learnersRelations = relations(learners, ({ one }) => ({
+	course: one(courses, {
+		fields: [learners.courseId],
+		references: [courses.id],
+	}),
+}));

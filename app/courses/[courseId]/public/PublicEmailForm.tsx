@@ -1,6 +1,6 @@
 "use client";
 
-import { joinCourse } from "@/app/dashboard/actions";
+import { trpc } from "@/app/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -11,20 +11,26 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LearnerInvite, LearnerInviteSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const InputSchema = z.object({
+	email: z.string().email(),
+});
+type Input = z.infer<typeof InputSchema>;
 
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
-	const form = useForm<LearnerInvite>({
-		resolver: zodResolver(LearnerInviteSchema),
+	const { mutate } = trpc.learner.create.useMutation();
+	const form = useForm<Input>({
+		resolver: zodResolver(InputSchema),
 		defaultValues: {
 			email: "",
 		},
 	});
 
-	const onSubmit = async ({ email }: LearnerInvite) => {
-		await joinCourse({ email, courseId });
+	const onSubmit = async ({ email }: Input) => {
+		mutate({ email, courseId, sendEmail: false });
 	};
 
 	return (
@@ -47,9 +53,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 				<Button
 					variant="outline"
 					className="ml-3"
-					onClick={async () =>
-						await joinCourse({ email: "", courseId })
-					}
+					onClick={() => mutate({ email: null, courseId })}
 				>
 					Continue as guest
 				</Button>

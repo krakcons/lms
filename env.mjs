@@ -7,9 +7,7 @@ export const env = createEnv({
 		AWS_ACCESS_KEY_ID: z.string().min(1),
 		AWS_SECRET_ACCESS_KEY: z.string().min(1),
 		CLERK_SECRET_KEY: z.string().min(1),
-		DATABASE_HOST: z.string().min(1),
-		DATABASE_USERNAME: z.string().min(1),
-		DATABASE_PASSWORD: z.string().min(1),
+		DATABASE_URL: z.string().min(1),
 		RESEND_API_KEY: z.string().min(1),
 	},
 	client: {

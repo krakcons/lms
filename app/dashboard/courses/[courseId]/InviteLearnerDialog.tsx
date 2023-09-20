@@ -1,5 +1,6 @@
 "use client";
 
+import { trpc } from "@/app/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -25,42 +26,51 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { LearnerInvite, LearnerInviteSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { inviteLearner } from "../../actions";
+import { z } from "zod";
+
+const InputSchema = z.object({
+	email: z.string().email(),
+});
+type Input = z.infer<typeof InputSchema>;
 
 const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	const [open, setOpen] = useState(false);
+	const router = useRouter();
+	const { mutate } = trpc.learner.create.useMutation({
+		onSuccess: ({ email }) => {
+			router.refresh();
+			toast({
+				title: "Successfully Invited",
+				description: `User ${email} has been sent an invitation to join this course.`,
+			});
+			setOpen(false);
+		},
+		onError: (err) => {
+			toast({
+				title: "Uh oh! Something went wrong.",
+				description: err.message,
+				variant: "destructive",
+			});
+		},
+	});
 	const { toast } = useToast();
-	const form = useForm<LearnerInvite>({
-		resolver: zodResolver(LearnerInviteSchema),
+	const form = useForm<Input>({
+		resolver: zodResolver(InputSchema),
 		defaultValues: {
 			email: "",
 		},
 	});
 
-	const onSubmit = async ({ email }: LearnerInvite) => {
-		inviteLearner({
+	const onSubmit = async ({ email }: Input) => {
+		mutate({
 			courseId,
 			email,
-		})
-			.then(() => {
-				toast({
-					title: "Successfully Invited",
-					description: `User ${email} has been sent an invitation to join this course.`,
-				});
-				setOpen(false);
-			})
-			.catch((err) => {
-				toast({
-					title: "Uh oh! Something went wrong.",
-					description: err.message,
-					variant: "destructive",
-				});
-			});
+		});
 		form.reset();
 	};
 

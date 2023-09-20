@@ -81,14 +81,11 @@ const Page = async ({
 	}
 
 	// Get course user
-	let learner = await db
-		.select()
-		.from(learners)
-		.where(
-			and(eq(learners.courseId, courseId), eq(learners.id, learnerId))
-		);
+	let learner = await db.query.learners.findFirst({
+		where: and(eq(learners.courseId, courseId), eq(learners.id, learnerId)),
+	});
 
-	if (learner.length === 0) {
+	if (!learner) {
 		throw new Error("Learner not found");
 	}
 
@@ -187,7 +184,7 @@ const Page = async ({
 					<LMSProvider
 						version={`${scorm.metadata.schemaversion}`}
 						courseId={courseId}
-						data={learner[0].data as Record<string, any>}
+						data={learner.data as Record<string, any>}
 						learnerId={learnerId}
 					>
 						<iframe

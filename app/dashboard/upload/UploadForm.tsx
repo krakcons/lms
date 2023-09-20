@@ -2,13 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { formatFileSize } from "@/lib/helpers";
+import { uploadCourse } from "@/server/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { uploadCourse } from "../actions";
 
 const Dropzone = ({
 	value,

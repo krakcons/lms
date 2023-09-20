@@ -1,3 +1,4 @@
+import { serverTrpc } from "@/app/_trpc/server";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -10,11 +11,8 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { db } from "@/db/db";
-import { courses, learners } from "@/db/schema";
 import { getExpandedLearners } from "@/lib/learner";
-import { eq } from "drizzle-orm";
-import { deleteCourse } from "../../actions";
+import { deleteCourse } from "@/server/actions";
 import ExportCSVButton from "./ExportCSVButton";
 import InviteLearnerDialog from "./InviteLearnerDialog";
 import PublicLinkButton from "./PublicLinkButton";
@@ -25,18 +23,7 @@ const Page = async ({
 }: {
 	params: { courseId: string };
 }) => {
-	const data = await db
-		.select()
-		.from(courses)
-		.where(eq(courses.id, courseId));
-
-	if (!data || !data.length) throw new Error("Course not found");
-	const course = data[0];
-
-	const learner = await db
-		.select()
-		.from(learners)
-		.where(eq(learners.courseId, course.id));
+	const course = await serverTrpc.course.findOne(courseId);
 
 	const deleteCourseAction = async () => {
 		"use server";
@@ -44,7 +31,10 @@ const Page = async ({
 		await deleteCourse(course.id);
 	};
 
-	const expandedLearners = getExpandedLearners(learner, course.version);
+	const expandedLearners = getExpandedLearners(
+		course.learners,
+		course.version
+	);
 
 	return (
 		<>
