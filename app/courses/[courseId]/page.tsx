@@ -64,9 +64,9 @@ const Page = async ({
 
 	if (!text) return <h1>404</h1>;
 
-	const parsedIMSManifest = parser.parse(text).manifest;
+	const parsedIMSManifest = parser.parse(text);
 
-	const scorm = IMSManifestSchema.parse(parsedIMSManifest);
+	const scorm = IMSManifestSchema.parse(parsedIMSManifest).manifest;
 
 	const firstOrganization = Array.isArray(scorm.organizations.organization)
 		? scorm.organizations.organization[0]

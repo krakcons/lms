@@ -38,15 +38,17 @@ export const ScormVersionSchema = z
 	.or(z.literal(1.2));
 
 export const IMSManifestSchema = z.object({
-	metadata: z.object({
-		schema: z.string(),
-		schemaversion: ScormVersionSchema,
-	}),
-	organizations: z.object({
-		default: z.string().optional(),
-		organization: OrganizationSchema.or(OrganizationSchema.array()),
-	}),
-	resources: z.object({
-		resource: ResourceSchema.or(ResourceSchema.array()),
+	manifest: z.object({
+		metadata: z.object({
+			schema: z.string(),
+			schemaversion: ScormVersionSchema,
+		}),
+		organizations: z.object({
+			default: z.string().optional(),
+			organization: OrganizationSchema.or(OrganizationSchema.array()),
+		}),
+		resources: z.object({
+			resource: ResourceSchema.or(ResourceSchema.array()),
+		}),
 	}),
 });

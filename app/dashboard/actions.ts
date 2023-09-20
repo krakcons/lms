@@ -37,16 +37,16 @@ export const uploadCourse = async (formData: FormData) => {
 		const courseUnzipped = await zip.loadAsync(courseZip.arrayBuffer());
 
 		// validate imsmanifest.xml
-		const manifest = courseUnzipped.file("imsmanifest.xml");
+		const manifestFile = courseUnzipped.file("imsmanifest.xml");
 
-		if (!manifest) {
+		if (!manifestFile) {
 			throw new Error("imsmanifest.xml not found");
 		}
 
-		const manifestText = await manifest.async("text");
+		const manifestText = await manifestFile.async("text");
 
-		const parsedIMSManifest = parser.parse(manifestText).manifest;
-		const scorm = IMSManifestSchema.parse(parsedIMSManifest);
+		const parsedIMSManifest = parser.parse(manifestText);
+		const scorm = IMSManifestSchema.parse(parsedIMSManifest).manifest;
 		const courseTitle = Array.isArray(scorm.organizations.organization)
 			? scorm.organizations.organization[0].title
 			: scorm.organizations.organization.title;
