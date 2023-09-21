@@ -7,7 +7,12 @@ export const protectedProcedure = publicProcedure.use(({ next }) => {
 	const { teamId, userId } = getAuth();
 
 	// user not identified
-	if (!teamId) throw new TRPCError({ code: "UNAUTHORIZED" });
+	if (!teamId) {
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message: "User not logged in",
+		});
+	}
 
 	return next({
 		ctx: {

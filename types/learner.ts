@@ -14,15 +14,9 @@ export const InsertLearnerSchema = createInsertSchema(learners, {
 });
 export type InsertLearner = z.infer<typeof InsertLearnerSchema>;
 
-export const UpdateLearnerSchema = LearnerSchema.pick({
+export const DeleteLearnerSchema = LearnerSchema.pick({
 	id: true,
-	courseId: true,
-}).extend({
-	data: z.record(z.string()),
 });
-export type UpdateLearner = z.infer<typeof UpdateLearnerSchema>;
-
-export const DeleteLearnerSchema = LearnerSchema.shape.id;
 export type DeleteLearner = z.infer<typeof DeleteLearnerSchema>;
 
 export const CreateLearnerSchema = LearnerSchema.pick({

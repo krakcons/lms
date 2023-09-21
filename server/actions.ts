@@ -23,6 +23,10 @@ const parser = new XMLParser({
 export const uploadCourse = async (formData: FormData) => {
 	const { teamId } = getAuth();
 
+	if (!teamId) {
+		throw new Error("Team ID not found");
+	}
+
 	const courseZip = formData.get("file") as File | null;
 	if (courseZip) {
 		const courseUnzipped = await zip.loadAsync(courseZip.arrayBuffer());
@@ -72,8 +76,8 @@ export const uploadCourse = async (formData: FormData) => {
 	redirect("/dashboard");
 };
 
-export const deleteCourse = async (id: DeleteCourse) => {
-	await serverTrpc.course.delete(id);
+export const deleteCourse = async (input: DeleteCourse) => {
+	await serverTrpc.course.delete(input);
 
 	revalidatePath("/dashboard");
 	redirect("/dashboard");

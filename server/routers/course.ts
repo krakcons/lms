@@ -10,6 +10,7 @@ import { LearnerSchema } from "@/types/learner";
 import { DeleteObjectsCommand, ListObjectsCommand } from "@aws-sdk/client-s3";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
 
@@ -19,7 +20,8 @@ export const courseRouter = router({
 			openapi: {
 				summary: "Get a course by ID",
 				method: "GET",
-				path: "/course/{id}",
+				path: "/courses/{id}",
+				protect: true,
 			},
 		})
 		.input(SelectCourseSchema)
@@ -42,14 +44,34 @@ export const courseRouter = router({
 				return course;
 			}
 		}),
-	find: protectedProcedure.query(async ({ ctx: { teamId } }) => {
-		return await db.query.courses.findMany({
-			where: eq(courses.teamId, teamId),
-		});
-	}),
+	find: protectedProcedure
+		.meta({
+			openapi: {
+				summary: "Get all courses",
+				method: "GET",
+				path: "/courses",
+				protect: true,
+			},
+		})
+		.input(z.undefined())
+		.output(CourseSchema.array())
+		.query(async ({ ctx: { teamId } }) => {
+			return await db.query.courses.findMany({
+				where: eq(courses.teamId, teamId),
+			});
+		}),
 	delete: protectedProcedure
+		.meta({
+			openapi: {
+				summary: "Delete a course",
+				method: "DELETE",
+				path: "/courses/{id}",
+				protect: true,
+			},
+		})
 		.input(DeleteCourseSchema)
-		.mutation(async ({ ctx: { teamId }, input: id }) => {
+		.output(CourseSchema)
+		.mutation(async ({ ctx: { teamId }, input: { id } }) => {
 			const course = await db.query.courses.findFirst({
 				where: and(eq(courses.teamId, teamId), eq(courses.id, id)),
 			});
@@ -96,5 +118,7 @@ export const courseRouter = router({
 
 			// Delete the course users
 			await db.delete(learners).where(eq(learners.courseId, course.id));
+
+			return course;
 		}),
 });

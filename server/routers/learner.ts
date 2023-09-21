@@ -6,7 +6,7 @@ import { getInitialScormData } from "@/lib/scorm";
 import {
 	CreateLearnerSchema,
 	DeleteLearnerSchema,
-	UpdateLearnerSchema,
+	LearnerSchema,
 } from "@/types/learner";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -16,18 +16,40 @@ import { publicProcedure, router } from "../trpc";
 
 export const learnerRouter = router({
 	update: publicProcedure
-		.input(UpdateLearnerSchema)
-		.mutation(async ({ input: { courseId, id, data } }) => {
+		.meta({
+			openapi: {
+				summary: "Update learner",
+				method: "PUT",
+				path: "/learners/{id}",
+			},
+		})
+		.input(LearnerSchema)
+		.output(LearnerSchema)
+		.mutation(async ({ input: learner }) => {
 			await db
 				.update(learners)
-				.set({ data })
+				.set({ ...learner })
 				.where(
-					and(eq(learners.courseId, courseId), eq(learners.id, id))
+					and(
+						eq(learners.courseId, learner.courseId),
+						eq(learners.id, learner.id)
+					)
 				);
+
+			return learner;
 		}),
 	delete: protectedProcedure
+		.meta({
+			openapi: {
+				summary: "Delete learner",
+				method: "DELETE",
+				path: "/learners/{id}",
+				protect: true,
+			},
+		})
 		.input(DeleteLearnerSchema)
-		.mutation(async ({ ctx: { teamId }, input: id }) => {
+		.output(LearnerSchema)
+		.mutation(async ({ ctx: { teamId }, input: { id } }) => {
 			const learner = await db.query.learners.findFirst({
 				where: eq(learners.id, id),
 				with: {
@@ -55,7 +77,15 @@ export const learnerRouter = router({
 			return learner;
 		}),
 	create: publicProcedure
+		.meta({
+			openapi: {
+				summary: "Create learner",
+				method: "POST",
+				path: "/learners",
+			},
+		})
 		.input(CreateLearnerSchema)
+		.output(LearnerSchema)
 		.mutation(async ({ input: { email, sendEmail, courseId } }) => {
 			// Check if learner already exists by email
 			if (email) {
@@ -90,7 +120,7 @@ export const learnerRouter = router({
 				id: crypto.randomUUID(),
 				courseId: course.id,
 				email,
-				data: getInitialScormData(course.version),
+				data: getInitialScormData(course.version) ?? {},
 			};
 
 			if (sendEmail && email) {

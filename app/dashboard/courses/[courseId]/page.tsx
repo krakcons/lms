@@ -28,7 +28,7 @@ const Page = async ({
 	const deleteCourseAction = async () => {
 		"use server";
 
-		await deleteCourse(course.id);
+		await deleteCourse({ id: course.id });
 	};
 
 	const expandedLearners = getExpandedLearners(

@@ -22,6 +22,12 @@ const Layout = ({ children }: Props) => {
 							Courses
 						</Link>
 						<TeamProfile />
+						<Link
+							href="/dashboard/settings/developer"
+							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+						>
+							Settings
+						</Link>
 					</div>
 					<div className="flex items-center justify-center gap-3">
 						<ThemeButton />

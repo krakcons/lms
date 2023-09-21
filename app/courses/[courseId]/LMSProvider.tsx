@@ -2,6 +2,7 @@
 
 import { trpc } from "@/app/_trpc/client";
 import { Course } from "@/types/course";
+import { Learner } from "@/types/learner";
 import {
 	Scorm12ErrorCode,
 	Scorm12ErrorMessage,
@@ -17,9 +18,7 @@ declare global {
 type Props = {
 	children: React.ReactNode;
 	version: Course["version"];
-	courseId: string;
-	data: Record<string, any>;
-	learnerId: string;
+	learner: Learner;
 };
 
 const useSCORM = ({
@@ -129,22 +128,16 @@ const useSCORM = ({
 	return { data };
 };
 
-const LMSProvider = ({
-	children,
-	version,
-	courseId,
-	data: initialData,
-	learnerId,
-}: Props) => {
+const LMSProvider = ({ children, version, learner }: Props) => {
 	const { mutate } = trpc.learner.update.useMutation();
 	const { data } = useSCORM({
 		version,
-		initialData,
+		initialData: learner.data,
 	});
 
 	useEffect(() => {
-		mutate({ courseId, data, id: learnerId });
-	}, [data, courseId, learnerId, mutate]);
+		mutate({ ...learner, data });
+	}, [data, learner, mutate]);
 
 	return <>{children}</>;
 };
