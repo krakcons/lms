@@ -8,7 +8,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { ExpandedLearner } from "@/lib/learner";
+import { ExpandedLearner } from "@/types/learner";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Download } from "lucide-react";
 

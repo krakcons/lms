@@ -1,5 +1,5 @@
 import { Course } from "@/types/course";
-import { FullLearner } from "@/types/learner";
+import { Learner } from "@/types/learner";
 import { Scorm12DataSchema } from "@/types/scorm/versions/12";
 
 export const getInitialScormData = (version: Course["version"]) => {
@@ -20,14 +20,15 @@ export const getInitialScormData = (version: Course["version"]) => {
 };
 
 export const parseLearnerData = (
-	data: unknown,
+	learner: Learner,
 	version: Course["version"]
-): FullLearner["data"] => {
+) => {
 	switch (version) {
 		case "1.2": {
-			const parsedData = Scorm12DataSchema.parse(data);
+			const parsedData = Scorm12DataSchema.parse(learner.data);
 
 			return {
+				...learner,
 				status: parsedData["cmi.core.lesson_status"],
 				score: {
 					raw: parsedData["cmi.core.score.raw"],
@@ -38,6 +39,7 @@ export const parseLearnerData = (
 		}
 		default: {
 			return {
+				...learner,
 				status: "not attempted",
 				score: {
 					raw: 100,

@@ -26,12 +26,7 @@ export const getExpandedLearners = (
 	learners: Learner[],
 	version: Course["version"]
 ) => {
-	return learners.map(({ data, ...rest }) => {
-		const parsedData = parseLearnerData(data, version);
-		return {
-			...rest,
-			...parsedData,
-		};
+	return learners.map((learner) => {
+		return parseLearnerData(learner, version);
 	});
 };
-export type ExpandedLearner = ReturnType<typeof getExpandedLearners>[0];

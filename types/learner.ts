@@ -1,4 +1,5 @@
 import { learners } from "@/db/schema";
+import { parseLearnerData } from "@/lib/scorm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { WithUser } from "./users";
@@ -32,13 +33,15 @@ export const CreateLearnerSchema = LearnerSchema.pick({
 });
 export type CreateLearner = z.infer<typeof CreateLearnerSchema>;
 
-export type FullLearner = WithUser<Learner> & {
-	data: {
+export type FullLearner = Prettify<
+	WithUser<Learner> & {
 		status: string;
 		score?: {
 			raw?: number | string;
 			max?: number | string;
 			min?: number | string;
 		};
-	};
-};
+	}
+>;
+
+export type ExpandedLearner = ReturnType<typeof parseLearnerData>;
