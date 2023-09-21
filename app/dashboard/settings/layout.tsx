@@ -17,7 +17,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 				<aside className="lg:w-1/5">
 					<SidebarNav items={items} />
 				</aside>
-				<div className="flex-1 px-8">{children}</div>
+				<div className="flex-1 px-0 py-8 lg:px-8 lg:py-0">
+					{children}
+				</div>
 			</div>
 		</>
 	);
