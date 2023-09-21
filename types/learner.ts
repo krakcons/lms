@@ -3,16 +3,21 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { WithUser } from "./users";
 
-export const LearnerSchema = createSelectSchema(learners);
-export type Learner = typeof learners.$inferSelect;
+export const LearnerSchema = createSelectSchema(learners, {
+	data: z.record(z.string()),
+});
+export type Learner = z.infer<typeof LearnerSchema>;
 
-export const InsertLearnerSchema = createInsertSchema(learners);
-export type InsertLearner = typeof learners.$inferInsert;
+export const InsertLearnerSchema = createInsertSchema(learners, {
+	data: z.record(z.string()),
+});
+export type InsertLearner = z.infer<typeof InsertLearnerSchema>;
 
 export const UpdateLearnerSchema = LearnerSchema.pick({
 	id: true,
 	courseId: true,
-	data: true,
+}).extend({
+	data: z.record(z.string()),
 });
 export type UpdateLearner = z.infer<typeof UpdateLearnerSchema>;
 

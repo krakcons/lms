@@ -1,7 +1,12 @@
 import { db } from "@/db/db";
 import { courses, learners } from "@/db/schema";
 import { s3Client } from "@/lib/s3";
-import { DeleteCourseSchema, SelectCourseSchema } from "@/types/course";
+import {
+	CourseSchema,
+	DeleteCourseSchema,
+	SelectCourseSchema,
+} from "@/types/course";
+import { LearnerSchema } from "@/types/learner";
 import { DeleteObjectsCommand, ListObjectsCommand } from "@aws-sdk/client-s3";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -10,8 +15,16 @@ import { router } from "../trpc";
 
 export const courseRouter = router({
 	findOne: protectedProcedure
+		.meta({
+			openapi: {
+				summary: "Get a course by ID",
+				method: "GET",
+				path: "/course/{id}",
+			},
+		})
 		.input(SelectCourseSchema)
-		.query(async ({ ctx: { teamId }, input: id }) => {
+		.output(CourseSchema.extend({ learners: LearnerSchema.array() }))
+		.query(async ({ ctx: { teamId }, input: { id } }) => {
 			const course = await db.query.courses.findFirst({
 				where: and(eq(courses.teamId, teamId), eq(courses.id, id)),
 				with: {

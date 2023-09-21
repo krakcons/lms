@@ -29,7 +29,7 @@ const useSCORM = ({
 	version: Course["version"];
 	initialData: Record<string, any>;
 }) => {
-	const [data, setData] = useState<Record<string, any>>(initialData);
+	const [data, setData] = useState<Record<string, string>>(initialData);
 	const error = useRef<number | undefined>();
 	const initialized = useRef<boolean>(false);
 

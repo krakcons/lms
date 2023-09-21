@@ -8,5 +8,7 @@ export type Course = typeof courses.$inferSelect;
 export const DeleteCourseSchema = CourseSchema.shape.id;
 export type DeleteCourse = z.infer<typeof DeleteCourseSchema>;
 
-export const SelectCourseSchema = CourseSchema.shape.id;
+export const SelectCourseSchema = CourseSchema.pick({
+	id: true,
+});
 export type SelectCourse = z.infer<typeof SelectCourseSchema>;

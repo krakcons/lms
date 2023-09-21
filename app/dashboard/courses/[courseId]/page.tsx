@@ -23,7 +23,7 @@ const Page = async ({
 }: {
 	params: { courseId: string };
 }) => {
-	const course = await serverTrpc.course.findOne(courseId);
+	const course = await serverTrpc.course.findOne({ id: courseId });
 
 	const deleteCourseAction = async () => {
 		"use server";
