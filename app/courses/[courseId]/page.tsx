@@ -183,9 +183,7 @@ const Page = async ({
 				{page && (
 					<LMSProvider
 						version={`${scorm.metadata.schemaversion}`}
-						courseId={courseId}
-						data={learner.data as Record<string, any>}
-						learnerId={learnerId}
+						learner={learner}
 					>
 						<iframe
 							src={`/courses/${courseId}/${resources.find(
