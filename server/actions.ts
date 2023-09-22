@@ -40,8 +40,15 @@ export const uploadCourse = async (formData: FormData) => {
 
 		const manifestText = await manifestFile.async("text");
 
-		const parsedIMSManifest = parser.parse(manifestText);
-		const scorm = IMSManifestSchema.parse(parsedIMSManifest).manifest;
+		const IMSManifest = parser.parse(manifestText);
+		const parsedManifest = IMSManifestSchema.safeParse(IMSManifest);
+
+		if (!parsedManifest.success) {
+			throw new Error(parsedManifest.error.issues[0].message);
+		}
+
+		const scorm = parsedManifest.data.manifest;
+
 		const courseTitle = Array.isArray(scorm.organizations.organization)
 			? scorm.organizations.organization[0].title
 			: scorm.organizations.organization.title;

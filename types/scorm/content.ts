@@ -28,14 +28,15 @@ export const ResourceSchema = z.object({
 });
 export type Resource = z.infer<typeof ResourceSchema>;
 
-export const ScormVersionSchema = z
-	.enum([
-		"CAM 1.3",
-		"2004 2nd Edition",
-		"2004 3rd Edition",
-		"2004 4th Edition",
-	])
-	.or(z.literal(1.2));
+// Add more versions as needed
+export const ScormVersionSchema = z.literal(1.2, {
+	errorMap: () => {
+		return {
+			code: "invalid_type",
+			message: "Invalid SCORM version. Only 1.2 is supported.",
+		};
+	},
+});
 
 export const IMSManifestSchema = z.object({
 	manifest: z.object({
