@@ -88,6 +88,7 @@ const uploadCourse = async ({ file }: { file: File }) => {
 	const res = await fetch("/api/upload", {
 		method: "POST",
 		body: formData,
+		cache: "no-store",
 	});
 	if (!res.ok) {
 		if (res.status === 400) {
