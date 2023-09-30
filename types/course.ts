@@ -14,3 +14,8 @@ export const SelectCourseSchema = CourseSchema.pick({
 	id: true,
 });
 export type SelectCourse = z.infer<typeof SelectCourseSchema>;
+
+export const CourseFile = z.custom<File>(
+	(val) => val instanceof File,
+	"Please upload a file"
+);

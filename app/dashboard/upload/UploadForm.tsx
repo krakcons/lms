@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { formatFileSize } from "@/lib/helpers";
+import { CourseFile } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
@@ -137,7 +138,7 @@ const UploadForm = () => {
 	} = useForm<{ file: File }>({
 		resolver: zodResolver(
 			z.object({
-				file: z.custom<File>(),
+				file: CourseFile,
 			})
 		),
 		defaultValues: {
