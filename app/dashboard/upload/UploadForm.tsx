@@ -2,9 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { formatFileSize } from "@/lib/helpers";
-import { uploadCourse } from "@/server/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
@@ -81,8 +82,52 @@ const Dropzone = ({
 	);
 };
 
+const uploadCourse = async ({ file }: { file: File }) => {
+	const formData = new FormData();
+	formData.append("file", file);
+	const res = await fetch("/api/upload", {
+		method: "POST",
+		body: formData,
+	});
+	if (!res.ok) {
+		if (res.status === 400) {
+			throw new Error((await res.json()).message);
+		} else {
+			throw new Error("Upload failed");
+		}
+	}
+	console.log("done");
+};
+
 const UploadForm = () => {
 	const { toast } = useToast();
+	const router = useRouter();
+
+	const { mutate } = useMutation({
+		mutationFn: uploadCourse,
+		onMutate: () => {
+			toast({
+				title: "Uploading...",
+				description: "Your file is being uploaded",
+			});
+		},
+		onSuccess: () => {
+			toast({
+				title: "Upload Successful",
+				description: "Your file has been uploaded",
+			});
+			router.push("/dashboard");
+			router.refresh();
+		},
+		onError: (err: any) => {
+			toast({
+				variant: "destructive",
+				title: "Uh oh! Something went wrong.",
+				description: err.message,
+			});
+		},
+	});
+
 	const {
 		reset,
 		control,
@@ -91,7 +136,7 @@ const UploadForm = () => {
 	} = useForm<{ file: File }>({
 		resolver: zodResolver(
 			z.object({
-				file: z.instanceof(File),
+				file: z.custom<File>(),
 			})
 		),
 		defaultValues: {
@@ -99,49 +144,28 @@ const UploadForm = () => {
 		},
 	});
 
-	const action = (data: { file: File }) => {
-		const formData = new FormData();
-		formData.append("file", data.file);
-		toast({
-			title: "Uploading...",
-			description: "Your file is being uploaded",
-		});
-		uploadCourse(formData)
-			.then(() => {
-				toast({
-					title: "Upload Successful",
-					description: "Your file has been uploaded",
-				});
-			})
-			.catch((err) =>
-				toast({
-					title: "Uh oh! Something went wrong.",
-					description: err.message,
-				})
-			);
-	};
-
 	return (
-		<form onSubmit={handleSubmit(action)}>
-			<div className="flex-1">
-				<Controller
-					name="file"
-					control={control}
-					rules={{ required: true }}
-					render={({ field: { value, onChange } }) => (
-						<Dropzone value={value} setValue={onChange} />
-					)}
-				/>
-				{isValid && (
-					<>
-						<Button type="submit" className="mr-4 mt-8">
-							Upload
-						</Button>
-						<Button onClick={() => reset()}>Clear</Button>
-					</>
+		<div className="flex-1">
+			<Controller
+				name="file"
+				control={control}
+				rules={{ required: true }}
+				render={({ field: { value, onChange } }) => (
+					<Dropzone value={value} setValue={onChange} />
 				)}
-			</div>
-		</form>
+			/>
+			{isValid && (
+				<>
+					<Button
+						className="mr-4 mt-8"
+						onClick={handleSubmit(({ file }) => mutate({ file }))}
+					>
+						Upload
+					</Button>
+					<Button onClick={() => reset()}>Clear</Button>
+				</>
+			)}
+		</div>
 	);
 };
 

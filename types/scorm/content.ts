@@ -53,3 +53,4 @@ export const IMSManifestSchema = z.object({
 		}),
 	}),
 });
+export type Scorm = z.infer<typeof IMSManifestSchema>;

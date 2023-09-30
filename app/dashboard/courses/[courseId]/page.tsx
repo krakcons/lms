@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { getExpandedLearners } from "@/lib/learner";
-import { deleteCourse } from "@/server/actions";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import ExportCSVButton from "./ExportCSVButton";
 import InviteLearnerDialog from "./InviteLearnerDialog";
 import PublicLinkButton from "./PublicLinkButton";
@@ -28,7 +29,10 @@ const Page = async ({
 	const deleteCourseAction = async () => {
 		"use server";
 
-		await deleteCourse({ id: course.id });
+		await serverTrpc.course.delete({ id: course.id });
+
+		revalidatePath("/dashboard");
+		redirect("/dashboard");
 	};
 
 	const expandedLearners = getExpandedLearners(

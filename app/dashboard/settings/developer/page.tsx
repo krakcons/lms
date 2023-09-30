@@ -7,16 +7,13 @@ import {
 } from "@/components/ui/card";
 import { getAuth } from "@/lib/auth";
 import { clerkClient } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import CopyKey from "./CopyKey";
 
 const Page = async () => {
-	const { getToken, userId, orgId } = getAuth();
-
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	const { getToken, userId, orgId } = getAuth({
+		redirect: true,
+	});
 
 	let token = null;
 
