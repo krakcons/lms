@@ -1,8 +1,8 @@
-import { s3Client } from "@/lib/s3";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getCourseFile } from "@/lib/s3";
+import mime from "mime-types";
 
 export const GET = async (
-	request: Request,
+	_: Request,
 	{
 		params: { files, courseId },
 	}: {
@@ -15,19 +15,21 @@ export const GET = async (
 		url = "scormcontent/index.html";
 	}
 
-	console.log("URL", url);
+	const file = await getCourseFile(courseId, url);
 
-	const file = await s3Client.send(
-		new GetObjectCommand({
-			Bucket: "krak-lms",
-			Key: `courses/${courseId}/${url}`,
-		})
-	);
-	const body = (await file.Body) as ReadableStream<Uint8Array>;
-	return new Response(body, {
+	if (!file) {
+		return new Response("Not found", {
+			status: 404,
+		});
+	}
+
+	const fileBody = await file.async("uint8array");
+	const contentType = mime.lookup(url);
+
+	return new Response(fileBody, {
 		status: 200,
 		headers: {
-			"Content-Type": file.ContentType ?? "text/html",
+			"Content-Type": contentType ? contentType : "text/html",
 		},
 	});
 };

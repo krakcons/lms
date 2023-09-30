@@ -1,5 +1,5 @@
 import { courses } from "@/db/schema";
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const CourseSchema = createSelectSchema(courses);
@@ -15,7 +15,11 @@ export const SelectCourseSchema = CourseSchema.pick({
 });
 export type SelectCourse = z.infer<typeof SelectCourseSchema>;
 
-export const CourseFile = z.custom<File>(
-	(val) => val instanceof File,
-	"Please upload a file"
-);
+export const InsertCourseSchema = createInsertSchema(courses);
+export type InsertCourseSchema = typeof courses.$inferInsert;
+
+export const UploadCourseSchema = InsertCourseSchema.pick({
+	name: true,
+	version: true,
+});
+export type UploadCourse = z.infer<typeof UploadCourseSchema>;

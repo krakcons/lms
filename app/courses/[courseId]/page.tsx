@@ -8,9 +8,8 @@ import {
 } from "@/components/ui/sheet";
 import { db } from "@/db/db";
 import { learners } from "@/db/schema";
-import { s3Client } from "@/lib/s3";
+import { getCourseFile } from "@/lib/s3";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import { List } from "lucide-react";
@@ -54,13 +53,8 @@ const Page = async ({
 		redirect(`/courses/${courseId}/public`);
 	}
 
-	const res = await s3Client.send(
-		new GetObjectCommand({
-			Bucket: "krak-lms",
-			Key: `courses/${courseId}/imsmanifest.xml`,
-		})
-	);
-	const text = await res.Body?.transformToString();
+	const file = await getCourseFile(courseId, "imsmanifest.xml");
+	const text = await file?.async("text");
 
 	if (!text) return <h1>404</h1>;
 

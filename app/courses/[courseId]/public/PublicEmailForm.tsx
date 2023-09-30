@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -21,7 +22,14 @@ const InputSchema = z.object({
 type Input = z.infer<typeof InputSchema>;
 
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
-	const { mutate } = trpc.learner.create.useMutation();
+	const router = useRouter();
+	const { mutate } = trpc.learner.create.useMutation({
+		onSuccess: ({ id }) => {
+			console.log("NEW ID", id);
+			router.push(`/courses/${courseId}?learnerId=${id}`);
+		},
+	});
+
 	const form = useForm<Input>({
 		resolver: zodResolver(InputSchema),
 		defaultValues: {
@@ -35,7 +43,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form className="space-y-8">
 				<FormField
 					control={form.control}
 					name="email"
@@ -49,11 +57,16 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Submit</Button>
+				<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+					Submit
+				</Button>
 				<Button
 					variant="outline"
 					className="ml-3"
-					onClick={() => mutate({ email: null, courseId })}
+					onClick={(e) => {
+						e.preventDefault();
+						mutate({ email: null, courseId });
+					}}
 				>
 					Continue as guest
 				</Button>

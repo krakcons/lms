@@ -1,10 +1,10 @@
 "use client";
+import { trpc } from "@/app/_trpc/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { CourseFile, CourseUpload } from "@/lib/course";
 import { formatFileSize } from "@/lib/helpers";
-import { CourseFile } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -83,42 +83,63 @@ const Dropzone = ({
 	);
 };
 
-const uploadCourse = async ({ file }: { file: File }) => {
-	const formData = new FormData();
-	formData.append("file", file);
-	const res = await fetch("/api/upload", {
-		method: "POST",
-		body: formData,
-		cache: "no-store",
-	});
-	if (!res.ok) {
-		if (res.status === 400) {
-			throw new Error((await res.json()).message);
-		} else {
-			throw new Error("Upload failed");
-		}
-	}
-	console.log("done");
-};
-
 const UploadForm = () => {
 	const { toast } = useToast();
 	const router = useRouter();
 
-	const { mutate } = useMutation({
-		mutationFn: uploadCourse,
+	const {
+		reset,
+		control,
+		handleSubmit,
+		watch,
+		formState: { errors },
+	} = useForm<{ file: CourseFile }>({
+		mode: "onChange",
+		resolver: zodResolver(
+			z.object({
+				file: CourseFile,
+			})
+		),
+		defaultValues: {
+			file: undefined,
+		},
+	});
+
+	const file = watch("file");
+
+	console.log("FILE", file);
+
+	const { mutate } = trpc.course.upload.useMutation({
 		onMutate: () => {
 			toast({
 				title: "Uploading...",
 				description: "Your file is being uploaded",
 			});
 		},
-		onSuccess: () => {
+		onSuccess: async (data) => {
+			const { url, fields } = data;
+
+			console.log("URL", url, "FIELDS", fields);
+
+			const form: Record<string, any> = {
+				...fields,
+				"Content-Type": "application/zip",
+				file,
+			};
+			const formData = new FormData();
+			Object.keys(form).forEach((key) => {
+				formData.append(key, form[key]);
+			});
+			await fetch(url, {
+				method: "POST",
+				body: formData,
+			});
+
 			toast({
 				title: "Upload Successful",
 				description: "Your file has been uploaded",
 			});
-			router.push("/dashboard");
+			router.push(`/dashboard`);
 			router.refresh();
 		},
 		onError: (err: any) => {
@@ -130,21 +151,12 @@ const UploadForm = () => {
 		},
 	});
 
-	const {
-		reset,
-		control,
-		handleSubmit,
-		formState: { isValid },
-	} = useForm<{ file: File }>({
-		resolver: zodResolver(
-			z.object({
-				file: CourseFile,
-			})
-		),
-		defaultValues: {
-			file: undefined,
-		},
-	});
+	const onSubmit = async ({ file }: { file: CourseFile }) => {
+		console.log("FILE", file);
+		const { name, version } = await CourseUpload.parseAsync(file);
+
+		mutate({ name, version });
+	};
 
 	return (
 		<div className="flex-1">
@@ -156,17 +168,19 @@ const UploadForm = () => {
 					<Dropzone value={value} setValue={onChange} />
 				)}
 			/>
-			{isValid && (
-				<>
-					<Button
-						className="mr-4 mt-8"
-						onClick={handleSubmit(({ file }) => mutate({ file }))}
-					>
-						Upload
-					</Button>
-					<Button onClick={() => reset()}>Clear</Button>
-				</>
+			{errors.file && (
+				<p className="mt-3 text-red-500">{errors.file.message}</p>
 			)}
+			<Button
+				className="mr-4 mt-8"
+				onClick={handleSubmit(onSubmit)}
+				disabled={!file}
+			>
+				Upload
+			</Button>
+			<Button onClick={() => reset()} disabled={!file}>
+				Clear
+			</Button>
 		</div>
 	);
 };
