@@ -1,11 +1,23 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { CourseFile, CourseUpload } from "@/lib/course";
+import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatFileSize } from "@/lib/helpers";
+import { cn } from "@/lib/utils";
+import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "lucide-react";
+import { AlertCircle, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
@@ -29,57 +41,35 @@ const Dropzone = ({
 		[setValue]
 	);
 
-	const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
-		useDropzone({
-			accept: { "application/zip": [] },
-			onDrop,
-			maxFiles: 1,
-		});
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		accept: { "application/zip": [] },
+		onDrop,
+		maxFiles: 1,
+	});
 
 	return (
-		<>
-			{value ? (
-				<div className="flex items-center justify-between overflow-x-auto bg-secondary p-4 sm:p-8">
-					<div className="mr-4 flex flex-col">
-						<p className="font-bold">Name</p>
-						<p className="whitespace-nowrap">{value.name}</p>
-					</div>
-					<div className="mr-4 flex flex-col">
-						<p className="font-bold">Size</p>
-						<p className="whitespace-nowrap">
-							{formatFileSize(value.size)}
-						</p>
-					</div>
-					<div className="flex flex-col">
-						<p className="whitespace-nowrap font-bold">
-							Last Modified
-						</p>
-						<p className="whitespace-nowrap">
-							{new Date(value.lastModified).toDateString()}
-						</p>
-					</div>
-				</div>
-			) : (
-				<section
-					{...getRootProps()}
-					className={`flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded border border-primary ${
-						isDragActive
-							? "border-solid bg-primary-foreground"
-							: "border-dashed"
-					} ${value ? "hidden" : ""}`}
-				>
-					<input {...getInputProps({ name: "file", type: "file" })} />
-					<Upload size={40} className="mb-4" />
-					<p className="flex">
-						Drag & Drop, or{" "}
-						<span className="px-1 text-blue-400 hover:underline">
-							click here
-						</span>{" "}
-						to select files
-					</p>
-				</section>
-			)}
-		</>
+		<section
+			{...getRootProps()}
+			className={cn([
+				"flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded border border-primary",
+				`${
+					isDragActive
+						? "border-solid bg-primary-foreground"
+						: "border-dashed"
+				}`,
+				`${value ? "hidden" : ""}`,
+			])}
+		>
+			<input {...getInputProps({ name: "file", type: "file" })} />
+			<Upload size={40} className="mb-4" />
+			<p className="flex">
+				Drag & Drop, or{" "}
+				<span className="px-1 text-blue-400 hover:underline">
+					click here
+				</span>{" "}
+				to select files
+			</p>
+		</section>
 	);
 };
 
@@ -92,22 +82,31 @@ const UploadForm = () => {
 		control,
 		handleSubmit,
 		watch,
-		formState: { errors },
-	} = useForm<{ file: CourseFile }>({
+		setValue,
+		register,
+		formState: { errors, isValid },
+	} = useForm<{
+		file: File;
+		upload: UploadCourse;
+	}>({
 		mode: "onChange",
 		resolver: zodResolver(
 			z.object({
-				file: CourseFile,
+				file: CourseFileSchema,
+				upload: UploadCourseSchema,
 			})
 		),
 		defaultValues: {
 			file: undefined,
+			upload: {
+				name: "",
+				version: undefined,
+			},
 		},
 	});
 
 	const file = watch("file");
-
-	console.log("FILE", file);
+	const version = watch("upload.version");
 
 	const { mutate } = trpc.course.upload.useMutation({
 		onMutate: () => {
@@ -151,37 +150,84 @@ const UploadForm = () => {
 		},
 	});
 
-	const onSubmit = async ({ file }: { file: CourseFile }) => {
-		console.log("FILE", file);
-		const { name, version } = await CourseUpload.parseAsync(file);
-
-		mutate({ name, version });
+	const onSubmit = async ({
+		upload,
+	}: {
+		file: File;
+		upload: UploadCourse;
+	}) => {
+		mutate(upload);
 	};
 
 	return (
-		<div className="flex-1">
+		<form onSubmit={handleSubmit(onSubmit)}>
 			<Controller
 				name="file"
 				control={control}
 				rules={{ required: true }}
 				render={({ field: { value, onChange } }) => (
-					<Dropzone value={value} setValue={onChange} />
+					<Dropzone
+						value={value}
+						setValue={async (file) => {
+							const parse =
+								await CourseUploadSchema.safeParseAsync(file);
+							if (parse.success) {
+								setValue("upload", parse.data.upload);
+							}
+							onChange(file);
+						}}
+					/>
 				)}
 			/>
-			{errors.file && (
-				<p className="mt-3 text-red-500">{errors.file.message}</p>
+			{file && (
+				<Card>
+					<CardHeader>
+						<CardTitle>Course Details</CardTitle>
+						<CardDescription>
+							Verify course details and fix errors before upload.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{file && (
+							<div className="flex flex-col gap-2">
+								{errors.file && (
+									<Alert
+										variant="destructive"
+										className="mb-4"
+									>
+										<AlertCircle size={18} />
+										<AlertTitle>Error</AlertTitle>
+										<AlertDescription>
+											{errors.file.message}
+										</AlertDescription>
+									</Alert>
+								)}
+								<Label>Name</Label>
+								<Input
+									{...register("upload.name")}
+									placeholder="Course Name"
+									disabled={!!errors.file?.message}
+								/>
+								<Label className="mt-3">Size</Label>
+								<p className="flex-1 truncate">
+									{formatFileSize(file.size)}
+								</p>
+								<Label className="mt-3">Version</Label>
+								<p className="flex-1 truncate">
+									{version ? version : "Unknown"}
+								</p>
+							</div>
+						)}
+					</CardContent>
+				</Card>
 			)}
-			<Button
-				className="mr-4 mt-8"
-				onClick={handleSubmit(onSubmit)}
-				disabled={!file}
-			>
+			<Button className="mr-4 mt-8" type="submit" disabled={!isValid}>
 				Upload
 			</Button>
-			<Button onClick={() => reset()} disabled={!file}>
+			<Button variant="outline" onClick={() => reset()} disabled={!file}>
 				Clear
 			</Button>
-		</div>
+		</form>
 	);
 };
 

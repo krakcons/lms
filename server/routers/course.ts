@@ -5,9 +5,9 @@ import {
 	CourseSchema,
 	DeleteCourseSchema,
 	SelectCourseSchema,
+	UploadCourseSchema,
 } from "@/types/course";
 import { LearnerSchema } from "@/types/learner";
-import { ScormVersionSchema } from "@/types/scorm/content";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TRPCError } from "@trpc/server";
@@ -18,12 +18,7 @@ import { router } from "../trpc";
 
 export const courseRouter = router({
 	upload: protectedProcedure
-		.input(
-			z.object({
-				name: z.string(),
-				version: ScormVersionSchema,
-			})
-		)
+		.input(UploadCourseSchema)
 		.mutation(async ({ ctx: { teamId }, input: { name, version } }) => {
 			const insertId = crypto.randomUUID();
 
@@ -32,7 +27,7 @@ export const courseRouter = router({
 				id: insertId,
 				teamId,
 				name,
-				version: `${version}`,
+				version,
 			});
 
 			// Create a presigned post to upload the course to S3
