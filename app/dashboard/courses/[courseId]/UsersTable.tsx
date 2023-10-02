@@ -25,11 +25,17 @@ import {
 import { ExpandedLearner } from "@/types/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const columnHelper = createColumnHelper<ExpandedLearner>();
 
 const LearnerActions = ({ learner }: { learner: ExpandedLearner }) => {
-	const { mutate } = trpc.learner.delete.useMutation();
+	const router = useRouter();
+	const { mutate } = trpc.learner.delete.useMutation({
+		onSuccess: () => {
+			router.refresh();
+		},
+	});
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
