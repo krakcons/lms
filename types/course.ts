@@ -21,5 +21,7 @@ export type InsertCourseSchema = typeof courses.$inferInsert;
 export const UploadCourseSchema = InsertCourseSchema.pick({
 	name: true,
 	version: true,
+}).extend({
+	name: z.string().min(1, "Course name must be at least 1 character"),
 });
 export type UploadCourse = z.infer<typeof UploadCourseSchema>;

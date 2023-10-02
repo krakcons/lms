@@ -33,7 +33,7 @@ export const ScormVersionSchema = z.literal(1.2, {
 	errorMap: () => {
 		return {
 			code: "invalid_type",
-			message: "Invalid SCORM version. Only 1.2 is supported.",
+			message: "Course is not SCORM 1.2",
 		};
 	},
 });

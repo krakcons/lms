@@ -31,7 +31,7 @@ export const courseRouter = router({
 			});
 
 			// Create a presigned post to upload the course to S3
-			return createPresignedPost(s3Client as any, {
+			const presignedUrl = await createPresignedPost(s3Client as any, {
 				Bucket: "krak-lms",
 				Key: `courses/${insertId}`,
 				Fields: {
@@ -42,6 +42,11 @@ export const courseRouter = router({
 					["content-length-range", 0, 1024 * 1024 * 4.5],
 				],
 			});
+
+			return {
+				presignedUrl,
+				courseId: insertId,
+			};
 		}),
 	findOne: protectedProcedure
 		.meta({

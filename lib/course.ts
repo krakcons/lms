@@ -20,7 +20,7 @@ export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
 	if (!manifestFile) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: "imsmanifest.xml does not exist",
+			message: "Course does not contain imsmanifest.xml file",
 			fatal: true,
 		});
 		return z.NEVER;

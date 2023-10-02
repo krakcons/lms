@@ -27,9 +27,11 @@ import { z } from "zod";
 const Dropzone = ({
 	value,
 	setValue,
+	hidden,
 }: {
 	value?: File;
 	setValue: (value?: File) => void;
+	hidden?: boolean;
 }) => {
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
@@ -57,7 +59,7 @@ const Dropzone = ({
 						? "border-solid bg-primary-foreground"
 						: "border-dashed"
 				}`,
-				`${value ? "hidden" : ""}`,
+				`${hidden ? "hidden" : ""}`,
 			])}
 		>
 			<input {...getInputProps({ name: "file", type: "file" })} />
@@ -73,6 +75,14 @@ const Dropzone = ({
 	);
 };
 
+const FormError = ({ message }: { message: string }) => (
+	<Alert variant="destructive" className="mb-4">
+		<AlertCircle size={18} />
+		<AlertTitle>{message}</AlertTitle>
+		<AlertDescription>Please fix and try again.</AlertDescription>
+	</Alert>
+);
+
 const UploadForm = () => {
 	const { toast } = useToast();
 	const router = useRouter();
@@ -84,12 +94,13 @@ const UploadForm = () => {
 		watch,
 		setValue,
 		register,
-		formState: { errors, isValid },
+		setError,
+		clearErrors,
+		formState: { errors },
 	} = useForm<{
 		file: File;
 		upload: UploadCourse;
 	}>({
-		mode: "onChange",
 		resolver: zodResolver(
 			z.object({
 				file: CourseFileSchema,
@@ -116,7 +127,7 @@ const UploadForm = () => {
 			});
 		},
 		onSuccess: async (data) => {
-			const { url, fields } = data;
+			const { url, fields } = data.presignedUrl;
 
 			console.log("URL", url, "FIELDS", fields);
 
@@ -138,7 +149,7 @@ const UploadForm = () => {
 				title: "Upload Successful",
 				description: "Your file has been uploaded",
 			});
-			router.push(`/dashboard`);
+			router.push(`/dashboard/courses/${data.courseId}`);
 			router.refresh();
 		},
 		onError: (err: any) => {
@@ -160,74 +171,83 @@ const UploadForm = () => {
 	};
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
-			<Controller
-				name="file"
-				control={control}
-				rules={{ required: true }}
-				render={({ field: { value, onChange } }) => (
-					<Dropzone
-						value={value}
-						setValue={async (file) => {
-							const parse =
-								await CourseUploadSchema.safeParseAsync(file);
-							if (parse.success) {
-								setValue("upload", parse.data.upload);
-							}
-							onChange(file);
-						}}
-					/>
-				)}
-			/>
-			{file && (
-				<Card>
-					<CardHeader>
-						<CardTitle>Course Details</CardTitle>
-						<CardDescription>
-							Verify course details and fix errors before upload.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						{file && (
-							<div className="flex flex-col gap-2">
-								{errors.file && (
-									<Alert
-										variant="destructive"
-										className="mb-4"
-									>
-										<AlertCircle size={18} />
-										<AlertTitle>Error</AlertTitle>
-										<AlertDescription>
-											{errors.file.message}
-										</AlertDescription>
-									</Alert>
-								)}
-								<Label>Name</Label>
-								<Input
-									{...register("upload.name")}
-									placeholder="Course Name"
-									disabled={!!errors.file?.message}
-								/>
-								<Label className="mt-3">Size</Label>
-								<p className="flex-1 truncate">
-									{formatFileSize(file.size)}
-								</p>
-								<Label className="mt-3">Version</Label>
-								<p className="flex-1 truncate">
-									{version ? version : "Unknown"}
-								</p>
-							</div>
-						)}
-					</CardContent>
-				</Card>
+		<>
+			{errors.file?.message && (
+				<FormError message={errors.file.message} />
 			)}
-			<Button className="mr-4 mt-8" type="submit" disabled={!isValid}>
-				Upload
-			</Button>
-			<Button variant="outline" onClick={() => reset()} disabled={!file}>
-				Clear
-			</Button>
-		</form>
+			{errors.upload?.name?.message && (
+				<FormError message={errors.upload.name.message} />
+			)}
+			<form onSubmit={handleSubmit(onSubmit)}>
+				<Controller
+					name="file"
+					control={control}
+					rules={{ required: true }}
+					render={({ field: { value, onChange } }) => (
+						<Dropzone
+							value={value}
+							hidden={!!file}
+							setValue={async (file) => {
+								const parse =
+									await CourseUploadSchema.safeParseAsync(
+										file
+									);
+								if (parse.success) {
+									clearErrors();
+									setValue("upload", parse.data.upload);
+									onChange(file);
+								} else {
+									setError("file", {
+										message: parse.error.errors[0].message,
+									});
+								}
+							}}
+						/>
+					)}
+				/>
+				{file && (
+					<Card>
+						<CardHeader>
+							<CardTitle>Course Details</CardTitle>
+							<CardDescription>
+								Verify course details and fix errors before
+								upload.
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{file && (
+								<div className="flex flex-col gap-2">
+									<Label>Name</Label>
+									<Input
+										{...register("upload.name")}
+										placeholder="Course Name"
+										disabled={!!errors.file?.message}
+									/>
+									<Label className="mt-3">Size</Label>
+									<p className="flex-1 truncate">
+										{formatFileSize(file.size)}
+									</p>
+									<Label className="mt-3">Version</Label>
+									<p className="flex-1 truncate">
+										{version ? version : "Unknown"}
+									</p>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				)}
+				<Button className="mr-4 mt-8" type="submit" disabled={!file}>
+					Upload
+				</Button>
+				<Button
+					variant="outline"
+					onClick={() => reset()}
+					disabled={!file}
+				>
+					Clear
+				</Button>
+			</form>
+		</>
 	);
 };
 
