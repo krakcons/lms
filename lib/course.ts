@@ -3,6 +3,9 @@ import { IMSManifestSchema } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
 import { z } from "zod";
+import { formatBytes } from "./helpers";
+
+export const MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -14,6 +17,17 @@ export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
 
 	const fileBuffer = await file.arrayBuffer();
 	const course = await zip.loadAsync(fileBuffer);
+
+	if (file.size > MAX_FILE_SIZE) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: `Course is too large. Maximum file size is ${formatBytes(
+				MAX_FILE_SIZE
+			)}.`,
+			fatal: true,
+		});
+		return z.NEVER;
+	}
 
 	// validate imsmanifest.xml exists
 	const manifestFile = course.file("imsmanifest.xml");

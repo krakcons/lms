@@ -1,5 +1,6 @@
 import { db } from "@/db/db";
 import { courses, learners } from "@/db/schema";
+import { MAX_FILE_SIZE } from "@/lib/course";
 import { s3Client } from "@/lib/s3";
 import {
 	CourseSchema,
@@ -39,7 +40,7 @@ export const courseRouter = router({
 				},
 				Conditions: [
 					["eq", "$Content-Type", "application/zip"],
-					["content-length-range", 0, 1024 * 1024 * 4.5],
+					["content-length-range", 0, MAX_FILE_SIZE],
 				],
 			});
 

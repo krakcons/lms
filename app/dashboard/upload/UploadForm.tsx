@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
-import { formatFileSize } from "@/lib/helpers";
+import { formatBytes } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -225,7 +225,7 @@ const UploadForm = () => {
 									/>
 									<Label className="mt-3">Size</Label>
 									<p className="flex-1 truncate">
-										{formatFileSize(file.size)}
+										{formatBytes(file.size)}
 									</p>
 									<Label className="mt-3">Version</Label>
 									<p className="flex-1 truncate">
