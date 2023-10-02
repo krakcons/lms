@@ -125,7 +125,7 @@ export const learnerRouter = router({
 
 			if (sendEmail && email) {
 				await resend.emails.send({
-					from: "support@lcds.krakconsultants.com",
+					from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 					to: email,
 					subject: course.name,
 					react: LearnerInvite({
