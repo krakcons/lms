@@ -28,7 +28,6 @@ import { ChevronsUpDown, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const useTeam = () => {
-	const router = useRouter();
 	const { organization } = useOrganization();
 	const { user } = useUser();
 
@@ -52,6 +51,7 @@ const useTeam = () => {
 };
 
 const TeamSwitcher = () => {
+	const router = useRouter();
 	const [open, setOpen] = React.useState(false);
 	const { user } = useUser();
 	const { team } = useTeam();
@@ -61,6 +61,16 @@ const TeamSwitcher = () => {
 			infinite: true,
 		},
 	});
+
+	const changeOrganization = async (organizationId: string | null) => {
+		if (setActive) {
+			setActive({
+				beforeEmit: () => router.push("/dashboard"),
+				organization: organizationId,
+			});
+		}
+		setOpen(false);
+	};
 
 	if (!team || !user) return null;
 
@@ -96,14 +106,7 @@ const TeamSwitcher = () => {
 						<CommandEmpty>No team found.</CommandEmpty>
 						<CommandGroup heading="Personal">
 							<CommandItem
-								onSelect={() => {
-									if (setActive) {
-										setActive({
-											organization: null,
-										});
-									}
-									setOpen(false);
-								}}
+								onSelect={() => changeOrganization(null)}
 								className="text-sm"
 							>
 								<Avatar className="mr-2 h-5 w-5">
@@ -125,13 +128,9 @@ const TeamSwitcher = () => {
 							{userMemberships.data?.map(({ organization }) => (
 								<CommandItem
 									key={organization.id}
-									onSelect={() => {
-										if (setActive)
-											setActive({
-												organization: organization.id,
-											});
-										setOpen(false);
-									}}
+									onSelect={() =>
+										changeOrganization(organization.id)
+									}
 									className="text-sm"
 								>
 									<Avatar className="mr-2 h-5 w-5">

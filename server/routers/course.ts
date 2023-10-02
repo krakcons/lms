@@ -70,8 +70,7 @@ export const courseRouter = router({
 			if (!course) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
-					message:
-						"Course does not exist or does not belong to current team",
+					message: "Course not found or does not belong to you",
 				});
 			} else {
 				return course;
