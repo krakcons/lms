@@ -38,7 +38,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	});
 
 	const onSubmit = async ({ email }: Input) => {
-		mutate({ email, courseId, sendEmail: false });
+		mutate({ email, courseId });
 	};
 
 	return (

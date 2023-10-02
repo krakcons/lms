@@ -86,7 +86,7 @@ export const learnerRouter = router({
 		})
 		.input(CreateLearnerSchema)
 		.output(LearnerSchema)
-		.mutation(async ({ input: { email, sendEmail, courseId } }) => {
+		.mutation(async ({ input: { email, sendEmail = false, courseId } }) => {
 			// Check if learner already exists by email
 			if (email) {
 				const learner = await db.query.learners.findFirst({
@@ -125,7 +125,7 @@ export const learnerRouter = router({
 
 			if (sendEmail && email) {
 				await resend.emails.send({
-					from: "support@billyhawkes.com",
+					from: "support@lcds.krakconsultants.com",
 					to: email,
 					subject: course.name,
 					react: LearnerInvite({

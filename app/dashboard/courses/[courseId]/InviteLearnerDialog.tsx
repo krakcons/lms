@@ -70,6 +70,7 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 		mutate({
 			courseId,
 			email,
+			sendEmail: true,
 		});
 		form.reset();
 	};
