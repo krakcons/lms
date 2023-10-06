@@ -5,7 +5,7 @@ import TeamSwitcher from "../../components/auth/TeamSwitcher";
 import ThemeButton from "./ThemeButton";
 
 export const runtime = "edge";
-export const preferredRegion = "us-east-2";
+export const preferredRegion = "cle1";
 
 type Props = {
 	children: React.ReactNode;
