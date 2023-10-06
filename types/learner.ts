@@ -6,6 +6,7 @@ import { WithUser } from "./users";
 
 export const LearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
+	email: z.string().email().nullable(),
 });
 export type Learner = z.infer<typeof LearnerSchema>;
 
@@ -16,6 +17,7 @@ export type InsertLearner = z.infer<typeof InsertLearnerSchema>;
 
 export const DeleteLearnerSchema = LearnerSchema.pick({
 	id: true,
+	courseId: true,
 });
 export type DeleteLearner = z.infer<typeof DeleteLearnerSchema>;
 
@@ -39,3 +41,18 @@ export type FullLearner = Prettify<
 >;
 
 export type ExpandedLearner = ReturnType<typeof parseLearnerData>;
+
+export const SelectLearnerSchema = LearnerSchema.pick({
+	id: true,
+	courseId: true,
+});
+export type SelectLearner = z.infer<typeof SelectLearnerSchema>;
+
+export const UpdateLearnerSchema = LearnerSchema.pick({
+	id: true,
+	courseId: true,
+}).extend({
+	data: LearnerSchema.shape.data.optional(),
+	email: LearnerSchema.shape.email.optional(),
+});
+export type UpdateLearner = z.infer<typeof UpdateLearnerSchema>;

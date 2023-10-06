@@ -7,8 +7,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Krak LMS",
-	description: "LMS for modern times, cheap and easy to use",
+	title: "Krak LCDS",
+	description: "LDCS for modern times, cheap and easy to use",
 };
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
