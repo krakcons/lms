@@ -33,7 +33,7 @@ export const courseRouter = router({
 
 			// Create a presigned post to upload the course to S3
 			const presignedUrl = await createPresignedPost(s3Client as any, {
-				Bucket: "krak-lms",
+				Bucket: "krak-lcds",
 				Key: `courses/${insertId}`,
 				Fields: {
 					key: `courses/${insertId}`,
@@ -120,7 +120,7 @@ export const courseRouter = router({
 			// Delete the course from S3
 			await s3Client.send(
 				new DeleteObjectCommand({
-					Bucket: "krak-lms",
+					Bucket: "krak-lcds",
 					Key: `courses/${id}`,
 				})
 			);

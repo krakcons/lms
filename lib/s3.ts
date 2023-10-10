@@ -3,13 +3,13 @@ import Zip from "jszip";
 const zip = new Zip();
 
 // Create an Amazon S3 service client object.
-export const s3Client = new S3Client({ region: "ca-central-1" });
+export const s3Client = new S3Client({ region: "us-east-2" });
 
 // Get a course file from S3
 export const getCourseFile = async (courseId: string, url: string) => {
 	const courseZip = await s3Client.send(
 		new GetObjectCommand({
-			Bucket: "krak-lms",
+			Bucket: "krak-lcds",
 			Key: `courses/${courseId}`,
 		})
 	);
