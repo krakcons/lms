@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { AxiomWebVitals } from "next-axiom";
 import { Inter } from "next/font/google";
 import { Providers } from "./Providers";
 import "./globals.css";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<html lang="en" suppressHydrationWarning>
+			<AxiomWebVitals />
 			<body className={`${inter.className} flex min-h-screen flex-col`}>
 				<ClerkProvider
 					appearance={{
