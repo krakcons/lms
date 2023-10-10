@@ -26,7 +26,7 @@ export const courseRouter = router({
 			const insertId = crypto.randomUUID();
 
 			const presignedUrl = await createPresignedPost(s3Client as any, {
-				Bucket: "krak-lms",
+				Bucket: "krak-lcds",
 				Key: `courses/${insertId}`,
 				Fields: {
 					key: `courses/${insertId}`,

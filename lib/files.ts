@@ -8,7 +8,7 @@ const zip = new Zip();
 export const getCourseFile = async (courseId: string, url: string) => {
 	const courseZip = await s3Client.send(
 		new GetObjectCommand({
-			Bucket: "krak-lms",
+			Bucket: "krak-lcds",
 			Key: `courses/${courseId}`,
 		})
 	);
