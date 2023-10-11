@@ -112,6 +112,7 @@ const UploadForm = () => {
 			upload: {
 				name: "",
 				version: undefined,
+				id: undefined,
 			},
 		},
 	});
@@ -217,11 +218,20 @@ const UploadForm = () => {
 						<CardContent>
 							{file && (
 								<div className="flex flex-col gap-2">
-									<Label>Name</Label>
+									<Label>
+										Identifier
+										<span className="text-muted-foreground">
+											{" (Optional)"}
+										</span>
+									</Label>
+									<Input
+										{...register("upload.id")}
+										placeholder=""
+									/>
+									<Label className="mt-3">Name</Label>
 									<Input
 										{...register("upload.name")}
-										placeholder="Course Name"
-										disabled={!!errors.file?.message}
+										placeholder=""
 									/>
 									<Label className="mt-3">Size</Label>
 									<p className="flex-1 truncate">

@@ -20,6 +20,8 @@ export type SelectCourse = z.infer<typeof SelectCourseSchema>;
 export const UploadCourseSchema = CourseSchema.pick({
 	name: true,
 	version: true,
+}).extend({
+	id: z.string().optional(),
 });
 export type UploadCourse = z.infer<typeof UploadCourseSchema>;
 

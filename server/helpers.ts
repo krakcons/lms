@@ -28,3 +28,11 @@ export const getCourse = async ({
 
 	return course;
 };
+
+const courseExists = async ({ id, teamId }: { id: string; teamId: string }) => {
+	const course = await db.query.courses.findFirst({
+		where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+	});
+
+	return !!course;
+};

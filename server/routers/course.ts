@@ -11,6 +11,7 @@ import {
 } from "@/types/course";
 import { LearnerSchema } from "@/types/learner";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getCourse } from "../helpers";
@@ -22,8 +23,24 @@ import { router } from "../trpc";
 export const courseRouter = router({
 	upload: protectedProcedure
 		.input(UploadCourseSchema)
-		.mutation(async ({ ctx: { teamId }, input: { name, version } }) => {
-			const insertId = crypto.randomUUID();
+		.mutation(async ({ ctx: { teamId }, input: { name, version, id } }) => {
+			if (id === "") {
+				id = undefined;
+			}
+
+			if (id) {
+				const course = await db.query.courses.findFirst({
+					where: and(eq(courses.id, id)),
+				});
+				if (course) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Course already exists with that identifier",
+					});
+				}
+			}
+
+			const insertId = id ?? crypto.randomUUID();
 
 			const presignedUrl = await createPresignedPost(s3Client as any, {
 				Bucket: "krak-lcds",
