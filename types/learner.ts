@@ -24,8 +24,9 @@ export type DeleteLearner = z.infer<typeof DeleteLearnerSchema>;
 export const CreateLearnerSchema = LearnerSchema.pick({
 	courseId: true,
 }).extend({
-	email: z.string().email().nullable(),
+	email: z.string().email().optional(),
 	sendEmail: z.boolean().optional(),
+	id: z.string().optional(),
 });
 export type CreateLearner = z.infer<typeof CreateLearnerSchema>;
 

@@ -7,7 +7,7 @@ const Page = async ({
 }) => {
 	return (
 		<main className="m-auto flex flex-col">
-			<h1 className="mb-10">Join this course</h1>
+			<h1 className="mb-8">Join this course</h1>
 			<PublicEmailForm courseId={courseId} />
 		</main>
 	);

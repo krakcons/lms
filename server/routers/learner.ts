@@ -56,76 +56,98 @@ export const learnerRouter = router({
 		})
 		.input(CreateLearnerSchema)
 		.output(LearnerSchema)
-		.mutation(async ({ input: { email, sendEmail = false, courseId } }) => {
-			// Check if learner already exists by email
-			if (email) {
-				const learner = await db.query.learners.findFirst({
-					where: and(
-						eq(learners.email, email),
-						eq(learners.courseId, courseId)
-					),
+		.mutation(
+			async ({
+				input: { email = null, sendEmail = false, courseId, id },
+			}) => {
+				if (id === "") {
+					id = undefined;
+				}
+
+				if (id) {
+					const learner = await db.query.learners.findFirst({
+						where: and(eq(learners.id, id)),
+					});
+					if (learner) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message:
+								"Learner already exists with that identifier",
+						});
+					}
+				}
+
+				// Check if learner already exists by email
+				if (email) {
+					const learner = await db.query.learners.findFirst({
+						where: and(
+							eq(learners.email, email),
+							eq(learners.courseId, courseId)
+						),
+					});
+
+					if (learner) {
+						throw new TRPCError({
+							code: "CONFLICT",
+							message:
+								"Learner is already a member of this course",
+						});
+					}
+				}
+
+				const course = await db.query.courses.findFirst({
+					where: eq(courses.id, courseId),
 				});
 
-				if (learner) {
+				if (!course) {
 					throw new TRPCError({
-						code: "CONFLICT",
-						message: "Learner is already a member of this course",
+						code: "NOT_FOUND",
+						message: "Course not found",
 					});
 				}
-			}
 
-			const course = await db.query.courses.findFirst({
-				where: eq(courses.id, courseId),
-			});
+				// Create a new learner
+				const newLearner = {
+					id: id ?? crypto.randomUUID(),
+					courseId: course.id,
+					email,
+					data: getInitialScormData(course.version) ?? {},
+				};
 
-			if (!course) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Course not found",
-				});
-			}
-
-			// Create a new learner
-			const newLearner = {
-				id: crypto.randomUUID(),
-				courseId: course.id,
-				email,
-				data: getInitialScormData(course.version) ?? {},
-			};
-
-			if (sendEmail && email) {
-				const res = await fetch("https://api.resend.com/emails", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${env.RESEND_API_KEY}`,
-					},
-					body: JSON.stringify({
-						from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
-						to: email,
-						subject: course.name,
-						html: InviteEmail({
-							email,
-							course: course.name,
-							organization: "Krak LMS",
-							href: `${env.NEXT_PUBLIC_SITE_URL}/courses/${course.id}?learnerId=${newLearner.id}`,
+				if (sendEmail && email) {
+					const res = await fetch("https://api.resend.com/emails", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${env.RESEND_API_KEY}`,
+						},
+						body: JSON.stringify({
+							from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+							to: email,
+							subject: course.name,
+							html: InviteEmail({
+								email,
+								course: course.name,
+								organization: "Krak LMS",
+								href: `${env.NEXT_PUBLIC_SITE_URL}/courses/${course.id}?learnerId=${newLearner.id}`,
+							}),
 						}),
-					}),
-				});
-
-				if (!res.ok) {
-					throw new TRPCError({
-						code: "INTERNAL_SERVER_ERROR",
-						message:
-							"Failed to send email, no user created. Please try again later or remove the sendEmail option.",
 					});
+
+					if (!res.ok) {
+						throw new TRPCError({
+							code: "INTERNAL_SERVER_ERROR",
+							message:
+								"Failed to send email, no user created. Please try again later or remove the sendEmail option.",
+						});
+					}
 				}
+
+				await db.insert(learners).values(newLearner);
+
+				return newLearner;
 			}
-
-			await db.insert(learners).values(newLearner);
-
-			return newLearner;
-		}),
+		),
 	findOne: publicProcedure
 		.meta({
 			openapi: {

@@ -12,6 +12,7 @@ import {
 
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { AlertCircle } from "lucide-react";
 
 const Form = FormProvider;
 
@@ -21,6 +22,15 @@ type FormFieldContextValue<
 > = {
 	name: TName;
 };
+
+export const FormError = ({ message }: { message: string }) => (
+	<FormItem>
+		<FormMessage className="flex items-center gap-2">
+			<AlertCircle size={18} />
+			{message}
+		</FormMessage>
+	</FormItem>
+);
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
 	{} as FormFieldContextValue
