@@ -74,17 +74,28 @@ export const Scorm12ErrorMessage: Record<
 	},
 };
 
-export const Scorm12DataSchema = z.object({
-	"cmi.core.lesson_status": z.enum([
-		"passed",
-		"completed",
-		"failed",
-		"incomplete",
-		"browsed",
-		"not attempted",
-	]),
-	"cmi.core.score.raw": z.number().or(z.string()).optional(),
-	"cmi.core.score.max": z.number().or(z.string()).default(100).optional(),
-	"cmi.core.score.min": z.number().or(z.string()).default(0).optional(),
-});
+export const Scorm12DataSchema = z
+	.object({
+		"cmi.core.lesson_status": z.enum([
+			"passed",
+			"completed",
+			"failed",
+			"incomplete",
+			"browsed",
+			"not attempted",
+		]),
+		"cmi.core.score.raw": z.number().or(z.string()).optional(),
+		"cmi.core.score.max": z.number().or(z.string()).default(100).optional(),
+		"cmi.core.score.min": z.number().or(z.string()).default(0).optional(),
+	})
+	.transform((data) => {
+		return {
+			status: data["cmi.core.lesson_status"],
+			score: {
+				raw: data["cmi.core.score.raw"],
+				max: data["cmi.core.score.max"],
+				min: data["cmi.core.score.min"],
+			},
+		};
+	});
 export type Scorm12Data = z.infer<typeof Scorm12DataSchema>;

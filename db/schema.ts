@@ -14,13 +14,7 @@ export const courses = mysqlTable("courses", {
 		.default(sql`(uuid())`),
 	teamId: varchar("teamId", { length: 255 }).notNull(),
 	name: text("name").notNull(),
-	version: mysqlEnum("version", [
-		"1.2",
-		"CAM 1.3",
-		"2004 2nd Edition",
-		"2004 3rd Edition",
-		"2004 4th Edition",
-	]).notNull(),
+	version: mysqlEnum("version", ["1.2", "2004"]).notNull(),
 });
 
 export const coursesRelations = relations(courses, ({ many }) => ({

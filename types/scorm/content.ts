@@ -29,14 +29,13 @@ export const ResourceSchema = z.object({
 export type Resource = z.infer<typeof ResourceSchema>;
 
 // Add more versions as needed
-export const ScormVersionSchema = z.literal(1.2, {
-	errorMap: () => {
-		return {
-			code: "invalid_type",
-			message: "Course is not SCORM 1.2",
-		};
-	},
-});
+export const ScormVersionSchema = z.preprocess(
+	(v) => `${v}`,
+	z.enum(["1.2", "CAM 1.3", "2004 3rd Edition"]).transform((v) => {
+		if (v === "CAM 1.3" || v === "2004 3rd Edition") return "2004";
+		else return v;
+	})
+);
 
 export const IMSManifestSchema = z.object({
 	manifest: z.object({
