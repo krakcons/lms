@@ -69,7 +69,12 @@ const LearnerActions = ({ learner }: { learner: ExpandedLearner }) => {
 						<AlertDialogFooter>
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
 							<AlertDialogAction
-								onClick={() => mutate({ id: learner.id })}
+								onClick={() =>
+									mutate({
+										id: learner.id,
+										courseId: learner.courseId,
+									})
+								}
 							>
 								Continue
 							</AlertDialogAction>

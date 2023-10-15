@@ -1,4 +1,4 @@
-import { getCourseFile } from "@/lib/s3";
+import { getCourseFile } from "@/lib/files";
 import mime from "mime-types";
 
 export const GET = async (

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import { db } from "@/db/db";
 import { learners } from "@/db/schema";
-import { getCourseFile } from "@/lib/s3";
+import { getCourseFile } from "@/lib/files";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";

@@ -6,32 +6,42 @@ import {
 	CourseSchema,
 	DeleteCourseSchema,
 	SelectCourseSchema,
+	UpdateCourseSchema,
 	UploadCourseSchema,
 } from "@/types/course";
 import { LearnerSchema } from "@/types/learner";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
+import { getCourse } from "../helpers";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
+
+// https://www.restapitutorial.com/lessons/httpmethods.html
 
 export const courseRouter = router({
 	upload: protectedProcedure
 		.input(UploadCourseSchema)
-		.mutation(async ({ ctx: { teamId }, input: { name, version } }) => {
-			const insertId = crypto.randomUUID();
+		.mutation(async ({ ctx: { teamId }, input: { name, version, id } }) => {
+			if (id === "") {
+				id = undefined;
+			}
 
-			// Insert course into database if successfully uploaded to S3
-			await db.insert(courses).values({
-				id: insertId,
-				teamId,
-				name,
-				version,
-			});
+			if (id) {
+				const course = await db.query.courses.findFirst({
+					where: and(eq(courses.id, id)),
+				});
+				if (course) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Course already exists with that identifier",
+					});
+				}
+			}
 
-			// Create a presigned post to upload the course to S3
+			const insertId = id ?? crypto.randomUUID();
+
 			const presignedUrl = await createPresignedPost(s3Client as any, {
 				Bucket: "krak-lcds",
 				Key: `courses/${insertId}`,
@@ -42,6 +52,13 @@ export const courseRouter = router({
 					["eq", "$Content-Type", "application/zip"],
 					["content-length-range", 0, MAX_FILE_SIZE],
 				],
+			});
+
+			await db.insert(courses).values({
+				id: insertId,
+				teamId,
+				name,
+				version,
 			});
 
 			return {
@@ -61,21 +78,7 @@ export const courseRouter = router({
 		.input(SelectCourseSchema)
 		.output(CourseSchema.extend({ learners: LearnerSchema.array() }))
 		.query(async ({ ctx: { teamId }, input: { id } }) => {
-			const course = await db.query.courses.findFirst({
-				where: and(eq(courses.teamId, teamId), eq(courses.id, id)),
-				with: {
-					learners: true,
-				},
-			});
-
-			if (!course) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Course not found or does not belong to you",
-				});
-			} else {
-				return course;
-			}
+			return await getCourse({ id, teamId, learners: true });
 		}),
 	find: protectedProcedure
 		.meta({
@@ -103,37 +106,43 @@ export const courseRouter = router({
 			},
 		})
 		.input(DeleteCourseSchema)
-		.output(CourseSchema)
+		.output(z.undefined())
 		.mutation(async ({ ctx: { teamId }, input: { id } }) => {
-			const course = await db.query.courses.findFirst({
-				where: and(eq(courses.teamId, teamId), eq(courses.id, id)),
+			await getCourse({ id, teamId });
+
+			await db.transaction(async (tx) => {
+				await tx
+					.delete(courses)
+					.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
+				await tx.delete(learners).where(eq(learners.courseId, id));
 			});
 
-			if (!course) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message:
-						"Course does not exist or does not belong to current team",
-				});
-			}
+			return undefined;
+		}),
+	update: protectedProcedure
+		.input(UpdateCourseSchema)
+		.output(CourseSchema)
+		.meta({
+			openapi: {
+				summary: "Update a course",
+				method: "PUT",
+				path: "/courses/{id}",
+				protect: true,
+			},
+		})
+		.mutation(async ({ ctx: { teamId }, input: { id, ...rest } }) => {
+			const course = await getCourse({ id, teamId });
 
-			// Delete the course from S3
-			await s3Client.send(
-				new DeleteObjectCommand({
-					Bucket: "krak-lcds",
-					Key: `courses/${id}`,
-				})
-			);
-
-			// delete the course if it exists and the user owns it and is currently on the team
 			await db
-				.delete(courses)
+				.update(courses)
+				.set({ ...rest })
 				.where(
 					and(eq(courses.id, course.id), eq(courses.teamId, teamId))
 				);
-			// Delete the course users
-			await db.delete(learners).where(eq(learners.courseId, course.id));
 
-			return course;
+			return {
+				...course,
+				...rest,
+			};
 		}),
 });

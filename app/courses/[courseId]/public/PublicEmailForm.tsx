@@ -5,13 +5,16 @@ import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
+	FormError,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,10 +26,22 @@ type Input = z.infer<typeof InputSchema>;
 
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
-	const { mutate } = trpc.learner.create.useMutation({
+	const { toast } = useToast();
+	const { mutate, isLoading } = trpc.learner.create.useMutation({
 		onSuccess: ({ id }) => {
 			console.log("NEW ID", id);
 			router.push(`/courses/${courseId}?learnerId=${id}`);
+		},
+		onError: (err) => {
+			form.setError("root", {
+				type: "server",
+				message: err.message,
+			});
+			toast({
+				title: "Something went wrong!",
+				description: err.message,
+				variant: "destructive",
+			});
 		},
 	});
 
@@ -43,7 +58,10 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 
 	return (
 		<Form {...form}>
-			<form className="space-y-8">
+			<form className="space-y-4">
+				{form.formState.errors.root?.message && (
+					<FormError message={form.formState.errors.root.message} />
+				)}
 				<FormField
 					control={form.control}
 					name="email"
@@ -58,6 +76,9 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 					)}
 				/>
 				<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+					{isLoading && (
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+					)}
 					Submit
 				</Button>
 				<Button
@@ -65,7 +86,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 					className="ml-3"
 					onClick={(e) => {
 						e.preventDefault();
-						mutate({ email: null, courseId });
+						mutate({ email: undefined, courseId });
 					}}
 				>
 					Continue as guest

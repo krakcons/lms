@@ -3,6 +3,8 @@ import Link from "next/link";
 import { serverTrpc } from "../_trpc/server";
 import CourseTable from "./CourseTable";
 
+export const runtime = "nodejs";
+
 const Page = async () => {
 	const courses = await serverTrpc.course.find();
 

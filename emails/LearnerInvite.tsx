@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const LearnerInvite = ({
-	href,
+	href = "https://google.com",
 	email = "dave@gmail.com",
 	course = "Golfing Tutorial",
 	organization = "Krak",

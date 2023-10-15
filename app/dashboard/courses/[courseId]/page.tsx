@@ -6,6 +6,8 @@ import InviteLearnerDialog from "./InviteLearnerDialog";
 import PublicLinkButton from "./PublicLinkButton";
 import UsersTable from "./UsersTable";
 
+export const runtime = "nodejs";
+
 const Page = async ({
 	params: { courseId },
 }: {

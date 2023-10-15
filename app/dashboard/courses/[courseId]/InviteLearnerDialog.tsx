@@ -13,6 +13,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormError,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -26,22 +27,17 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
+import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const InputSchema = z.object({
-	email: z.string().email(),
-});
-type Input = z.infer<typeof InputSchema>;
 
 const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	const [open, setOpen] = useState(false);
 	const router = useRouter();
-	const { mutate } = trpc.learner.create.useMutation({
+	const { mutate, isLoading } = trpc.learner.create.useMutation({
 		onSuccess: ({ email }) => {
 			router.refresh();
 			toast({
@@ -49,30 +45,33 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 				description: `User ${email} has been sent an invitation to join this course.`,
 			});
 			setOpen(false);
+			form.reset();
 		},
 		onError: (err) => {
+			form.setError("root", {
+				type: "server",
+				message: err.message,
+			});
 			toast({
-				title: "Uh oh! Something went wrong.",
+				title: "Something went wrong!",
 				description: err.message,
 				variant: "destructive",
 			});
 		},
 	});
 	const { toast } = useToast();
-	const form = useForm<Input>({
-		resolver: zodResolver(InputSchema),
+	const form = useForm<CreateLearner>({
+		resolver: zodResolver(CreateLearnerSchema),
 		defaultValues: {
 			email: "",
+			sendEmail: true,
+			id: undefined,
+			courseId,
 		},
 	});
 
-	const onSubmit = async ({ email }: Input) => {
-		mutate({
-			courseId,
-			email,
-			sendEmail: true,
-		});
-		form.reset();
+	const onSubmit = async (input: CreateLearner) => {
+		mutate(input);
 	};
 
 	return (
@@ -103,14 +102,24 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(onSubmit)}
-						className="space-y-8"
+						className="space-y-4"
 					>
+						{form.formState.errors.root?.message && (
+							<FormError
+								message={form.formState.errors.root.message}
+							/>
+						)}
 						<FormField
 							control={form.control}
-							name="email"
+							name="id"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>
+										Identifier
+										<span className="text-muted-foreground">
+											{" (Optional)"}
+										</span>
+									</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -118,7 +127,25 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 								</FormItem>
 							)}
 						/>
-						<Button type="submit">Submit</Button>
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Email</FormLabel>
+									<FormControl>
+										<Input autoFocus={true} {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit">
+							{isLoading && (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							)}
+							Submit
+						</Button>
 					</form>
 				</Form>
 			</DialogContent>
