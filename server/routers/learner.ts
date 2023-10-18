@@ -49,7 +49,7 @@ export const learnerRouter = router({
 	create: publicProcedure
 		.meta({
 			openapi: {
-				summary: "Create learner",
+				summary: "Add learner to course",
 				method: "POST",
 				path: "/courses/{courseId}/learners",
 			},
@@ -166,7 +166,7 @@ export const learnerRouter = router({
 	find: protectedProcedure
 		.meta({
 			openapi: {
-				summary: "Get all learners",
+				summary: "Get all learners of a course",
 				method: "GET",
 				path: "/courses/{courseId}/learners",
 				protect: true,
