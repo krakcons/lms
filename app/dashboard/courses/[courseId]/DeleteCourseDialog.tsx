@@ -13,6 +13,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
+import { deleteCourseFile } from "@/lib/files";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -21,10 +22,12 @@ type Props = {
 
 const DeleteCourseDialog = ({ courseId }: Props) => {
 	const router = useRouter();
+
 	const { mutate } = trpc.course.delete.useMutation({
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();
+			deleteCourseFile(courseId);
 		},
 	});
 
@@ -47,7 +50,13 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={() => mutate({ id: courseId })}>
+					<AlertDialogAction
+						onClick={() =>
+							mutate({
+								id: courseId,
+							})
+						}
+					>
 						Continue
 					</AlertDialogAction>
 				</AlertDialogFooter>
