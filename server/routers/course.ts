@@ -97,14 +97,6 @@ export const courseRouter = router({
 			});
 		}),
 	delete: protectedProcedure
-		.meta({
-			openapi: {
-				summary: "Delete a course",
-				method: "DELETE",
-				path: "/courses/{id}",
-				protect: true,
-			},
-		})
 		.input(DeleteCourseSchema)
 		.output(z.undefined())
 		.mutation(async ({ ctx: { teamId }, input: { id } }) => {
