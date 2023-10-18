@@ -11,9 +11,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useClerkAppearance } from "@/lib/clerk";
 import { useClerk, useUser } from "@clerk/nextjs";
 
 const UserButton = () => {
+	const appearance = useClerkAppearance();
 	const { openUserProfile, openCreateOrganization, signOut } = useClerk();
 	const { user } = useUser();
 
@@ -47,13 +49,16 @@ const UserButton = () => {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => openUserProfile()}>
+					<DropdownMenuItem
+						onClick={() => openUserProfile({ appearance })}
+					>
 						Account
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() =>
 							openCreateOrganization({
 								afterCreateOrganizationUrl: "/dashboard",
+								appearance,
 							})
 						}
 					>

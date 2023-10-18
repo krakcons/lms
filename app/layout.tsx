@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { defaultTheme, localization } from "@/lib/clerk";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
@@ -18,16 +19,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 			<AxiomWebVitals />
 			<body className={`${inter.className} flex min-h-screen flex-col`}>
 				<ClerkProvider
-					appearance={{
-						variables: {
-							colorPrimary: "hsl(220.9 39.3% 11%)",
-							colorDanger: "hsl(0 84.2% 60.2%)",
-							colorBackground: "hsl(0 0% 100%)",
-							colorText: "hsl(224 71.4% 4.1%)",
-							colorTextOnPrimaryBackground: "hsl(210 20% 98%)",
-							borderRadius: "0.5rem",
-						},
-					}}
+					localization={localization}
+					appearance={defaultTheme}
 				>
 					<Providers>
 						{children}

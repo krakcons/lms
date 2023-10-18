@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.425.0",
     "@aws-sdk/s3-presigned-post": "^3.425.0",
+    "@clerk/localizations": "^1.26.6",
     "@clerk/nextjs": "^4.25.2",
     "@clerk/themes": "^1.7.7",
     "@hookform/resolvers": "^3.3.1",
