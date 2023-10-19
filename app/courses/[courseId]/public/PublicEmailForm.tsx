@@ -75,22 +75,26 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-					{isLoading && (
-						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-					)}
-					Submit
-				</Button>
-				<Button
-					variant="outline"
-					className="ml-3"
-					onClick={(e) => {
-						e.preventDefault();
-						mutate({ email: undefined, courseId });
-					}}
-				>
-					Continue as guest
-				</Button>
+				<div className="flex gap-3">
+					<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+						{form.formState.isSubmitted && isLoading && (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						)}
+						Submit
+					</Button>
+					<Button
+						variant="outline"
+						onClick={(e) => {
+							e.preventDefault();
+							mutate({ email: undefined, courseId });
+						}}
+					>
+						{!form.formState.isSubmitted && isLoading && (
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						)}
+						Continue as guest
+					</Button>
+				</div>
 			</form>
 		</Form>
 	);
