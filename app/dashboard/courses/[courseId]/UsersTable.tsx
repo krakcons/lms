@@ -1,17 +1,6 @@
 "use client";
 
 import { trpc } from "@/app/_trpc/client";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -29,13 +18,18 @@ import { useRouter } from "next/navigation";
 
 const columnHelper = createColumnHelper<ExpandedLearner>();
 
-const LearnerActions = ({ learner }: { learner: ExpandedLearner }) => {
+const LearnerActions = ({
+	learner: { id, courseId },
+}: {
+	learner: ExpandedLearner;
+}) => {
 	const router = useRouter();
 	const { mutate } = trpc.learner.delete.useMutation({
 		onSuccess: () => {
 			router.refresh();
 		},
 	});
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -47,40 +41,17 @@ const LearnerActions = ({ learner }: { learner: ExpandedLearner }) => {
 			<DropdownMenuContent align="end">
 				<DropdownMenuLabel>Actions</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<AlertDialog>
-					<AlertDialogTrigger>
-						<DropdownMenuItem
-							className="cursor-pointer"
-							onSelect={(e) => e.preventDefault()}
-						>
-							Remove Learner
-						</DropdownMenuItem>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>
-								Are you absolutely sure?
-							</AlertDialogTitle>
-							<AlertDialogDescription>
-								This action cannot be undone. This action will
-								permanently delete this user and all their data.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() =>
-									mutate({
-										id: learner.id,
-										courseId: learner.courseId,
-									})
-								}
-							>
-								Continue
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
+				<DropdownMenuItem
+					className="cursor-pointer"
+					onSelect={() =>
+						mutate({
+							id,
+							courseId,
+						})
+					}
+				>
+					Remove Learner
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

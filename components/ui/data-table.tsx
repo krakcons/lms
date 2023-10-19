@@ -134,6 +134,7 @@ export const DataTable = <TData, TValue>({
 						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
+									tabIndex={0}
 									key={row.id}
 									data-state={
 										row.getIsSelected() && "selected"
