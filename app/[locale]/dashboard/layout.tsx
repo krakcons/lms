@@ -1,7 +1,7 @@
 import UserButton from "@/components/auth/UserButton";
 import Link from "next/link";
-import TeamProfile from "../../components/auth/TeamProfile";
-import TeamSwitcher from "../../components/auth/TeamSwitcher";
+import TeamProfile from "../../../components/auth/TeamProfile";
+import TeamSwitcher from "../../../components/auth/TeamSwitcher";
 import ThemeButton from "./ThemeButton";
 
 export const runtime = "edge";

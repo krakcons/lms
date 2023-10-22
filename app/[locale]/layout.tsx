@@ -4,7 +4,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
 import { Inter } from "next/font/google";
-import { Providers } from "./Providers";
+import { notFound } from "next/navigation";
+import { TrpcProvider } from "./Providers";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,7 +14,17 @@ export const metadata: Metadata = {
 	description: "LDCS for modern times, cheap and easy to use",
 };
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+const locales = ["en", "fr"];
+
+const RootLayout = async ({
+	children,
+	params: { locale },
+}: {
+	children: React.ReactNode;
+	params: { locale: string };
+}) => {
+	if (!locales.includes(locale)) notFound();
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<AxiomWebVitals />
@@ -22,10 +33,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 					localization={localization}
 					appearance={defaultTheme}
 				>
-					<Providers>
+					<TrpcProvider>
 						{children}
 						<Toaster />
-					</Providers>
+					</TrpcProvider>
 				</ClerkProvider>
 			</body>
 		</html>

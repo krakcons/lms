@@ -1,4 +1,4 @@
-import { serverTrpc } from "@/app/_trpc/server";
+import { serverTrpc } from "@/app/[locale]/_trpc/server";
 import { getExpandedLearners } from "@/lib/learner";
 import DeleteCourseDialog from "./DeleteCourseDialog";
 import ExportCSVButton from "./ExportCSVButton";

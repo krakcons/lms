@@ -1,9 +1,37 @@
 import { authMiddleware } from "@clerk/nextjs";
+import { match as matchLocale } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
+import { NextRequest, NextResponse } from "next/server";
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
+const locales = ["en", "fr"];
+const defaultLocale = "en";
+
+const getLocale = (req: NextRequest) => {
+	let headers: Record<string, string> = {};
+	req.headers.forEach((value, key) => (headers[key] = value));
+	const languages = new Negotiator({ headers }).languages();
+	return matchLocale(languages, locales, defaultLocale);
+};
+
+const localeMiddleware = (req: NextRequest) => {
+	const { pathname } = req.nextUrl;
+	const pathnameHasLocale = locales.some(
+		(locale) =>
+			pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+	);
+
+	if (pathnameHasLocale) return;
+
+	const locale = getLocale(req);
+	console.log("locale", locale);
+	req.nextUrl.pathname = `/${locale}${pathname}`;
+	return NextResponse.redirect(req.nextUrl);
+};
+
 export default authMiddleware({
+	beforeAuth: (req) => {
+		return localeMiddleware(req);
+	},
 	publicRoutes: [
 		"/",
 		"/courses/:courseId",

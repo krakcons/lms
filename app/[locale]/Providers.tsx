@@ -6,7 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { trpc } from "./_trpc/client";
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
 	const [queryClient] = useState(() => new QueryClient());
 	const [trpcClient] = useState(() =>
 		trpc.createClient({

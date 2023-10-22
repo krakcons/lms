@@ -1,6 +1,6 @@
 "use client";
 
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/[locale]/_trpc/client";
 import {
 	AlertDialog,
 	AlertDialogAction,

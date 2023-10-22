@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/[locale]/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
