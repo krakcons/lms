@@ -34,7 +34,9 @@ export const defaultTheme = {
 		...lightTheme.variables,
 	},
 	elements: {
-		card: "border-border border-[1px]",
+		card: {
+			borderColor: "hsl(var(--border))",
+		},
 		formFieldInput: inputClassName,
 		formButtonPrimary: buttonVariants(),
 	},
