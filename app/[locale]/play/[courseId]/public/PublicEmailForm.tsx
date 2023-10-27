@@ -30,7 +30,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const { mutate, isLoading } = trpc.learner.create.useMutation({
 		onSuccess: ({ id }) => {
 			console.log("NEW ID", id);
-			router.push(`/courses/${courseId}?learnerId=${id}`);
+			router.push(`/play/${courseId}?learnerId=${id}`);
 		},
 		onError: (err) => {
 			form.setError("root", {

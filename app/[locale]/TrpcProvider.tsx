@@ -12,7 +12,7 @@ export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
 		trpc.createClient({
 			links: [
 				httpBatchLink({
-					url: "/api/trpc",
+					url: `/api/trpc`,
 				}),
 			],
 		})

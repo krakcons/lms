@@ -1,6 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/lib/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import Link from "next/link";
 
 type Props = {
 	children: React.ReactNode;

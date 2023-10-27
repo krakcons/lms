@@ -1,5 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { serverTrpc } from "../_trpc/server";
 import CourseTable from "./CourseTable";
 

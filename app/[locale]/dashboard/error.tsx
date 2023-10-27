@@ -1,7 +1,7 @@
 "use client"; // Error components must be Client Components
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { useEffect } from "react";
 
 const Error = ({ error, reset }: { error: Error; reset: () => void }) => {

@@ -1,22 +1,22 @@
 import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/lib/navigation";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
-const Home = async () => {
+const Home = () => {
+	const t = useTranslations("Home");
+
 	return (
-		<main className="mx-auto w-full max-w-screen-lg px-6">
-			<div className="flex w-full flex-col items-start justify-center py-2 lg:items-center">
-				<div className="mt-20 flex flex-col items-start sm:mt-40 lg:flex-row lg:items-center">
-					<h1 className="mb-2 sm:mb-0 sm:text-7xl lg:mr-3">
-						Modern Learning
-					</h1>
-					<h1 className="text-[#75CE9F] sm:text-7xl">For Less</h1>
-				</div>
+		<main className="mx-auto w-full max-w-screen-xl">
+			<div className="flex w-full flex-col items-start justify-center p-10 sm:p-20">
+				<h1 className="flex flex-col gap-3 text-5xl sm:mb-0 sm:text-7xl">
+					{t("title.1")}
+					<span className="whitespace-nowrap text-green-400">
+						{t("title.2")}
+					</span>
+				</h1>
 				<div className="mt-6 flex sm:mt-12">
-					<p>
-						Discover modern, affordable, and easy learning
-						management for an empowering educational experience.
-					</p>
+					<p>{t("description")}</p>
 				</div>
 				<SignedIn>
 					<Link

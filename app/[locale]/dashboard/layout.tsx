@@ -1,5 +1,5 @@
 import UserButton from "@/components/auth/UserButton";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import TeamProfile from "../../../components/auth/TeamProfile";
 import TeamSwitcher from "../../../components/auth/TeamSwitcher";
 import ThemeButton from "./ThemeButton";

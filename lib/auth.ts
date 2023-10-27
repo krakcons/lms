@@ -1,5 +1,5 @@
+import { redirect as nextRedirect } from "@/lib/navigation";
 import { auth } from "@clerk/nextjs";
-import { redirect as nextRedirect } from "next/navigation";
 
 type Options = {
 	redirect?: boolean;
@@ -19,5 +19,5 @@ export const getAuth = (options?: Options) => {
 		}
 	}
 
-	return { teamId, userId, orgId, ...rest };
+	return { teamId: teamId!, userId: userId!, orgId, ...rest };
 };

@@ -26,7 +26,7 @@ const PublicLinkButton = ({ courseId }: Props) => {
 						className="mr-3"
 						onClick={() => {
 							navigator.clipboard.writeText(
-								`${env.NEXT_PUBLIC_SITE_URL}/courses/${courseId}/public`
+								`${env.NEXT_PUBLIC_SITE_URL}/play/${courseId}/public`
 							);
 							toast({
 								title: "Copied public link to clipboard",
