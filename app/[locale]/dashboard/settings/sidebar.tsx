@@ -1,7 +1,6 @@
 "use client";
 
-import { Link } from "@/lib/navigation";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/lib/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
