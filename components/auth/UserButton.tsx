@@ -12,12 +12,14 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useClerkAppearance } from "@/lib/clerk";
+import { useRouter } from "@/lib/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
 
 const UserButton = () => {
 	const appearance = useClerkAppearance();
 	const { openUserProfile, openCreateOrganization, signOut } = useClerk();
 	const { user } = useUser();
+	const router = useRouter();
 
 	if (!user) return null;
 
@@ -49,6 +51,9 @@ const UserButton = () => {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
+					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
+						View Courses
+					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => openUserProfile({ appearance })}
 					>

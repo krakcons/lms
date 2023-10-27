@@ -1,6 +1,7 @@
+import UserButton from "@/components/auth/UserButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/lib/navigation";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 type Props = {
 	children: React.ReactNode;
@@ -18,7 +19,7 @@ const Layout = ({ children }: Props) => {
 						>
 							Dashboard
 						</Link>
-						<UserButton afterSignOutUrl="/" />
+						<UserButton />
 					</SignedIn>
 					<SignedOut>
 						<Link
