@@ -12,8 +12,6 @@ import { ExpandedLearner } from "@/types/learner";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Download } from "lucide-react";
 
-const csvConfig = mkConfig({ useKeysAsHeaders: true });
-
 const ExportCSVButton = ({
 	expandedLearners,
 }: {
@@ -26,6 +24,10 @@ const ExportCSVButton = ({
 				description: "There are no users to export.",
 			});
 		} else {
+			const csvConfig = mkConfig({
+				useKeysAsHeaders: true,
+				filename: "learners",
+			});
 			const csv = generateCsv(csvConfig)(
 				expandedLearners.map(({ score, id, courseId, ...rest }) => {
 					let scoreString = "N/A";
