@@ -6,7 +6,6 @@ import {
 	CreateLearnerSchema,
 	DeleteLearnerSchema,
 	LearnerSchema,
-	SelectLearner,
 	SelectLearnerSchema,
 	UpdateLearnerSchema,
 } from "@/types/learner";
@@ -14,6 +13,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { getCourse } from "../helpers";
 import { protectedProcedure } from "../procedures";
+import { svix } from "../svix";
 import { publicProcedure, router } from "../trpc";
 
 interface Email {
@@ -25,24 +25,6 @@ interface Email {
 
 const InviteEmail = ({ href, email, course, organization }: Email) => {
 	return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html lang="en"><head data-id="__react-email-head"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /></head><div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">Join this course<div> ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿</div></div><body data-id="__react-email-body" style="margin-left:auto;margin-right:auto;margin-top:auto;margin-bottom:auto;background-color:rgb(255,255,255);font-family:ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji"><table align="center" width="100%" data-id="__react-email-container" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;margin-left:auto;margin-right:auto;margin-top:40px;margin-bottom:40px;width:465px;border-radius:0.25rem;border-width:1px;border-style:solid;border-color:rgb(234,234,234);padding:20px"><tbody><tr style="width:100%"><td><h1 data-id="react-email-heading">Course Invitation</h1><p data-id="react-email-text" style="font-size:14px;line-height:24px;margin:16px 0">Hello <strong>${email}</strong>,</p><p data-id="react-email-text" style="font-size:14px;line-height:24px;margin:16px 0">You have been invited to join <strong>${course}</strong> by <strong>${organization}</strong>.</p><a href="${href}" data-id="react-email-button" target="_blank" style="line-height:100%;text-decoration:none;display:inline-block;max-width:100%;padding:12px 20px;border-radius:0.25rem;background-color:rgb(0,0,0);text-align:center;font-size:12px;font-weight:600;color:rgb(255,255,255);text-decoration-line:none"><span></span><span style="max-width:100%;display:inline-block;line-height:120%;mso-padding-alt:0px;mso-text-raise:9px">Start Course</span><span></span></a></td></tr></tbody></table></body></html>`;
-};
-
-const getLearner = async ({ id, courseId }: SelectLearner) => {
-	const learner = await db.query.learners.findFirst({
-		where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-		with: {
-			course: true,
-		},
-	});
-
-	if (!learner) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Learner not found",
-		});
-	}
-
-	return learner;
 };
 
 export const learnerRouter = router({
@@ -158,9 +140,24 @@ export const learnerRouter = router({
 		})
 		.input(SelectLearnerSchema)
 		.output(LearnerSchema)
-		.query(async ({ input }) => {
-			const learner = await getLearner(input);
-			console.log(learner);
+		.query(async ({ input: { id, courseId } }) => {
+			const learner = await db.query.learners.findFirst({
+				where: and(
+					eq(learners.id, id),
+					eq(learners.courseId, courseId)
+				),
+				with: {
+					course: true,
+				},
+			});
+
+			if (!learner) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Learner not found",
+				});
+			}
+
 			return learner;
 		}),
 	find: protectedProcedure
@@ -192,7 +189,19 @@ export const learnerRouter = router({
 		.input(UpdateLearnerSchema)
 		.output(LearnerSchema)
 		.mutation(async ({ input: { id, courseId, ...rest } }) => {
-			const learner = await getLearner({ id, courseId });
+			const learner = await db.query.learners.findFirst({
+				where: and(
+					eq(learners.id, id),
+					eq(learners.courseId, courseId)
+				),
+			});
+
+			if (!learner) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Learner not found",
+				});
+			}
 
 			await db
 				.update(learners)
@@ -200,6 +209,14 @@ export const learnerRouter = router({
 				.where(
 					and(eq(learners.courseId, courseId), eq(learners.id, id))
 				);
+
+			await svix.message.create(`app_${courseId}`, {
+				eventType: "learner.update",
+				payload: {
+					...learner,
+					...rest,
+				},
+			});
 
 			return {
 				...learner,
@@ -216,16 +233,25 @@ export const learnerRouter = router({
 		})
 		.input(DeleteLearnerSchema)
 		.output(LearnerSchema)
-		.mutation(async ({ input }) => {
-			const learner = await getLearner(input);
+		.mutation(async ({ input: { id, courseId } }) => {
+			const learner = await db.query.learners.findFirst({
+				where: and(
+					eq(learners.id, id),
+					eq(learners.courseId, courseId)
+				),
+			});
+
+			if (!learner) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Learner not found",
+				});
+			}
 
 			await db
 				.delete(learners)
 				.where(
-					and(
-						eq(learners.id, input.id),
-						eq(learners.courseId, input.courseId)
-					)
+					and(eq(learners.id, id), eq(learners.courseId, courseId))
 				);
 
 			return learner;

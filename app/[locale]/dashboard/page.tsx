@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/lib/navigation";
 import { serverTrpc } from "../_trpc/server";
-import CourseTable from "./CourseTable";
+import CourseTable from "./_components/CourseTable";
 
 export const runtime = "nodejs";
 

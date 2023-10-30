@@ -5,10 +5,11 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getAuth } from "@/lib/auth";
 import { clerkClient } from "@clerk/nextjs";
 import { z } from "zod";
-import CopyKey from "./CopyKey";
+import CopyKey from "./_components/CopyKey";
 
 const Page = async () => {
 	const { getToken, userId, orgId } = getAuth({
@@ -60,7 +61,9 @@ const Page = async () => {
 
 	return (
 		<>
-			<h3>Developer</h3>
+			<h2>Developer</h2>
+			<p className="text-muted-foreground">Manage API access</p>
+			<Separator className="my-8" />
 			<Card className="mt-8">
 				<CardHeader>
 					<CardTitle>API Key</CardTitle>

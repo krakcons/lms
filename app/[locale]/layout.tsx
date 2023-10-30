@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
-import { TrpcProvider } from "./TrpcProvider";
+import { TrpcProvider } from "./_components/TrpcProvider";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 

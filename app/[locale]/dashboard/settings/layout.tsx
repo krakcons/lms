@@ -1,5 +1,4 @@
-import { Separator } from "@/components/ui/separator";
-import { SidebarNav } from "./sidebar";
+import { SidebarNav } from "@/components/ui/sidebar";
 
 const items = [
 	{
@@ -11,8 +10,6 @@ const items = [
 const Layout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<>
-			<h1>Settings</h1>
-			<Separator className="my-8" />
 			<div className="flex flex-col lg:flex-row">
 				<aside className="lg:w-1/5">
 					<SidebarNav items={items} />

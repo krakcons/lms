@@ -1,4 +1,4 @@
-import PublicEmailForm from "./PublicEmailForm";
+import PublicEmailForm from "./_components/PublicEmailForm";
 
 const Page = async ({
 	params: { courseId },

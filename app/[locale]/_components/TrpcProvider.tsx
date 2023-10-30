@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
-import { trpc } from "./_trpc/client";
+import { trpc } from "../_trpc/client";
 
 export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
 	const [queryClient] = useState(() => new QueryClient());

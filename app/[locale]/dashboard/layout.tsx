@@ -1,8 +1,8 @@
+import TeamProfile from "@/components/auth/TeamProfile";
+import TeamSwitcher from "@/components/auth/TeamSwitcher";
 import UserButton from "@/components/auth/UserButton";
 import { Link } from "@/lib/navigation";
-import TeamProfile from "../../../components/auth/TeamProfile";
-import TeamSwitcher from "../../../components/auth/TeamSwitcher";
-import ThemeButton from "./ThemeButton";
+import ThemeButton from "./_components/ThemeButton";
 
 export const runtime = "edge";
 export const preferredRegion = "cle1";

@@ -11,15 +11,11 @@ export const GET = async (
 ) => {
 	let url = files.join("/");
 
-	console.log("URL", url);
-
 	if (url === "scormcontent/0") {
 		url = "scormcontent/index.html";
 	}
 
 	const file = await getCourseFile(courseId, url);
-
-	console.log("FILE", file);
 
 	if (!file) {
 		return new Response("Not found", {

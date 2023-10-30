@@ -16,6 +16,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getCourse } from "../helpers";
 import { protectedProcedure } from "../procedures";
+import { svix } from "../svix";
 import { router } from "../trpc";
 
 // https://www.restapitutorial.com/lessons/httpmethods.html
@@ -59,6 +60,11 @@ export const courseRouter = router({
 				teamId,
 				name,
 				version,
+			});
+
+			await svix.application.create({
+				name: `app_${insertId}`,
+				uid: `app_${insertId}`,
 			});
 
 			return {

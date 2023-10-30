@@ -3,7 +3,7 @@ import { getCourseFile } from "@/lib/files";
 import { redirect } from "@/lib/navigation";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
-import LMSProvider from "./LMSProvider";
+import LMSProvider from "./_components/LMSProvider";
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
