@@ -1,5 +1,8 @@
 const { withAxiom } = require("next-axiom");
 const withNextIntl = require("next-intl/plugin")();
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+	enabled: process.env.ANALYZE === "true",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -19,4 +22,4 @@ const nextConfig = {
 	},
 };
 
-module.exports = withAxiom(withNextIntl(nextConfig));
+module.exports = withBundleAnalyzer(withAxiom(withNextIntl(nextConfig)));

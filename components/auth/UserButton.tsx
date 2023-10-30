@@ -52,7 +52,7 @@ const UserButton = () => {
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
-						View Courses
+						Dashboard
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => openUserProfile({ appearance })}
