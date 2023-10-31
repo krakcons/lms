@@ -1,5 +1,7 @@
 import UploadForm from "./_components/UploadForm";
 
+export const runtime = "nodejs";
+
 const Page = () => {
 	return (
 		<main>
