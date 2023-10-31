@@ -1,7 +1,6 @@
 import { db } from "@/db/db";
 import { courses, learners } from "@/db/schema";
-import { MAX_FILE_SIZE } from "@/lib/course";
-import { s3Client } from "@/lib/s3";
+import { env } from "@/env.mjs";
 import {
 	CourseSchema,
 	DeleteCourseSchema,
@@ -10,7 +9,7 @@ import {
 	UploadCourseSchema,
 } from "@/types/course";
 import { LearnerSchema } from "@/types/learner";
-import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -43,17 +42,16 @@ export const courseRouter = router({
 
 			const insertId = id ?? crypto.randomUUID();
 
-			const presignedUrl = await createPresignedPost(s3Client as any, {
-				Bucket: "krak-lcds",
-				Key: `courses/${insertId}`,
-				Fields: {
-					key: `courses/${insertId}`,
-				},
-				Conditions: [
-					["eq", "$Content-Type", "application/zip"],
-					["content-length-range", 0, MAX_FILE_SIZE],
-				],
-			});
+			const presignedUrlRes = await fetch(
+				`${env.NEXT_PUBLIC_SITE_URL}/content/${insertId}`,
+				{
+					method: "POST",
+				}
+			);
+			const presignedUrl =
+				(await presignedUrlRes.json()) as PresignedPost;
+
+			console.log(presignedUrl);
 
 			await db.insert(courses).values({
 				id: insertId,

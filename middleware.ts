@@ -11,7 +11,8 @@ const intlMiddleware = createMiddleware({
 export default authMiddleware({
 	beforeAuth: (req: NextRequest) => {
 		const { pathname } = req.nextUrl;
-		if (pathname.startsWith(`/api`)) return;
+		if (pathname.startsWith(`/api`) || pathname.startsWith("/content"))
+			return;
 
 		return intlMiddleware(req);
 	},
@@ -23,6 +24,7 @@ export default authMiddleware({
 		"/:locale/play/:courseId",
 		"/:locale/play/:courseId/public",
 		"/api(.*)",
+		"/content(.*)",
 	],
 });
 

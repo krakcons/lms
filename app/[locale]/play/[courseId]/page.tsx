@@ -1,5 +1,5 @@
 import { serverTrpc } from "@/app/[locale]/_trpc/server";
-import { getCourseFile } from "@/lib/files";
+import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
@@ -29,8 +29,10 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 };
 
 const parseCourse = async (courseId: string) => {
-	const file = await getCourseFile(courseId, "imsmanifest.xml");
-	const text = await file?.async("text");
+	const res = await fetch(
+		`${env.NEXT_PUBLIC_SITE_URL}/content/${courseId}/imsmanifest.xml`
+	);
+	const text = await res.text();
 
 	if (!text) throw new Error("404");
 
@@ -83,7 +85,7 @@ const Page = async ({
 					learner={learner}
 				>
 					<iframe
-						src={`/${locale}/play/${courseId}/${resources[0].href}`}
+						src={`/content/${courseId}/${resources[0].href}`}
 						className="flex-1"
 					/>
 				</LMSProvider>

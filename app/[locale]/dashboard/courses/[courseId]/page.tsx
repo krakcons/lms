@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { EyeOff, Users } from "lucide-react";
 
-export const runtime = "nodejs";
-
 const Page = async ({
 	params: { courseId },
 }: {
