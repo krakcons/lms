@@ -13,7 +13,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
-import { deleteCourseFile } from "@/lib/files";
+import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -27,7 +27,13 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();
-			deleteCourseFile(courseId);
+		},
+		onError: (error) => {
+			toast({
+				title: "Something went wrong!",
+				description: error.message,
+				variant: "destructive",
+			});
 		},
 	});
 

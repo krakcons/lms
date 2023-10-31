@@ -111,6 +111,18 @@ export const courseRouter = router({
 					.delete(courses)
 					.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
 				await tx.delete(learners).where(eq(learners.courseId, id));
+				const res = await fetch(
+					`${env.NEXT_PUBLIC_SITE_URL}/content/${id}`,
+					{
+						method: "DELETE",
+						headers: {
+							AWS_SECRET_ACCESS_KEY: env.AWS_SECRET_ACCESS_KEY,
+						},
+					}
+				);
+				if (!res.ok) {
+					throw new Error("Failed to delete course");
+				}
 			});
 
 			return undefined;
