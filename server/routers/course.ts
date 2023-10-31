@@ -48,21 +48,25 @@ export const courseRouter = router({
 					method: "POST",
 				}
 			);
+			if (!presignedUrlRes.ok) {
+				throw new Error("Failed to get presigned URL");
+			}
 			const presignedUrl =
 				(await presignedUrlRes.json()) as PresignedPost;
 
-			console.log(presignedUrl);
+			// Create a new course and svix app
+			await db.transaction(async (tx) => {
+				await tx.insert(courses).values({
+					id: insertId,
+					teamId,
+					name,
+					version,
+				});
 
-			await db.insert(courses).values({
-				id: insertId,
-				teamId,
-				name,
-				version,
-			});
-
-			await svix.application.create({
-				name: `app_${insertId}`,
-				uid: `app_${insertId}`,
+				await svix.application.create({
+					name: `app_${insertId}`,
+					uid: `app_${insertId}`,
+				});
 			});
 
 			return {
