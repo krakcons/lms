@@ -25,7 +25,11 @@ export const GET = async (
 	);
 
 	const body = await courseZip.Body?.transformToByteArray();
-	if (!body) return null;
+	if (!body) {
+		return new Response("File Not found", {
+			status: 404,
+		});
+	}
 	const course = await JSZip.loadAsync(body);
 
 	const file = course.file(url);
