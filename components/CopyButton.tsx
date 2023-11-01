@@ -16,7 +16,7 @@ const CopyButton = ({ text }: { text: string }) => {
 	};
 
 	return (
-		<Button variant="outline" className="gap-2" onClick={copy}>
+		<Button variant="outline" className="gap-2" size="sm" onClick={copy}>
 			<Copy size={16} />
 			{copied ? "Copied!" : "Copy"}
 		</Button>

@@ -1,4 +1,5 @@
 import CopyButton from "@/components/CopyButton";
+import { buttonVariants } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -71,23 +72,21 @@ const Page = async () => {
 						Do not distribute this key.
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					{token ? (
-						<div className="flex items-center justify-between">
-							<p>
-								{token
-									? "**************" +
-									  token.slice(
-											token.length - 5,
-											token.length
-									  )
-									: "No API key generated yet"}
-							</p>
-							<CopyButton text={token} />
-						</div>
-					) : (
-						<p>No API key generated yet</p>
-					)}
+				<CardContent className="flex w-full flex-col">
+					<div
+						className={buttonVariants({
+							variant: "secondary",
+							className: "w-full flex-1 justify-between gap-3",
+						})}
+					>
+						<p className="truncate text-sm text-muted-foreground">
+							{token
+								? "**************" +
+								  token.slice(token.length - 5, token.length)
+								: "No API key generated yet"}
+						</p>
+						{token && <CopyButton text={token} />}
+					</div>
 				</CardContent>
 			</Card>
 		</>
