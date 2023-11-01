@@ -20,6 +20,15 @@ const nextConfig = {
 			},
 		],
 	},
+	async redirects() {
+		return [
+			{
+				source: "/:locale/api",
+				destination: "/api",
+				permanent: true,
+			},
+		];
+	},
 };
 
 module.exports = withBundleAnalyzer(withAxiom(withNextIntl(nextConfig)));
