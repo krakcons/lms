@@ -1,9 +1,11 @@
 import { SidebarNav } from "@/components/ui/sidebar";
+import { Key } from "lucide-react";
 
 const items = [
 	{
-		href: "/dashboard/settings/developer",
-		title: "Developer",
+		href: "/dashboard/settings/api-keys",
+		title: "API Keys",
+		icon: <Key size={18} />,
 	},
 ];
 

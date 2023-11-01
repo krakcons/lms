@@ -61,8 +61,8 @@ const Page = async () => {
 
 	return (
 		<>
-			<h2>Developer</h2>
-			<p className="text-muted-foreground">Manage API access</p>
+			<h2>API Keys</h2>
+			<p className="text-muted-foreground">View and manage API access</p>
 			<Separator className="my-8" />
 			<Card className="mt-8">
 				<CardHeader>

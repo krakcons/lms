@@ -109,11 +109,12 @@ const columns = [
 	}),
 ];
 
-const UsersTable = ({ learners }: { learners: Learner[] }) => {
+const LearnersTable = ({ learners }: { learners: Learner[] }) => {
 	return (
 		<DataTable
 			data={learners}
 			columns={columns}
+			name={"Learners"}
 			filter={{
 				column: "email",
 				placeholder: "Search emails...",
@@ -122,4 +123,4 @@ const UsersTable = ({ learners }: { learners: Learner[] }) => {
 	);
 };
 
-export default UsersTable;
+export default LearnersTable;

@@ -26,7 +26,7 @@ const Layout = ({ children }: Props) => {
 						</Link>
 						<TeamProfile />
 						<Link
-							href="/dashboard/settings/developer"
+							href="/dashboard/settings/api-keys"
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 						>
 							Settings
@@ -38,7 +38,7 @@ const Layout = ({ children }: Props) => {
 					</div>
 				</nav>
 			</header>
-			<main className="mx-auto flex w-full min-w-0 max-w-screen-lg flex-1 flex-col p-6 sm:p-12">
+			<main className="mx-auto flex w-full min-w-0 max-w-screen-xl flex-1 flex-col p-6 sm:p-12">
 				{children}
 			</main>
 		</div>
