@@ -20,6 +20,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import React from "react";
+import ExportCSVButton from "./ExportCSVButton";
 import { Button } from "./button";
 import {
 	DropdownMenu,
@@ -40,16 +41,20 @@ export const DataTable = <TData, TValue>({
 	data,
 	filter,
 	onRowClick,
+	name,
 }: DataTableProps<TData, TValue> & {
 	filter: {
 		column: string;
 		placeholder: string;
 	};
+	name: string;
 }) => {
 	const [columnFilters, setColumnFilters] =
 		React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+		React.useState<VisibilityState>({
+			id: false,
+		});
 
 	const table = useReactTable({
 		data,
@@ -67,7 +72,7 @@ export const DataTable = <TData, TValue>({
 
 	return (
 		<div>
-			<div className="flex items-center pb-4">
+			<div className="flex items-center justify-between gap-3 pb-4">
 				<Input
 					placeholder={filter.placeholder}
 					value={
@@ -80,34 +85,35 @@ export const DataTable = <TData, TValue>({
 							.getColumn(filter.column)
 							?.setFilterValue(event.target.value)
 					}
-					className="mr-2 max-w-sm"
+					className="max-w-sm"
 				/>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="ml-auto">
-							Columns
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						{table
-							.getAllColumns()
-							.filter((column) => column.getCanHide())
-							.map((column) => {
-								return (
-									<DropdownMenuCheckboxItem
-										key={column.id}
-										className="capitalize"
-										checked={column.getIsVisible()}
-										onCheckedChange={(value) =>
-											column.toggleVisibility(!!value)
-										}
-									>
-										{column.id}
-									</DropdownMenuCheckboxItem>
-								);
-							})}
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex gap-3">
+					<ExportCSVButton data={data} filename={name} />
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline">Filter</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							{table
+								.getAllColumns()
+								.filter((column) => column.getCanHide())
+								.map((column) => {
+									return (
+										<DropdownMenuCheckboxItem
+											key={column.id}
+											className="capitalize"
+											checked={column.getIsVisible()}
+											onCheckedChange={(value) =>
+												column.toggleVisibility(!!value)
+											}
+										>
+											{column.id}
+										</DropdownMenuCheckboxItem>
+									);
+								})}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			</div>
 			<div className="rounded-md border">
 				<Table>
@@ -134,6 +140,7 @@ export const DataTable = <TData, TValue>({
 						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
+									tabIndex={0}
 									key={row.id}
 									data-state={
 										row.getIsSelected() && "selected"

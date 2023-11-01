@@ -1,14 +1,30 @@
+import { defaultLocale, locales } from "@/lib/locale";
 import { authMiddleware } from "@clerk/nextjs";
+import createMiddleware from "next-intl/middleware";
+import { NextRequest } from "next/server";
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
+const intlMiddleware = createMiddleware({
+	locales,
+	defaultLocale,
+});
+
 export default authMiddleware({
+	beforeAuth: (req: NextRequest) => {
+		const { pathname } = req.nextUrl;
+		if (pathname.startsWith(`/api`) || pathname.startsWith("/content"))
+			return;
+
+		return intlMiddleware(req);
+	},
 	publicRoutes: [
 		"/",
-		"/courses/:courseId",
-		"/courses/:courseId/public",
+		"/:locale",
+		"/:locale/sign-in",
+		"/:locale/sign-up",
+		"/:locale/play/:courseId",
+		"/:locale/play/:courseId/public",
 		"/api(.*)",
+		"/content(.*)",
 	],
 });
 

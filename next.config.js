@@ -1,4 +1,8 @@
 const { withAxiom } = require("next-axiom");
+const withNextIntl = require("next-intl/plugin")();
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+	enabled: process.env.ANALYZE === "true",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -16,6 +20,15 @@ const nextConfig = {
 			},
 		],
 	},
+	async redirects() {
+		return [
+			{
+				source: "/:locale/api",
+				destination: "/api",
+				permanent: true,
+			},
+		];
+	},
 };
 
-module.exports = withAxiom(nextConfig);
+module.exports = withBundleAnalyzer(withAxiom(withNextIntl(nextConfig)));

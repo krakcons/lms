@@ -1,7 +1,6 @@
 import { db } from "@/db/db";
 import { courses, learners } from "@/db/schema";
-import { MAX_FILE_SIZE } from "@/lib/course";
-import { s3Client } from "@/lib/s3";
+import { env } from "@/env.mjs";
 import {
 	CourseSchema,
 	DeleteCourseSchema,
@@ -9,13 +8,13 @@ import {
 	UpdateCourseSchema,
 	UploadCourseSchema,
 } from "@/types/course";
-import { LearnerSchema } from "@/types/learner";
-import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getCourse } from "../helpers";
 import { protectedProcedure } from "../procedures";
+import { svix } from "../svix";
 import { router } from "../trpc";
 
 // https://www.restapitutorial.com/lessons/httpmethods.html
@@ -42,23 +41,31 @@ export const courseRouter = router({
 
 			const insertId = id ?? crypto.randomUUID();
 
-			const presignedUrl = await createPresignedPost(s3Client as any, {
-				Bucket: "krak-lcds",
-				Key: `courses/${insertId}`,
-				Fields: {
-					key: `courses/${insertId}`,
-				},
-				Conditions: [
-					["eq", "$Content-Type", "application/zip"],
-					["content-length-range", 0, MAX_FILE_SIZE],
-				],
-			});
+			const presignedUrlRes = await fetch(
+				`${env.NEXT_PUBLIC_SITE_URL}/content/${insertId}`,
+				{
+					method: "POST",
+				}
+			);
+			if (!presignedUrlRes.ok) {
+				throw new Error("Failed to get presigned URL");
+			}
+			const presignedUrl =
+				(await presignedUrlRes.json()) as PresignedPost;
 
-			await db.insert(courses).values({
-				id: insertId,
-				teamId,
-				name,
-				version,
+			// Create a new course and svix app
+			await db.transaction(async (tx) => {
+				await tx.insert(courses).values({
+					id: insertId,
+					teamId,
+					name,
+					version,
+				});
+
+				await svix.application.create({
+					name: `app_${insertId}`,
+					uid: `app_${insertId}`,
+				});
 			});
 
 			return {
@@ -76,9 +83,9 @@ export const courseRouter = router({
 			},
 		})
 		.input(SelectCourseSchema)
-		.output(CourseSchema.extend({ learners: LearnerSchema.array() }))
+		.output(CourseSchema)
 		.query(async ({ ctx: { teamId }, input: { id } }) => {
-			return await getCourse({ id, teamId, learners: true });
+			return await getCourse({ id, teamId });
 		}),
 	find: protectedProcedure
 		.meta({
@@ -107,6 +114,18 @@ export const courseRouter = router({
 					.delete(courses)
 					.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
 				await tx.delete(learners).where(eq(learners.courseId, id));
+				const res = await fetch(
+					`${env.NEXT_PUBLIC_SITE_URL}/content/${id}`,
+					{
+						method: "DELETE",
+						headers: {
+							AWS_SECRET_ACCESS_KEY: env.AWS_SECRET_ACCESS_KEY,
+						},
+					}
+				);
+				if (!res.ok) {
+					throw new Error("Failed to delete course");
+				}
 			});
 
 			return undefined;

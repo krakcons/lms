@@ -1,3 +1,4 @@
+import { Learner } from "@/types/learner";
 import { z } from "zod";
 
 export enum Scorm12ErrorCode {
@@ -76,21 +77,35 @@ export const Scorm12ErrorMessage: Record<
 
 export const Scorm12DataSchema = z
 	.object({
-		"cmi.core.lesson_status": z.enum([
-			"passed",
-			"completed",
-			"failed",
-			"incomplete",
-			"browsed",
-			"not attempted",
-		]),
-		"cmi.core.score.raw": z.number().or(z.string()).optional(),
-		"cmi.core.score.max": z.number().or(z.string()).default(100).optional(),
-		"cmi.core.score.min": z.number().or(z.string()).default(0).optional(),
+		"cmi.core.lesson_status": z
+			.enum([
+				"passed",
+				"completed",
+				"failed",
+				"incomplete",
+				"browsed",
+				"not attempted",
+			])
+			.default("not attempted"),
+		"cmi.core.score.raw": z.coerce.number().default(0),
+		"cmi.core.score.max": z.coerce.number().default(100),
+		"cmi.core.score.min": z.coerce.number().default(0),
 	})
 	.transform((data) => {
+		const statusMapping: Record<string, Learner["status"]> = {
+			completed: "passed",
+			incomplete: "in-progress",
+			"not attempted": "not-started",
+			browsed: "in-progress",
+			passed: "passed",
+			failed: "failed",
+		};
+
+		const status = statusMapping[data["cmi.core.lesson_status"]];
+		console.log(data["cmi.core.lesson_status"], status);
+
 		return {
-			status: data["cmi.core.lesson_status"],
+			status,
 			score: {
 				raw: data["cmi.core.score.raw"],
 				max: data["cmi.core.score.max"],
@@ -98,4 +113,3 @@ export const Scorm12DataSchema = z
 			},
 		};
 	});
-export type Scorm12Data = z.infer<typeof Scorm12DataSchema>;

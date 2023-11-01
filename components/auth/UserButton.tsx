@@ -11,11 +11,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useClerkAppearance } from "@/lib/clerk";
+import { useRouter } from "@/lib/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
 
 const UserButton = () => {
+	const appearance = useClerkAppearance();
 	const { openUserProfile, openCreateOrganization, signOut } = useClerk();
 	const { user } = useUser();
+	const router = useRouter();
 
 	if (!user) return null;
 
@@ -47,13 +51,19 @@ const UserButton = () => {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => openUserProfile()}>
+					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
+						Dashboard
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => openUserProfile({ appearance })}
+					>
 						Account
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() =>
 							openCreateOrganization({
 								afterCreateOrganizationUrl: "/dashboard",
+								appearance,
 							})
 						}
 					>
