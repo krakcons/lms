@@ -1,5 +1,5 @@
 import { SidebarNav } from "@/components/ui/sidebar";
-import { Cog, Home, Users, Webhook } from "lucide-react";
+import { Home, Settings, Users, Webhook } from "lucide-react";
 
 const items = [
 	{
@@ -34,7 +34,7 @@ const Layout = ({
 		{
 			href: `/dashboard/courses/${courseId}/settings`,
 			title: "Settings",
-			icon: <Cog size={18} />,
+			icon: <Settings size={18} />,
 		},
 	];
 
