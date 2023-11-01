@@ -9,6 +9,7 @@ const Page = async ({
 	params: { courseId: string };
 }) => {
 	const course = await serverTrpc.course.findOne({ id: courseId });
+	const learners = await serverTrpc.learner.find({ courseId });
 
 	return (
 		<main>
@@ -25,7 +26,7 @@ const Page = async ({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">
-							{course.learners.length}
+							{learners.length}
 						</div>
 					</CardContent>
 				</Card>
@@ -39,9 +40,8 @@ const Page = async ({
 					<CardContent>
 						<div className="text-2xl font-bold">
 							{
-								course.learners.filter(
-									(learner) => !learner.email
-								).length
+								learners.filter((learner) => !learner.email)
+									.length
 							}
 						</div>
 					</CardContent>

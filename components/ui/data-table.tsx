@@ -49,7 +49,9 @@ export const DataTable = <TData, TValue>({
 	const [columnFilters, setColumnFilters] =
 		React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+		React.useState<VisibilityState>({
+			id: false,
+		});
 
 	const table = useReactTable({
 		data,

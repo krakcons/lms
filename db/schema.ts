@@ -29,6 +29,7 @@ export const learners = mysqlTable("learners", {
 	courseId: varchar("courseId", { length: 255 }).notNull(),
 	email: varchar("email", { length: 255 }),
 	data: json("data").$type<Record<string, string>>().notNull().default({}),
+	version: mysqlEnum("version", ["1.2", "2004"]).notNull(),
 });
 
 export const learnersRelations = relations(learners, ({ one }) => ({

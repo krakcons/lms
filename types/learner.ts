@@ -1,14 +1,41 @@
 import { learners } from "@/db/schema";
-import { parseLearnerData } from "@/lib/scorm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { Scorm12DataSchema } from "./scorm/versions/12";
+import { Scorm2004DataSchema } from "./scorm/versions/2004";
 import { WithUser } from "./users";
 
-export const LearnerSchema = createSelectSchema(learners, {
+export const BaseLearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
 	email: z.string().email().nullable(),
 });
+export type BaseLearner = z.infer<typeof BaseLearnerSchema>;
+
+export const LearnerSchema = BaseLearnerSchema.extend({
+	status: z.enum(["passed", "failed", "in-progress", "not-started"]),
+	score: z
+		.object({
+			raw: z.number().optional(),
+			max: z.number().optional(),
+			min: z.number().optional(),
+		})
+		.optional(),
+});
 export type Learner = z.infer<typeof LearnerSchema>;
+
+export const ExtendLearner = BaseLearnerSchema.transform((data) => {
+	if (data.version === "1.2") {
+		return {
+			...data,
+			...Scorm12DataSchema.parse(data.data),
+		};
+	} else {
+		return {
+			...data,
+			...Scorm2004DataSchema.parse(data.data),
+		};
+	}
+});
 
 export const InsertLearnerSchema = createInsertSchema(learners, {
 	data: z.record(z.string()),
@@ -40,8 +67,6 @@ export type FullLearner = Prettify<
 		};
 	}
 >;
-
-export type ExpandedLearner = ReturnType<typeof parseLearnerData>;
 
 export const SelectLearnerSchema = LearnerSchema.pick({
 	id: true,

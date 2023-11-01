@@ -1,3 +1,4 @@
+import { Learner } from "@/types/learner";
 import { z } from "zod";
 
 export enum Scorm2004ErrorCode {
@@ -164,24 +165,36 @@ export const Scorm2004ErrorMessage: Record<
 
 export const Scorm2004DataSchema = z
 	.object({
-		"cmi.completion_status": z.enum([
-			"completed",
-			"incomplete",
-			"not attempted",
-			"unknown",
-		]),
-		"cmi.score.raw": z.number().or(z.string()).optional(),
-		"cmi.score.max": z.number().or(z.string()).default(100).optional(),
-		"cmi.score.min": z.number().or(z.string()).default(0).optional(),
+		"cmi.completion_status": z
+			.enum(["completed", "incomplete", "not attempted", "unknown"])
+			.default("unknown"),
+		"cmi.success_status": z
+			.enum(["passed", "failed", "unknown"])
+			.default("unknown"),
+		"cmi.score.raw": z.coerce.number().default(0),
+		"cmi.score.max": z.coerce.number().default(100),
+		"cmi.score.min": z.coerce.number().default(0),
 	})
 	.transform((data) => {
-		return {
-			status: data["cmi.completion_status"],
+		const statusMapping: Record<string, Learner["status"]> = {
+			completed: "passed",
+			incomplete: "in-progress",
+			"not attempted": "not-started",
+			unknown: "not-started",
+		};
+
+		const status =
+			data["cmi.success_status"] !== "unknown"
+				? data["cmi.success_status"]
+				: statusMapping[data["cmi.completion_status"]];
+
+		const extended = {
+			status,
 			score: {
 				raw: data["cmi.score.raw"],
 				max: data["cmi.score.max"],
 				min: data["cmi.score.min"],
 			},
 		};
+		return extended;
 	});
-export type Scorm2004Data = z.infer<typeof Scorm2004DataSchema>;

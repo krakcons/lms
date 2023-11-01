@@ -5,6 +5,7 @@ import { getInitialScormData } from "@/lib/scorm";
 import {
 	CreateLearnerSchema,
 	DeleteLearnerSchema,
+	ExtendLearner,
 	LearnerSchema,
 	SelectLearnerSchema,
 	UpdateLearnerSchema,
@@ -93,7 +94,8 @@ export const learnerRouter = router({
 					id: id ?? crypto.randomUUID(),
 					courseId: course.id,
 					email,
-					data: getInitialScormData(course.version) ?? {},
+					data: getInitialScormData(course.version),
+					version: course.version,
 				};
 
 				if (sendEmail && email) {
@@ -127,7 +129,7 @@ export const learnerRouter = router({
 
 				await db.insert(learners).values(newLearner);
 
-				return newLearner;
+				return ExtendLearner.parse(newLearner);
 			}
 		),
 	findOne: publicProcedure
@@ -158,7 +160,7 @@ export const learnerRouter = router({
 				});
 			}
 
-			return learner;
+			return ExtendLearner.parse(learner);
 		}),
 	find: protectedProcedure
 		.meta({
@@ -174,9 +176,11 @@ export const learnerRouter = router({
 		.query(async ({ ctx: { teamId }, input: { courseId } }) => {
 			await getCourse({ id: courseId, teamId });
 
-			return await db.query.learners.findMany({
+			const learnerList = await db.query.learners.findMany({
 				where: eq(learners.courseId, courseId),
 			});
+
+			return ExtendLearner.array().parse(learnerList);
 		}),
 	update: publicProcedure
 		.meta({
@@ -195,6 +199,7 @@ export const learnerRouter = router({
 					eq(learners.courseId, courseId)
 				),
 			});
+			const oldLearner = ExtendLearner.parse(learner);
 
 			if (!learner) {
 				throw new TRPCError({
@@ -210,18 +215,26 @@ export const learnerRouter = router({
 					and(eq(learners.courseId, courseId), eq(learners.id, id))
 				);
 
-			await svix.message.create(`app_${courseId}`, {
-				eventType: "learner.update",
-				payload: {
-					...learner,
-					...rest,
-				},
-			});
-
-			return {
+			const newLearner = ExtendLearner.parse({
 				...learner,
 				...rest,
-			};
+			});
+
+			// Send update to SVIX
+			if (
+				oldLearner.status !== newLearner.status ||
+				oldLearner.score.max !== newLearner.score.max ||
+				oldLearner.score.min !== newLearner.score.min ||
+				oldLearner.score.raw !== newLearner.score.raw
+			) {
+				console.log("Sending update to SVIX");
+				await svix.message.create(`app_${courseId}`, {
+					eventType: "learner.update",
+					payload: newLearner,
+				});
+			}
+
+			return newLearner;
 		}),
 	delete: publicProcedure
 		.meta({
@@ -254,6 +267,6 @@ export const learnerRouter = router({
 					and(eq(learners.id, id), eq(learners.courseId, courseId))
 				);
 
-			return learner;
+			return ExtendLearner.parse(learner);
 		}),
 });

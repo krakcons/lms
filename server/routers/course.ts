@@ -8,7 +8,6 @@ import {
 	UpdateCourseSchema,
 	UploadCourseSchema,
 } from "@/types/course";
-import { LearnerSchema } from "@/types/learner";
 import { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -84,9 +83,9 @@ export const courseRouter = router({
 			},
 		})
 		.input(SelectCourseSchema)
-		.output(CourseSchema.extend({ learners: LearnerSchema.array() }))
+		.output(CourseSchema)
 		.query(async ({ ctx: { teamId }, input: { id } }) => {
-			return await getCourse({ id, teamId, learners: true });
+			return await getCourse({ id, teamId });
 		}),
 	find: protectedProcedure
 		.meta({

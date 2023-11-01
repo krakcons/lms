@@ -11,17 +11,17 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ExpandedLearner } from "@/types/learner";
+import { Learner } from "@/types/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const columnHelper = createColumnHelper<ExpandedLearner>();
+const columnHelper = createColumnHelper<Learner>();
 
 const LearnerActions = ({
 	learner: { id, courseId },
 }: {
-	learner: ExpandedLearner;
+	learner: Learner;
 }) => {
 	const router = useRouter();
 	const { mutate } = trpc.learner.delete.useMutation({
@@ -58,6 +58,9 @@ const LearnerActions = ({
 };
 
 const columns = [
+	columnHelper.accessor("id", {
+		header: "ID",
+	}),
 	columnHelper.accessor("email", {
 		header: "Email",
 		cell: (info) => {
@@ -70,6 +73,18 @@ const columns = [
 	}),
 	columnHelper.accessor("status", {
 		header: "Status",
+		cell: (info) => {
+			const status = info.row.original.status;
+
+			const labels = {
+				"not-started": "Not Started",
+				"in-progress": "In Progress",
+				passed: "Passed",
+				failed: "Failed",
+			};
+
+			return labels[status];
+		},
 	}),
 	columnHelper.display({
 		header: "Score",
@@ -94,14 +109,10 @@ const columns = [
 	}),
 ];
 
-type Props = {
-	expandedLearners: ExpandedLearner[];
-};
-
-const UsersTable = ({ expandedLearners }: Props) => {
+const UsersTable = ({ learners }: { learners: Learner[] }) => {
 	return (
 		<DataTable
-			data={expandedLearners}
+			data={learners}
 			columns={columns}
 			filter={{
 				column: "email",
