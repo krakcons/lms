@@ -113,7 +113,7 @@ export const learnerRouter = router({
 								email,
 								course: course.name,
 								organization: "Krak LMS",
-								href: `${env.NEXT_PUBLIC_SITE_URL}/courses/${course.id}?learnerId=${newLearner.id}`,
+								href: `${env.NEXT_PUBLIC_SITE_URL}/play/${course.id}?learnerId=${newLearner.id}`,
 							}),
 						}),
 					});
