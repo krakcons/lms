@@ -225,7 +225,8 @@ export const learnerRouter = router({
 				oldLearner.status !== newLearner.status ||
 				oldLearner.score.max !== newLearner.score.max ||
 				oldLearner.score.min !== newLearner.score.min ||
-				oldLearner.score.raw !== newLearner.score.raw
+				oldLearner.score.raw !== newLearner.score.raw ||
+				oldLearner.email !== newLearner.email
 			) {
 				console.log("Sending update to SVIX");
 				await svix.message.create(`app_${courseId}`, {
