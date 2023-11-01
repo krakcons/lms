@@ -1,3 +1,4 @@
+import CopyButton from "@/components/CopyButton";
 import {
 	Card,
 	CardContent,
@@ -9,7 +10,6 @@ import { Separator } from "@/components/ui/separator";
 import { getAuth } from "@/lib/auth";
 import { clerkClient } from "@clerk/nextjs";
 import { z } from "zod";
-import CopyKey from "./_components/CopyKey";
 
 const Page = async () => {
 	const { getToken, userId, orgId } = getAuth({
@@ -73,7 +73,18 @@ const Page = async () => {
 				</CardHeader>
 				<CardContent>
 					{token ? (
-						<CopyKey token={token} />
+						<div className="flex items-center justify-between">
+							<p>
+								{token
+									? "**************" +
+									  token.slice(
+											token.length - 5,
+											token.length
+									  )
+									: "No API key generated yet"}
+							</p>
+							<CopyButton text={token} />
+						</div>
 					) : (
 						<p>No API key generated yet</p>
 					)}

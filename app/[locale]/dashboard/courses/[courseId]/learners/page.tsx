@@ -1,9 +1,11 @@
 import { serverTrpc } from "@/app/[locale]/_trpc/server";
+import CopyButton from "@/components/CopyButton";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { env } from "@/env.mjs";
 import { Suspense } from "react";
 import InviteLearnerDialog from "./_components/InviteLearnerDialog";
 import LearnersTable from "./_components/LearnersTable";
-import PublicLinkButton from "./_components/PublicLinkButton";
 
 export const runtime = "nodejs";
 
@@ -32,7 +34,22 @@ const Page = async ({
 				<InviteLearnerDialog courseId={courseId} />
 			</div>
 			<Separator className="my-8" />
-			<PublicLinkButton courseId={courseId} />
+			<div className="flex w-full flex-col gap-1">
+				<p>Share public link</p>
+				<div
+					className={buttonVariants({
+						variant: "secondary",
+						className: "flex-1 justify-between gap-3",
+					})}
+				>
+					<p className="truncate text-sm text-muted-foreground">
+						{env.NEXT_PUBLIC_SITE_URL}/play/{courseId}/public
+					</p>
+					<CopyButton
+						text={`${env.NEXT_PUBLIC_SITE_URL}/play/${courseId}/public`}
+					/>
+				</div>
+			</div>
 			<Separator className="my-8" />
 			<Suspense fallback={<div>Loading...</div>}>
 				<Table courseId={courseId} />

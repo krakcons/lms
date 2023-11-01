@@ -19,8 +19,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Sliders } from "lucide-react";
 import React from "react";
-import ExportCSVButton from "./ExportCSVButton";
+import ExportCSVButton from "../ExportCSVButton";
 import { Button } from "./button";
 import {
 	DropdownMenu,
@@ -91,7 +92,10 @@ export const DataTable = <TData, TValue>({
 					<ExportCSVButton data={data} filename={name} />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="outline">Filter</Button>
+							<Button variant="outline" className="gap-2">
+								<Sliders size={16} />
+								Filter
+							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							{table
