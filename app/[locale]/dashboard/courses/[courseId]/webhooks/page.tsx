@@ -1,15 +1,34 @@
 import { Separator } from "@/components/ui/separator";
-import { svix } from "@/server/svix";
+import { SvixErrorSchema, svix } from "@/server/svix";
 
 const Page = async ({
 	params: { courseId },
 }: {
 	params: { courseId: string };
 }) => {
-	const dashboard = await svix.authentication.appPortalAccess(
-		`app_${courseId}`,
-		{}
-	);
+	let url = undefined;
+	try {
+		const dashboard = await svix.authentication.appPortalAccess(
+			`app_${courseId}`,
+			{}
+		);
+		url = dashboard.url;
+	} catch (e) {
+		const se = SvixErrorSchema.safeParse(e);
+		if (se.success) {
+			if (se.data.body.code === "not_found") {
+				await svix.application.create({
+					name: `app_${courseId}`,
+					uid: `app_${courseId}`,
+				});
+				const dashboard = await svix.authentication.appPortalAccess(
+					`app_${courseId}`,
+					{}
+				);
+				url = dashboard.url;
+			}
+		}
+	}
 
 	return (
 		<main>
@@ -17,7 +36,7 @@ const Page = async ({
 			<p className="text-muted-foreground">Manage your webhooks</p>
 			<Separator className="my-8" />
 			<iframe
-				src={dashboard.url}
+				src={url}
 				style={{
 					width: "100%",
 					height: "600px",
