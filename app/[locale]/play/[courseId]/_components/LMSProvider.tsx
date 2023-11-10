@@ -1,6 +1,7 @@
 "use client";
 
 import { trpc } from "@/app/[locale]/_trpc/client";
+import { useRouter } from "@/lib/navigation";
 import { Course } from "@/types/course";
 import { Learner } from "@/types/learner";
 import {
@@ -29,9 +30,11 @@ type Props = {
 const useSCORM = ({
 	version,
 	initialData,
+	onFinish,
 }: {
 	version: Course["version"];
 	initialData: Record<string, any>;
+	onFinish?: () => void;
 }) => {
 	const [data, setData] = useState<Record<string, string>>(initialData);
 	const error = useRef<number | undefined>();
@@ -119,6 +122,8 @@ const useSCORM = ({
 			LMSFinish: (): boolean => {
 				console.log("LMSFinish");
 
+				if (onFinish) onFinish();
+
 				return true;
 			},
 		};
@@ -199,6 +204,8 @@ const useSCORM = ({
 			Terminate: (): boolean => {
 				console.log("Terminate");
 
+				if (onFinish) onFinish();
+
 				return true;
 			},
 		};
@@ -211,9 +218,15 @@ const useSCORM = ({
 
 const LMSProvider = ({ children, version, learner }: Props) => {
 	const { mutate } = trpc.learner.update.useMutation();
+	const router = useRouter();
 	const { data } = useSCORM({
 		version,
 		initialData: learner.data,
+		onFinish: () => {
+			router.push(
+				`/play/${learner.courseId}/results?learnerId=${learner.id}`
+			);
+		},
 	});
 
 	useEffect(() => {

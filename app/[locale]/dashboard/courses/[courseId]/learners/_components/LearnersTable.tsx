@@ -11,7 +11,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { statusLabels } from "@/lib/learner";
+import { scoreLabel, statusLabels } from "@/lib/learner";
 import { Learner } from "@/types/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -85,11 +85,7 @@ const columns = [
 		cell: (info) => {
 			const score = info.row.original.score;
 
-			if (score && score.max && score.raw) {
-				return `${score.raw}/${score.max}`;
-			} else {
-				return "N/A";
-			}
+			return scoreLabel(score);
 		},
 	}),
 	columnHelper.display({

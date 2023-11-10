@@ -1,3 +1,4 @@
+import { Learner } from "@/types/learner";
 import { User } from "@clerk/nextjs/server";
 
 export const filterUserForClient = ({
@@ -24,4 +25,12 @@ export const statusLabels = {
 	"in-progress": "In Progress",
 	passed: "Passed",
 	failed: "Failed",
+};
+
+export const scoreLabel = (score: Learner["score"]) => {
+	if (score && score.max && score.raw) {
+		return `${score.raw}/${score.max}`;
+	} else {
+		return "N/A";
+	}
 };
