@@ -270,4 +270,30 @@ export const learnerRouter = router({
 
 			return ExtendLearner.parse(learner);
 		}),
+	reset: publicProcedure
+		.input(SelectLearnerSchema)
+		.mutation(async ({ input: { id, courseId } }) => {
+			const learner = await db.query.learners.findFirst({
+				where: and(
+					eq(learners.id, id),
+					eq(learners.courseId, courseId)
+				),
+			});
+
+			if (!learner) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Learner not found",
+				});
+			}
+
+			await db
+				.update(learners)
+				.set({ data: getInitialScormData(learner.version) })
+				.where(
+					and(eq(learners.id, id), eq(learners.courseId, courseId))
+				);
+
+			return ExtendLearner.parse(learner);
+		}),
 });

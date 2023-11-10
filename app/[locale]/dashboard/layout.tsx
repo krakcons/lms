@@ -22,7 +22,7 @@ const Layout = ({ children }: Props) => {
 							href="/dashboard"
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 						>
-							Courses
+							Dashboard
 						</Link>
 						<TeamProfile />
 						<Link

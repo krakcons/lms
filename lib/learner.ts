@@ -18,3 +18,10 @@ export const filterUserForClient = ({
 			emailAddresses.length > 0 ? emailAddresses[0].emailAddress : null,
 	};
 };
+
+export const statusLabels = {
+	"not-started": "Not Started",
+	"in-progress": "In Progress",
+	passed: "Passed",
+	failed: "Failed",
+};

@@ -11,6 +11,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { statusLabels } from "@/lib/learner";
 import { Learner } from "@/types/learner";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -76,14 +77,7 @@ const columns = [
 		cell: (info) => {
 			const status = info.row.original.status;
 
-			const labels = {
-				"not-started": "Not Started",
-				"in-progress": "In Progress",
-				passed: "Passed",
-				failed: "Failed",
-			};
-
-			return labels[status];
+			return statusLabels[status];
 		},
 	}),
 	columnHelper.display({

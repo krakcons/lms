@@ -1,6 +1,7 @@
 import { learners } from "@/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { CourseSchema } from "./course";
 import { Scorm12DataSchema } from "./scorm/versions/12";
 import { Scorm2004DataSchema } from "./scorm/versions/2004";
 import { WithUser } from "./users";
@@ -8,6 +9,8 @@ import { WithUser } from "./users";
 export const BaseLearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
 	email: z.string().email().nullable(),
+}).extend({
+	course: CourseSchema.optional(),
 });
 export type BaseLearner = z.infer<typeof BaseLearnerSchema>;
 

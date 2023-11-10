@@ -95,7 +95,7 @@ const TeamSwitcher = () => {
 							{team.name ? team.name[0] : "T"}
 						</AvatarFallback>
 					</Avatar>
-					<p className="truncate">
+					<p className="truncate text-sm">
 						{team.type === "team" ? team.name : "Personal"}
 					</p>
 					<ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
