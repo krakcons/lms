@@ -7,6 +7,11 @@ import { z } from "zod";
 import { protectedProcedure } from "../procedures";
 import { router } from "../trpc";
 
+const userDTO = z.object({
+	id: z.string(),
+	email: z.string(),
+});
+
 export const userRouter = router({
 	me: protectedProcedure
 		.meta({
@@ -17,28 +22,24 @@ export const userRouter = router({
 			},
 		})
 		.input(z.undefined())
+		.output(userDTO.extend({ learnings: ExtendLearner.array() }))
 		.query(async ({ ctx: { userId } }) => {
-			const user = await clerkClient.users.getUser(userId);
+			const clerkUser = await clerkClient.users.getUser(userId);
 
-			const userDTO = z
-				.object({
-					id: z.string(),
-					email: z.string(),
-				})
-				.parse({
-					id: user.id,
-					email: user.emailAddresses[0].emailAddress,
-				});
+			const user = userDTO.parse({
+				id: clerkUser.id,
+				email: clerkUser.emailAddresses[0].emailAddress,
+			});
 
 			const learnings = await db.query.learners.findMany({
-				where: eq(learners.email, userDTO.email),
+				where: eq(learners.email, user.email),
 				with: {
 					course: true,
 				},
 			});
 
 			return {
-				...userDTO,
+				...user,
 				learnings: ExtendLearner.array().parse(learnings),
 			};
 		}),
