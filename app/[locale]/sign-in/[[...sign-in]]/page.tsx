@@ -8,7 +8,11 @@ const Page = ({ params: { locale } }: { params: { locale: string } }) => {
 
 	return (
 		<main className="flex flex-1 items-center justify-center">
-			<SignIn appearance={appearance} path={`/${locale}/sign-in`} />
+			<SignIn
+				appearance={appearance}
+				path={`/${locale}/sign-in`}
+				redirectUrl={`/${locale}/dashboard`}
+			/>
 		</main>
 	);
 };

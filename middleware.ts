@@ -23,6 +23,7 @@ export default authMiddleware({
 		"/:locale/sign-up",
 		"/:locale/play/:courseId",
 		"/:locale/play/:courseId/public",
+		"/:locale/sign-up/sso-callback",
 		"/api(.*)",
 		"/content(.*)",
 	],
