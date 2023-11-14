@@ -2,13 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { defaultTheme, localization } from "@/lib/clerk";
 import { locales } from "@/lib/locale";
 import { ClerkProvider } from "@clerk/nextjs";
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
-import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { TrpcProvider } from "./_components/TrpcProvider";
 import "./globals.css";
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: "Krak LCDS",
@@ -27,7 +26,9 @@ const RootLayout = async ({
 	return (
 		<html lang={locale} suppressHydrationWarning>
 			<AxiomWebVitals />
-			<body className={`${inter.className} flex min-h-screen flex-col`}>
+			<body
+				className={`${GeistSans.className} flex min-h-screen flex-col`}
+			>
 				<ClerkProvider
 					localization={localization}
 					appearance={defaultTheme}

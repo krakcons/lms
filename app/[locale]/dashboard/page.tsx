@@ -5,46 +5,67 @@ import { Link } from "@/lib/navigation";
 import { Plus } from "lucide-react";
 import { serverTrpc } from "../_trpc/server";
 
-const Page = async () => {
-	const courses = await serverTrpc.course.find();
+const MyLearning = async () => {
 	const user = await serverTrpc.user.me();
 
-	console.log(user.learnings);
+	return (
+		<>
+			<h2>My Learning</h2>
+			<div className="flex flex-col gap-3">
+				{user.learnings.map((learning) => (
+					<Link
+						href={`/play/${learning.courseId}?learnerId=${learning.id}`}
+						key={learning.id}
+						target="_blank"
+						className={buttonVariants({
+							variant: "outline",
+							className: "justify-between",
+						})}
+					>
+						{learning.course?.name}
+						<span className="flex gap-3">
+							{learning.score &&
+							learning.score.max &&
+							learning.score.raw ? (
+								<Badge>{scoreLabel(learning.score)}</Badge>
+							) : null}
+							<Badge>{statusLabels[learning.status]}</Badge>
+						</span>
+					</Link>
+				))}
+			</div>
+		</>
+	);
+};
+
+const Courses = async () => {
+	const courses = await serverTrpc.course.find();
 
 	return (
+		<>
+			{courses.map((course) => (
+				<Link
+					href={`/dashboard/courses/${course.id}`}
+					key={course.id}
+					className={buttonVariants({
+						variant: "outline",
+						className: "relative flex h-56 flex-col gap-4",
+					})}
+				>
+					<p className="text-center text-lg">{course.name}</p>
+					<Badge variant="outline" className="absolute top-3">
+						Free
+					</Badge>
+				</Link>
+			))}
+		</>
+	);
+};
+
+const Page = async () => {
+	return (
 		<div className="flex flex-col gap-8">
-			{user.learnings.length && (
-				<>
-					<h2>My Learning</h2>
-					<div className="flex flex-col gap-3">
-						{user.learnings.map((learning) => (
-							<Link
-								href={`/play/${learning.courseId}?learnerId=${learning.id}`}
-								key={learning.id}
-								target="_blank"
-								className={buttonVariants({
-									variant: "outline",
-									className: "justify-between",
-								})}
-							>
-								{learning.course?.name}
-								<span className="flex gap-3">
-									{learning.score &&
-									learning.score.max &&
-									learning.score.raw ? (
-										<Badge>
-											{scoreLabel(learning.score)}
-										</Badge>
-									) : null}
-									<Badge>
-										{statusLabels[learning.status]}
-									</Badge>
-								</span>
-							</Link>
-						))}
-					</div>
-				</>
-			)}
+			<MyLearning />
 			<h2>Courses</h2>
 			<div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				<Link
@@ -59,21 +80,7 @@ const Page = async () => {
 						Create Course
 					</div>
 				</Link>
-				{courses.map((course) => (
-					<Link
-						href={`/dashboard/courses/${course.id}`}
-						key={course.id}
-						className={buttonVariants({
-							variant: "outline",
-							className: "relative flex h-56 flex-col gap-4",
-						})}
-					>
-						<p className="text-center text-lg">{course.name}</p>
-						<Badge variant="outline" className="absolute top-3">
-							Free
-						</Badge>
-					</Link>
-				))}
+				<Courses />
 			</div>
 		</div>
 	);
