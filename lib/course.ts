@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { z } from "zod";
 import { formatBytes } from "./helpers";
 
-export const MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
+export const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
