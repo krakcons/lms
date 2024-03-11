@@ -1,11 +1,12 @@
 import { Toaster } from "@/components/ui/toaster";
-import { defaultTheme, localization } from "@/lib/clerk";
+import { localization } from "@/lib/clerk";
 import { locales } from "@/lib/locale";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import Providers from "./Providers";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,14 +25,16 @@ const RootLayout = async ({
 	if (!locales.includes(locale)) notFound();
 
 	return (
-		<ClerkProvider localization={localization} appearance={defaultTheme}>
+		<ClerkProvider localization={localization}>
 			<html lang={locale} suppressHydrationWarning>
 				<AxiomWebVitals />
 				<body
 					className={`${inter.className} flex min-h-screen flex-col`}
 				>
-					{children}
-					<Toaster />
+					<Providers>
+						{children}
+						<Toaster />
+					</Providers>
 				</body>
 			</html>
 		</ClerkProvider>

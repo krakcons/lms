@@ -17,7 +17,6 @@
     "@aws-sdk/s3-presigned-post": "^3.529.1",
     "@clerk/localizations": "^1.26.16",
     "@clerk/nextjs": "^4.29.9",
-    "@clerk/themes": "^1.7.9",
     "@formatjs/intl-localematcher": "^0.5.4",
     "@hookform/resolvers": "^3.3.4",
     "@next/bundle-analyzer": "^14.1.3",

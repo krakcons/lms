@@ -1,50 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
-import { inputClassName } from "@/components/ui/input";
 import { enUS } from "@clerk/localizations";
-import { dark } from "@clerk/themes";
-import { useTheme } from "next-themes";
-
-export const lightTheme = {
-	variables: {
-		colorPrimary: "hsl(220.9 39.3% 11%)",
-		colorDanger: "hsl(0 84.2% 60.2%)",
-		colorBackground: "hsl(0 0% 100%)",
-		colorText: "hsl(224 71.4% 4.1%)",
-		colorTextOnPrimaryBackground: "hsl(210 20% 98%)",
-	},
-};
-
-export const darkTheme = {
-	baseTheme: dark,
-	variables: {
-		colorPrimary: "hsl(210 20% 98%)",
-		colorDanger: "hsl(0 84.2% 60.2%)",
-		colorBackground: "hsl(224 71.4% 4.1%)",
-		colorText: "hsl(210 20% 98%)",
-		colorTextOnPrimaryBackground: "hsl(220.9 39.3% 11%)",
-		colorInputBackground: "hsl(224 71.4% 4.1%)",
-	},
-};
-
-export const defaultTheme = {
-	variables: {
-		borderRadius: "0.2rem",
-		...lightTheme.variables,
-	},
-	elements: {
-		card: {
-			borderColor: "hsl(var(--border))",
-		},
-		formFieldInput: inputClassName,
-		formButtonPrimary: buttonVariants(),
-	},
-};
-
-export const useClerkAppearance = () => {
-	return useTheme().theme === "dark" ? darkTheme : lightTheme;
-};
 
 export const localization = {
 	...enUS,

@@ -18,7 +18,6 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useClerkAppearance } from "@/lib/clerk";
 import {
 	useClerk,
 	useOrganization,
@@ -57,7 +56,6 @@ const TeamSwitcher = () => {
 	const { user } = useUser();
 	const { team } = useTeam();
 	const { openCreateOrganization } = useClerk();
-	const appearance = useClerkAppearance();
 	const { userMemberships, setActive } = useOrganizationList({
 		userMemberships: {
 			infinite: true,
@@ -158,7 +156,6 @@ const TeamSwitcher = () => {
 									openCreateOrganization({
 										afterCreateOrganizationUrl:
 											"/dashboard",
-										appearance,
 									});
 									setOpen(false);
 								}}
