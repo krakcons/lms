@@ -22,11 +22,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { uploadCourse } from "@/server/actions";
+import { uploadCourse } from "@/server/actions/actions";
+import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import JSZip from "jszip";
 import { Loader2, Upload } from "lucide-react";
+import mime from "mime-types";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
@@ -110,7 +113,36 @@ const UploadForm = () => {
 	const version = form.watch("upload.version");
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: uploadCourse,
+		mutationFn: async (input: UploadCourse) => {
+			const course = await JSZip.loadAsync(file);
+
+			const courseId = input.id ?? crypto.randomUUID();
+
+			await Promise.all(
+				Object.keys(course.files).map(async (path) => {
+					const file = await course.files[path].async("blob");
+					const contentType = mime.lookup(path);
+					const url = await getPresignedUrl(
+						`courses/${courseId}/${path}`
+					);
+
+					const formData = new FormData();
+					formData.append("data", file, path);
+
+					await fetch(url, {
+						method: "PUT",
+						headers: contentType
+							? new Headers({
+									"Content-Type": contentType,
+								})
+							: undefined,
+						body: formData,
+					});
+				})
+			);
+
+			return uploadCourse({ ...input, id: courseId });
+		},
 		onMutate: () => {
 			toast({
 				title: "Uploading...",
@@ -118,32 +150,11 @@ const UploadForm = () => {
 			});
 		},
 		onSuccess: async ({ data }) => {
-			if (!data) {
-				return;
-			}
-			const { url, fields } = data.presignedUrl;
-
-			console.log("URL", url, "FIELDS", fields);
-
-			const form: Record<string, any> = {
-				...fields,
-				"Content-Type": "application/zip",
-				file,
-			};
-			const formData = new FormData();
-			Object.keys(form).forEach((key) => {
-				formData.append(key, form[key]);
-			});
-			await fetch(url, {
-				method: "POST",
-				body: formData,
-			});
-
 			toast({
 				title: "Upload Successful",
 				description: "Your file has been uploaded",
 			});
-			router.push(`/dashboard/courses/${data.courseId}`);
+			router.push(`/dashboard/courses/${data?.courseId}`);
 			router.refresh();
 		},
 		onError: (err: any) => {

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/lib/navigation";
-import { getCourses } from "@/server/actions";
+import { getCourses } from "@/server/actions/actions";
 import { Plus } from "lucide-react";
 
 const Page = async () => {

@@ -19,11 +19,11 @@ import {
 	SelectLearnerSchema,
 	UpdateLearnerSchema,
 } from "@/types/learner";
-import { PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import { createSafeActionClient } from "next-safe-action";
 import { z } from "zod";
+import { deleteFolder } from "./s3";
 
 const action = createSafeActionClient();
 
@@ -255,18 +255,7 @@ export const deleteCourse = authAction(
 				.delete(courses)
 				.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
 			await tx.delete(learners).where(eq(learners.courseId, id));
-			const res = await fetch(
-				`${env.NEXT_PUBLIC_SITE_URL}/content/${id}`,
-				{
-					method: "DELETE",
-					headers: {
-						AWS_SECRET_ACCESS_KEY: env.AWS_SECRET_ACCESS_KEY,
-					},
-				}
-			);
-			if (!res.ok) {
-				throw new Error("Failed to delete course");
-			}
+			await deleteFolder(`courses/${id}`);
 		});
 
 		return undefined;
@@ -301,17 +290,6 @@ export const uploadCourse = authAction(
 
 		const insertId = id ?? crypto.randomUUID();
 
-		const presignedUrlRes = await fetch(
-			`${env.NEXT_PUBLIC_SITE_URL}/content/${insertId}`,
-			{
-				method: "POST",
-			}
-		);
-		if (!presignedUrlRes.ok) {
-			throw new Error("Failed to get presigned URL");
-		}
-		const presignedUrl = (await presignedUrlRes.json()) as PresignedPost;
-
 		// Create a new course and svix app
 		await db.transaction(async (tx) => {
 			await tx.insert(courses).values({
@@ -328,7 +306,6 @@ export const uploadCourse = authAction(
 		});
 
 		return {
-			presignedUrl,
 			courseId: insertId,
 		};
 	}

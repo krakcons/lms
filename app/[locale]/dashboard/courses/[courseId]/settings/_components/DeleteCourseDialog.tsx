@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { deleteCourse } from "@/server/actions";
+import { deleteCourse } from "@/server/actions/actions";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 

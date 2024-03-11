@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { getLearner } from "@/server/actions";
+import { getLearner } from "@/server/actions/actions";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
 import LMSProvider from "./_components/LMSProvider";

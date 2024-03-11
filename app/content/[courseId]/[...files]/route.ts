@@ -1,4 +1,4 @@
-import { s3Client } from "@/lib/s3";
+import { s3 } from "@/server/s3";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import JSZip from "jszip";
 import mime from "mime-types";
@@ -17,7 +17,7 @@ export const GET = async (
 		url = "scormcontent/index.html";
 	}
 
-	const courseZip = await s3Client.send(
+	const courseZip = await s3.send(
 		new GetObjectCommand({
 			Bucket: "krak-lcds",
 			Key: `courses/${courseId}`,
