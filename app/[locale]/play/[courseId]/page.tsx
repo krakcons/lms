@@ -1,6 +1,6 @@
-import { serverTrpc } from "@/app/[locale]/_trpc/server";
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
+import { getLearner } from "@/server/actions";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
 import LMSProvider from "./_components/LMSProvider";
@@ -66,7 +66,7 @@ const Page = async ({
 	}
 
 	// Get course user
-	let learner = await serverTrpc.learner.findOne({
+	let { data: learner } = await getLearner({
 		id: learnerId,
 		courseId,
 	});

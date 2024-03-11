@@ -1,6 +1,6 @@
 "use client";
 
-import { trpc } from "@/app/[locale]/_trpc/client";
+import { updateLearner } from "@/server/actions";
 import { Course } from "@/types/course";
 import { Learner } from "@/types/learner";
 import {
@@ -11,6 +11,7 @@ import {
 	Scorm2004ErrorCode,
 	Scorm2004ErrorMessage,
 } from "@/types/scorm/versions/2004";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -210,7 +211,9 @@ const useSCORM = ({
 };
 
 const LMSProvider = ({ children, version, learner }: Props) => {
-	const { mutate } = trpc.learner.update.useMutation();
+	const { mutate } = useMutation({
+		mutationFn: updateLearner,
+	});
 	const { data } = useSCORM({
 		version,
 		initialData: learner.data,

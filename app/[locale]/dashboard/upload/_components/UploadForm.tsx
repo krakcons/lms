@@ -1,5 +1,4 @@
 "use client";
-import { trpc } from "@/app/[locale]/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -23,8 +22,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
+import { uploadCourse } from "@/server/actions";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -108,14 +109,18 @@ const UploadForm = () => {
 	const file = form.watch("file");
 	const version = form.watch("upload.version");
 
-	const { mutate, isLoading } = trpc.course.upload.useMutation({
+	const { mutate, isPending } = useMutation({
+		mutationFn: uploadCourse,
 		onMutate: () => {
 			toast({
 				title: "Uploading...",
 				description: "Your file is being uploaded",
 			});
 		},
-		onSuccess: async (data) => {
+		onSuccess: async ({ data }) => {
+			if (!data) {
+				return;
+			}
 			const { url, fields } = data.presignedUrl;
 
 			console.log("URL", url, "FIELDS", fields);
@@ -275,7 +280,7 @@ const UploadForm = () => {
 						type="submit"
 						disabled={!file}
 					>
-						{isLoading && (
+						{isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
 						Upload

@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
-import { TrpcProvider } from "./_components/TrpcProvider";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,20 +24,17 @@ const RootLayout = async ({
 	if (!locales.includes(locale)) notFound();
 
 	return (
-		<html lang={locale} suppressHydrationWarning>
-			<AxiomWebVitals />
-			<body className={`${inter.className} flex min-h-screen flex-col`}>
-				<ClerkProvider
-					localization={localization}
-					appearance={defaultTheme}
+		<ClerkProvider localization={localization} appearance={defaultTheme}>
+			<html lang={locale} suppressHydrationWarning>
+				<AxiomWebVitals />
+				<body
+					className={`${inter.className} flex min-h-screen flex-col`}
 				>
-					<TrpcProvider>
-						{children}
-						<Toaster />
-					</TrpcProvider>
-				</ClerkProvider>
-			</body>
-		</html>
+					{children}
+					<Toaster />
+				</body>
+			</html>
+		</ClerkProvider>
 	);
 };
 

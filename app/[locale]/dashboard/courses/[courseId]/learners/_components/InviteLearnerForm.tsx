@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/app/[locale]/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	DialogContent,
@@ -19,8 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { createLearner } from "@/server/actions";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -33,8 +34,10 @@ const InviteLearnerForm = ({
 	courseId: string;
 }) => {
 	const router = useRouter();
-	const { mutate, isLoading } = trpc.learner.create.useMutation({
-		onSuccess: ({ email }) => {
+
+	const { mutate, isPending } = useMutation({
+		mutationFn: createLearner,
+		onSuccess: (_, { email }) => {
 			router.refresh();
 			toast({
 				title: "Successfully Invited",
@@ -120,7 +123,7 @@ const InviteLearnerForm = ({
 						)}
 					/>
 					<Button type="submit">
-						{isLoading && (
+						{isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
 						Submit

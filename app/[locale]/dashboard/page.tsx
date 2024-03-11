@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/lib/navigation";
+import { getCourses } from "@/server/actions";
 import { Plus } from "lucide-react";
-import { serverTrpc } from "../_trpc/server";
 
 const Page = async () => {
-	const courses = await serverTrpc.course.find();
+	const { data: courses } = await getCourses(undefined);
 
 	return (
 		<>
@@ -25,7 +25,7 @@ const Page = async () => {
 						Create Course
 					</div>
 				</Link>
-				{courses.map((course) => (
+				{courses?.map((course) => (
 					<Link
 						href={`/dashboard/courses/${course.id}`}
 						key={course.id}

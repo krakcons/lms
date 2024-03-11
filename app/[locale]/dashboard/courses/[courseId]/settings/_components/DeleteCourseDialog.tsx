@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/app/[locale]/_trpc/client";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,6 +13,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { deleteCourse } from "@/server/actions";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -23,7 +24,8 @@ type Props = {
 const DeleteCourseDialog = ({ courseId }: Props) => {
 	const router = useRouter();
 
-	const { mutate } = trpc.course.delete.useMutation({
+	const { mutate } = useMutation({
+		mutationFn: deleteCourse,
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();

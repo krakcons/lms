@@ -1,15 +1,20 @@
-import { serverTrpc } from "@/app/[locale]/_trpc/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { getCourse, getLearners } from "@/server/actions";
 import { EyeOff, Users } from "lucide-react";
+import { notFound } from "next/navigation";
 
 const Page = async ({
 	params: { courseId },
 }: {
 	params: { courseId: string };
 }) => {
-	const course = await serverTrpc.course.findOne({ id: courseId });
-	const learners = await serverTrpc.learner.find({ courseId });
+	const { data: course } = await getCourse({ id: courseId });
+	const { data: learners = [] } = await getLearners({ courseId });
+
+	if (!course) {
+		return notFound();
+	}
 
 	return (
 		<main>

@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/app/[locale]/_trpc/client";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -13,7 +12,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { createLearner } from "@/server/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -27,8 +28,9 @@ type Input = z.infer<typeof InputSchema>;
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
 	const { toast } = useToast();
-	const { mutate, isLoading } = trpc.learner.create.useMutation({
-		onSuccess: ({ id }) => {
+	const { mutate, isPending } = useMutation({
+		mutationFn: createLearner,
+		onSuccess: (_, { id }) => {
 			console.log("NEW ID", id);
 			router.push(`/play/${courseId}?learnerId=${id}`);
 		},
@@ -77,7 +79,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 				/>
 				<div className="flex gap-3">
 					<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-						{form.formState.isSubmitted && isLoading && (
+						{form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
 						Submit
@@ -89,7 +91,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 							mutate({ email: undefined, courseId });
 						}}
 					>
-						{!form.formState.isSubmitted && isLoading && (
+						{!form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
 						Continue as guest

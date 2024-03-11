@@ -1,6 +1,5 @@
 "use client";
 
-import { trpc } from "@/app/[locale]/_trpc/client";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -11,7 +10,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { deleteLearner } from "@/server/actions";
 import { Learner } from "@/types/learner";
+import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,7 +25,8 @@ const LearnerActions = ({
 	learner: Learner;
 }) => {
 	const router = useRouter();
-	const { mutate } = trpc.learner.delete.useMutation({
+	const { mutate } = useMutation({
+		mutationFn: deleteLearner,
 		onSuccess: () => {
 			router.refresh();
 		},

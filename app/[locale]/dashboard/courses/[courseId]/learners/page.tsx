@@ -1,8 +1,8 @@
-import { serverTrpc } from "@/app/[locale]/_trpc/server";
 import CopyButton from "@/components/CopyButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
+import { getLearners } from "@/server/actions";
 import { Suspense } from "react";
 import InviteLearnerDialog from "./_components/InviteLearnerDialog";
 import LearnersTable from "./_components/LearnersTable";
@@ -10,7 +10,7 @@ import LearnersTable from "./_components/LearnersTable";
 export const runtime = "nodejs";
 
 const Table = async ({ courseId }: { courseId: string }) => {
-	const learners = await serverTrpc.learner.find({
+	const { data: learners = [] } = await getLearners({
 		courseId,
 	});
 
