@@ -30,9 +30,8 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const { toast } = useToast();
 	const { mutate, isPending } = useMutation({
 		mutationFn: createLearner,
-		onSuccess: (_, { id }) => {
-			console.log("NEW ID", id);
-			router.push(`/play/${courseId}?learnerId=${id}`);
+		onSuccess: ({ data }) => {
+			router.push(`/play/${courseId}?learnerId=${data?.id}`);
 		},
 		onError: (err) => {
 			form.setError("root", {
