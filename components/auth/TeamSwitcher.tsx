@@ -133,7 +133,7 @@ const TeamSwitcher = () => {
 									}
 									className="text-sm"
 								>
-									<Avatar className="mr-2 h-5 w-5">
+									{/* <Avatar className="mr-2 h-5 w-5">
 										<AvatarImage
 											src={organization.imageUrl}
 											alt={`${organization.name} icon`}
@@ -142,7 +142,7 @@ const TeamSwitcher = () => {
 										<AvatarFallback>
 											{organization.name[0]}
 										</AvatarFallback>
-									</Avatar>
+									</Avatar> */}
 									{organization.name}
 								</CommandItem>
 							))}

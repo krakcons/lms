@@ -15,6 +15,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
@@ -27,22 +28,13 @@ import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
-import { AlertCircle, Loader2, Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import mime from "mime-types";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const FormError = ({ message }: { message: string }) => (
-	<FormItem>
-		<FormMessage className="flex items-center gap-2">
-			<AlertCircle size={18} />
-			{message}
-		</FormMessage>
-	</FormItem>
-);
 
 const Dropzone = ({
 	value,

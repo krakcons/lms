@@ -10,12 +10,12 @@ import {
 import {
 	Form,
 	FormControl,
-	FormError,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { createLearner } from "@/server/actions/actions";
