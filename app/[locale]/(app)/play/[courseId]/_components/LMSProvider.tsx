@@ -48,7 +48,7 @@ const useSCORM = ({
 		}
 	}, [error]);
 
-	if (version === "1.2") {
+	if (version === "1.2" && typeof window !== "undefined") {
 		window.API = {
 			LMSInitialize: (): boolean => {
 				console.log("LMSInitialize");
@@ -123,7 +123,7 @@ const useSCORM = ({
 				return true;
 			},
 		};
-	} else if (version === "2004") {
+	} else if (version === "2004" && typeof window !== "undefined") {
 		window.API_1484_11 = {
 			Initialize: (): boolean => {
 				console.log("Initialize");
@@ -203,8 +203,6 @@ const useSCORM = ({
 				return true;
 			},
 		};
-	} else {
-		console.log("Unsupported SCORM version");
 	}
 
 	return { data };

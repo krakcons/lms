@@ -126,9 +126,6 @@ const UploadForm = () => {
 						`courses/${courseId}/${path}`
 					);
 
-					const formData = new FormData();
-					formData.append("data", file, path);
-
 					await fetch(url, {
 						method: "PUT",
 						headers: contentType
@@ -136,7 +133,7 @@ const UploadForm = () => {
 									"Content-Type": contentType,
 								})
 							: undefined,
-						body: formData,
+						body: file,
 					});
 				})
 			);

@@ -30,7 +30,7 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 
 const parseCourse = async (courseId: string) => {
 	const res = await fetch(
-		`${env.NEXT_PUBLIC_SITE_URL}/content/${courseId}/imsmanifest.xml`
+		`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/imsmanifest.xml`
 	);
 	const text = await res.text();
 
@@ -85,7 +85,7 @@ const Page = async ({
 					learner={learner}
 				>
 					<iframe
-						src={`/content/${courseId}/${resources[0].href}`}
+						src={`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/${resources[0].href}`}
 						className="flex-1"
 					/>
 				</LMSProvider>
