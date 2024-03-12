@@ -10,7 +10,6 @@ import {
 import {
 	Form,
 	FormControl,
-	FormError,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -28,13 +27,22 @@ import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
-import { Loader2, Upload } from "lucide-react";
+import { AlertCircle, Loader2, Upload } from "lucide-react";
 import mime from "mime-types";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+const FormError = ({ message }: { message: string }) => (
+	<FormItem>
+		<FormMessage className="flex items-center gap-2">
+			<AlertCircle size={18} />
+			{message}
+		</FormMessage>
+	</FormItem>
+);
 
 const Dropzone = ({
 	value,

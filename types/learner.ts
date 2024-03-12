@@ -1,4 +1,4 @@
-import { learners } from "@/db/schema";
+import { learners } from "@/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { Scorm12DataSchema } from "./scorm/versions/12";

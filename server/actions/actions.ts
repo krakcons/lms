@@ -1,9 +1,9 @@
 "use server";
 
-import { db } from "@/db/db";
-import { courses, learners } from "@/db/schema";
 import { env } from "@/env.mjs";
 import { getInitialScormData } from "@/lib/scorm";
+import { db } from "@/server/db/db";
+import { courses, learners } from "@/server/db/schema";
 import { svix } from "@/server/svix";
 import {
 	DeleteCourseSchema,
@@ -250,13 +250,11 @@ export const getCourses = authAction(z.undefined(), async (_, { teamId }) => {
 export const deleteCourse = authAction(
 	DeleteCourseSchema,
 	async ({ id }, { teamId }) => {
-		await db.transaction(async (tx) => {
-			await tx
-				.delete(courses)
-				.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
-			await tx.delete(learners).where(eq(learners.courseId, id));
-			await deleteFolder(`courses/${id}`);
-		});
+		await db
+			.delete(courses)
+			.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
+		await db.delete(learners).where(eq(learners.courseId, id));
+		await deleteFolder(`courses/${id}`);
 
 		return undefined;
 	}
@@ -291,18 +289,16 @@ export const uploadCourse = authAction(
 		const insertId = id ?? crypto.randomUUID();
 
 		// Create a new course and svix app
-		await db.transaction(async (tx) => {
-			await tx.insert(courses).values({
-				id: insertId,
-				teamId,
-				name,
-				version,
-			});
+		await db.insert(courses).values({
+			id: insertId,
+			teamId,
+			name,
+			version,
+		});
 
-			await svix.application.create({
-				name: `app_${insertId}`,
-				uid: `app_${insertId}`,
-			});
+		await svix.application.create({
+			name: `app_${insertId}`,
+			uid: `app_${insertId}`,
 		});
 
 		return {
