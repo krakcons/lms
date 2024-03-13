@@ -18,7 +18,6 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
 import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { useRouter } from "@/lib/navigation";
@@ -34,6 +33,7 @@ import mime from "mime-types";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const Dropzone = ({
@@ -86,7 +86,6 @@ const Dropzone = ({
 };
 
 const UploadForm = () => {
-	const { toast } = useToast();
 	const router = useRouter();
 
 	const form = useForm<{
@@ -141,14 +140,12 @@ const UploadForm = () => {
 			return uploadCourse({ ...input, id: courseId });
 		},
 		onMutate: () => {
-			toast({
-				title: "Uploading...",
+			toast("Uploading...", {
 				description: "Your file is being uploaded",
 			});
 		},
 		onSuccess: async ({ data }) => {
-			toast({
-				title: "Upload Successful",
+			toast("Upload Successful", {
 				description: "Your file has been uploaded",
 			});
 			router.push(`/dashboard/courses/${data?.courseId}`);
@@ -159,10 +156,8 @@ const UploadForm = () => {
 				type: "server",
 				message: err.message,
 			});
-			toast({
-				title: "Something went wrong!",
+			toast.error("Something went wrong!", {
 				description: err.message,
-				variant: "destructive",
 			});
 		},
 	});

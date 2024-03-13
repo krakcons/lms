@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "@/lib/navigation";
 import { createLearner } from "@/server/actions/learner";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
@@ -25,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const InviteLearnerForm = ({
 	close,
@@ -39,8 +39,7 @@ const InviteLearnerForm = ({
 		mutationFn: createLearner,
 		onSuccess: (_, { email }) => {
 			router.refresh();
-			toast({
-				title: "Successfully Invited",
+			toast("Successfully Invited", {
 				description: `User ${email} has been sent an invitation to join this course.`,
 			});
 			close();
@@ -51,14 +50,11 @@ const InviteLearnerForm = ({
 				type: "server",
 				message: err.message,
 			});
-			toast({
-				title: "Something went wrong!",
+			toast.error("Something went wrong!", {
 				description: err.message,
-				variant: "destructive",
 			});
 		},
 	});
-	const { toast } = useToast();
 	const form = useForm<CreateLearner>({
 		resolver: zodResolver(CreateLearnerSchema),
 		defaultValues: {

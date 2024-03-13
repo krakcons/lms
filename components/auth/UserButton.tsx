@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -10,13 +8,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "@/lib/navigation";
-import { logout } from "@/server/actions/auth";
-import type { User } from "lucia";
+import { redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/cached";
 import { User as UserIcon } from "lucide-react";
+import Link from "next/link";
 
-const UserButton = ({ user }: { user: User }) => {
-	const router = useRouter();
+const UserButton = async () => {
+	const { user } = await getAuth();
+
+	if (user === null) return redirect("/auth/google");
 
 	return (
 		<DropdownMenu>
@@ -35,13 +35,13 @@ const UserButton = ({ user }: { user: User }) => {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
-						Dashboard
+					<DropdownMenuItem asChild>
+						<Link href="/dashboard">Dashboard</Link>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem onClick={() => logout()}>
-					Log out
+				<DropdownMenuItem asChild>
+					<Link href="/auth/signout">Sign out</Link>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

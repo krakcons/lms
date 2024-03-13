@@ -1,19 +1,13 @@
 import UserButton from "@/components/auth/UserButton";
 import { Link } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/cached";
 import { Suspense } from "react";
 import ThemeButton from "./_components/ThemeButton";
-
-export const runtime = "edge";
-export const preferredRegion = "cle1";
 
 type Props = {
 	children: React.ReactNode;
 };
 
 const Layout = async ({ children }: Props) => {
-	const { user } = await getAuth({ redirect: true });
-
 	return (
 		<div className="flex flex-1 flex-col">
 			<header className="border-elevation-2 border-b px-4 py-2">
@@ -35,7 +29,7 @@ const Layout = async ({ children }: Props) => {
 					<div className="flex items-center justify-center gap-3">
 						<ThemeButton />
 						<Suspense fallback={null}>
-							{user && <UserButton user={user} />}
+							<UserButton />
 						</Suspense>
 					</div>
 				</nav>

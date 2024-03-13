@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "@/lib/navigation";
 import { createLearner } from "@/server/actions/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const InputSchema = z.object({
@@ -27,7 +27,6 @@ type Input = z.infer<typeof InputSchema>;
 
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
-	const { toast } = useToast();
 	const { mutate, isPending } = useMutation({
 		mutationFn: createLearner,
 		onSuccess: ({ data }) => {
@@ -38,10 +37,8 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 				type: "server",
 				message: err.message,
 			});
-			toast({
-				title: "Something went wrong!",
+			toast("Something went wrong!", {
 				description: err.message,
-				variant: "destructive",
 			});
 		},
 	});

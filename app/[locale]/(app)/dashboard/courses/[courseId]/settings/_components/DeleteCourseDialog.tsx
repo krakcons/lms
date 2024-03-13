@@ -12,10 +12,10 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "@/lib/navigation";
 import { deleteCourse } from "@/server/actions/course";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Props = {
 	courseId: string;
@@ -31,10 +31,8 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 			router.refresh();
 		},
 		onError: (error) => {
-			toast({
-				title: "Something went wrong!",
+			toast.error("Something went wrong!", {
 				description: error.message,
-				variant: "destructive",
 			});
 		},
 	});
