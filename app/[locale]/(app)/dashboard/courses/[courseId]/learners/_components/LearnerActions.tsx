@@ -10,7 +10,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "@/lib/navigation";
-import { deleteLearner } from "@/server/actions/actions";
+import { deleteLearner } from "@/server/actions/learner";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";

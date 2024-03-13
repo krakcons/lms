@@ -11,13 +11,49 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "@/lib/navigation";
-import { deleteLearner } from "@/server/actions/actions";
+import { deleteLearner, reinviteLearner } from "@/server/actions/learner";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 
 const columnHelper = createColumnHelper<Learner>();
+
+const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
+	const [reinvited, setReinvited] = useState(false);
+	const status = info.row.original.status;
+
+	const labels = {
+		"not-started": "Not Started",
+		"in-progress": "In Progress",
+		passed: "Passed",
+		failed: "Failed",
+	};
+
+	if (info.row.original.status === "not-started" && info.row.original.email) {
+		return (
+			<div className="flex items-center gap-4">
+				<p className="text-sm">Invited</p>
+				<Button
+					onClick={() => {
+						if (reinvited) return;
+						setReinvited(true);
+						reinviteLearner({
+							id: info.row.original.id,
+							courseId: info.row.original.courseId,
+						});
+					}}
+					variant={"outline"}
+					size={"sm"}
+				>
+					{reinvited ? "Reinvited" : "Reinvite"}
+				</Button>
+			</div>
+		);
+	}
+	return <p>{labels[status]}</p>;
+};
 
 const LearnerActions = ({
 	learner: { id, courseId },
@@ -75,18 +111,7 @@ const columns = [
 	}),
 	columnHelper.accessor("status", {
 		header: "Status",
-		cell: (info) => {
-			const status = info.row.original.status;
-
-			const labels = {
-				"not-started": "Not Started",
-				"in-progress": "In Progress",
-				passed: "Passed",
-				failed: "Failed",
-			};
-
-			return labels[status];
-		},
+		cell: (info) => <StatusCell info={info} />,
 	}),
 	columnHelper.display({
 		header: "Score",

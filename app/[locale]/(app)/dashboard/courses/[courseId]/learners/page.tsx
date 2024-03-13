@@ -2,7 +2,7 @@ import CopyButton from "@/components/CopyButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
-import { getLearners } from "@/server/actions/actions";
+import { getLearners } from "@/server/actions/learner";
 import { Suspense } from "react";
 import InviteLearnerDialog from "./_components/InviteLearnerDialog";
 import LearnersTable from "./_components/LearnersTable";

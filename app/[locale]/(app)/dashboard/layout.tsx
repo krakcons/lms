@@ -1,6 +1,7 @@
 import UserButton from "@/components/auth/UserButton";
 import { Link } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
+import { Suspense } from "react";
 import ThemeButton from "./_components/ThemeButton";
 
 export const runtime = "edge";
@@ -33,7 +34,9 @@ const Layout = async ({ children }: Props) => {
 					</div>
 					<div className="flex items-center justify-center gap-3">
 						<ThemeButton />
-						{user && <UserButton user={user} />}
+						<Suspense fallback={null}>
+							{user && <UserButton user={user} />}
+						</Suspense>
 					</div>
 				</nav>
 			</header>

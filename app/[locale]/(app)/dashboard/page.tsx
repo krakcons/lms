@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/lib/navigation";
-import { getCourses } from "@/server/actions/actions";
+import { getCourses } from "@/server/actions/course";
 import { Plus } from "lucide-react";
 
 const Page = async () => {
@@ -31,10 +31,10 @@ const Page = async () => {
 						key={course.id}
 						className={buttonVariants({
 							variant: "outline",
-							className: "relative flex h-56 flex-col gap-4",
+							className: "relative h-56 w-full gap-4 p-4",
 						})}
 					>
-						<p className="text-center text-lg">{course.name}</p>
+						<p className="truncate text-center">{course.name}</p>
 						<Badge variant="outline" className="absolute top-3">
 							Free
 						</Badge>

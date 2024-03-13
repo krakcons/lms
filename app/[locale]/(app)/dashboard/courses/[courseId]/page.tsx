@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getCourse, getLearners } from "@/server/actions/actions";
+import { getCourse } from "@/server/actions/course";
+import { getLearners } from "@/server/actions/learner";
 import { EyeOff, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { updateLearner } from "@/server/actions/actions";
+import { updateLearner } from "@/server/actions/learner";
 import { Course } from "@/types/course";
 import { Learner } from "@/types/learner";
 import {

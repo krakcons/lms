@@ -23,7 +23,7 @@ import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { uploadCourse } from "@/server/actions/actions";
+import { uploadCourse } from "@/server/actions/course";
 import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";

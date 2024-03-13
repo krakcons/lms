@@ -7,9 +7,6 @@ export const authAction = createSafeActionClient({
 	middleware: async () => {
 		const { user, session } = await getAuth();
 
-		console.log("user", user);
-		console.log("session", session);
-
 		if (!user) {
 			throw new Error("UNAUTHORIZED");
 		}

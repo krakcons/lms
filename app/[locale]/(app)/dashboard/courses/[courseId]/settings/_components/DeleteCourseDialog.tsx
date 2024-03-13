@@ -14,7 +14,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "@/lib/navigation";
-import { deleteCourse } from "@/server/actions/actions";
+import { deleteCourse } from "@/server/actions/course";
 import { useMutation } from "@tanstack/react-query";
 
 type Props = {
