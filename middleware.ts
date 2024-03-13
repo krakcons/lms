@@ -1,34 +1,21 @@
-import { defaultLocale, locales } from "@/lib/locale";
-import { authMiddleware } from "@clerk/nextjs";
 import createMiddleware from "next-intl/middleware";
-import { NextRequest } from "next/server";
+import { defaultLocale, locales } from "./i18n";
 
-const intlMiddleware = createMiddleware({
+export default createMiddleware({
 	locales,
 	defaultLocale,
-});
-
-export default authMiddleware({
-	beforeAuth: (req: NextRequest) => {
-		const { pathname } = req.nextUrl;
-		if (pathname.startsWith(`/api`) || pathname.startsWith("/content"))
-			return;
-
-		return intlMiddleware(req);
-	},
-	publicRoutes: [
-		"/",
-		"/:locale",
-		"/:locale/sign-in",
-		"/:locale/sign-up",
-		"/:locale/play/:courseId",
-		"/:locale/play/:courseId/public",
-		"/:locale/sign-up/sso-callback",
-		"/api(.*)",
-		"/content(.*)",
-	],
+	localePrefix: "as-needed",
 });
 
 export const config = {
-	matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+	// Matcher entries are linked with a logical "or", therefore
+	// if one of them matches, the middleware will be invoked.
+	matcher: [
+		// Match all pathnames except for
+		// - … if they start with `/api`, `/_next` or `/_vercel`
+		// - … the ones containing a dot (e.g. `favicon.ico`)
+		"/((?!api|_next|_vercel|.*\\..*).*)",
+		// However, match all pathnames within `/users`, optionally with a locale prefix
+		"/([\\w-]+)?/users/(.+)",
+	],
 };

@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -12,38 +11,25 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "@/lib/navigation";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { logout } from "@/server/actions/auth";
+import type { User } from "lucia";
+import { User as UserIcon } from "lucide-react";
 
-const UserButton = () => {
-	const { openUserProfile, openCreateOrganization, signOut } = useClerk();
-	const { user } = useUser();
+const UserButton = ({ user }: { user: User }) => {
 	const router = useRouter();
-
-	if (!user) return null;
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button
-					variant="ghost"
-					className="relative h-8 w-8 rounded-full"
-				>
-					<Avatar className="h-8 w-8">
-						<AvatarImage src={user.imageUrl} alt="User icon" />
-						<AvatarFallback>
-							{user.firstName ? user.firstName[0] : "U"}
-						</AvatarFallback>
-					</Avatar>
+				<Button className="h-10 w-10 rounded-full" size="icon">
+					<UserIcon size={20} />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-56" align="end" forceMount>
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col space-y-1">
-						<p className="text-sm font-medium leading-none">
-							{user.firstName} {user.lastName}
-						</p>
 						<p className="text-xs leading-none text-muted-foreground">
-							{user.emailAddresses[0].emailAddress}
+							{user.email}
 						</p>
 					</div>
 				</DropdownMenuLabel>
@@ -52,21 +38,9 @@ const UserButton = () => {
 					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
 						Dashboard
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => openUserProfile()}>
-						Account
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						onClick={() =>
-							openCreateOrganization({
-								afterCreateOrganizationUrl: "/dashboard",
-							})
-						}
-					>
-						New Team
-					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem onClick={() => signOut()}>
+				<DropdownMenuItem onClick={() => logout()}>
 					Log out
 				</DropdownMenuItem>
 			</DropdownMenuContent>

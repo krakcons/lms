@@ -1,6 +1,4 @@
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/lib/navigation";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 
 const Home = () => {
@@ -18,26 +16,14 @@ const Home = () => {
 				<div className="mt-6 flex sm:mt-12">
 					<p>{t("description")}</p>
 				</div>
-				<SignedIn>
-					<Link
-						href="/dashboard"
-						className={buttonVariants({
-							className: "mt-8 sm:mt-12",
-						})}
-					>
-						Dashboard
-					</Link>
-				</SignedIn>
-				<SignedOut>
-					<Link
-						href="/sign-up"
-						className={buttonVariants({
-							className: "mt-8 sm:mt-12",
-						})}
-					>
-						Get Started
-					</Link>
-				</SignedOut>
+				<a
+					href="/auth/google"
+					className={buttonVariants({
+						className: "mt-8 sm:mt-12",
+					})}
+				>
+					Get Started
+				</a>
 			</div>
 		</main>
 	);

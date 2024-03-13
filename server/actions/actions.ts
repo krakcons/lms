@@ -19,26 +19,10 @@ import {
 	SelectLearnerSchema,
 	UpdateLearnerSchema,
 } from "@/types/learner";
-import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
-import { createSafeActionClient } from "next-safe-action";
 import { z } from "zod";
+import { action, authAction } from "./client";
 import { deleteFolder } from "./s3";
-
-const action = createSafeActionClient();
-
-const authAction = createSafeActionClient({
-	middleware: () => {
-		const { userId, orgId } = auth();
-		const teamId = orgId ?? userId;
-
-		if (!teamId || !userId) {
-			throw new Error("UNAUTHORIZED");
-		}
-
-		return { teamId, userId };
-	},
-});
 
 const InviteEmail = ({
 	href,
@@ -225,9 +209,9 @@ export const deleteLearner = action(
 
 export const getCourse = authAction(
 	SelectCourseSchema,
-	async ({ id }, { teamId }) => {
+	async ({ id }, { user }) => {
 		const course = await db.query.courses.findFirst({
-			where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+			where: and(eq(courses.id, id), eq(courses.userId, user.id)),
 			with: {
 				learners: true,
 			},
@@ -241,18 +225,18 @@ export const getCourse = authAction(
 	}
 );
 
-export const getCourses = authAction(z.undefined(), async (_, { teamId }) => {
+export const getCourses = authAction(z.undefined(), async (_, { user }) => {
 	return await db.query.courses.findMany({
-		where: eq(courses.teamId, teamId),
+		where: eq(courses.userId, user.id),
 	});
 });
 
 export const deleteCourse = authAction(
 	DeleteCourseSchema,
-	async ({ id }, { teamId }) => {
+	async ({ id }, { user }) => {
 		await db
 			.delete(courses)
-			.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
+			.where(and(eq(courses.id, id), eq(courses.userId, user.id)));
 		await db.delete(learners).where(eq(learners.courseId, id));
 		await deleteFolder(`courses/${id}`);
 
@@ -262,17 +246,17 @@ export const deleteCourse = authAction(
 
 export const updateCourse = authAction(
 	UpdateCourseSchema,
-	async ({ id, ...rest }, { teamId }) => {
+	async ({ id, ...rest }, { user }) => {
 		await db
 			.update(courses)
 			.set({ ...rest })
-			.where(and(eq(courses.id, id), eq(courses.teamId, teamId)));
+			.where(and(eq(courses.id, id), eq(courses.userId, user.id)));
 	}
 );
 
 export const uploadCourse = authAction(
 	UploadCourseSchema,
-	async ({ name, version, id }, { teamId }) => {
+	async ({ name, version, id }, { user }) => {
 		if (id === "") {
 			id = undefined;
 		}
@@ -291,7 +275,7 @@ export const uploadCourse = authAction(
 		// Create a new course and svix app
 		await db.insert(courses).values({
 			id: insertId,
-			teamId,
+			userId: user.id,
 			name,
 			version,
 		});

@@ -1,7 +1,6 @@
-import TeamProfile from "@/components/auth/TeamProfile";
-import TeamSwitcher from "@/components/auth/TeamSwitcher";
 import UserButton from "@/components/auth/UserButton";
 import { Link } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/cached";
 import ThemeButton from "./_components/ThemeButton";
 
 export const runtime = "edge";
@@ -11,20 +10,20 @@ type Props = {
 	children: React.ReactNode;
 };
 
-const Layout = ({ children }: Props) => {
+const Layout = async ({ children }: Props) => {
+	const { user } = await getAuth({ redirect: true });
+
 	return (
 		<div className="flex flex-1 flex-col">
 			<header className="border-elevation-2 border-b px-4 py-2">
 				<nav className="m-auto flex max-w-screen-xl items-center justify-between">
 					<div className="flex items-center justify-center gap-4">
-						<TeamSwitcher />
 						<Link
 							href="/dashboard"
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 						>
 							Courses
 						</Link>
-						<TeamProfile />
 						<Link
 							href="/dashboard/settings/api-keys"
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
@@ -34,7 +33,7 @@ const Layout = ({ children }: Props) => {
 					</div>
 					<div className="flex items-center justify-center gap-3">
 						<ThemeButton />
-						<UserButton />
+						{user && <UserButton user={user} />}
 					</div>
 				</nav>
 			</header>
