@@ -1,90 +1,65 @@
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/cached";
+import { db } from "@/server/db/db";
+import { keys } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
+import { APIKeyCell, AddKeyDialog, DeleteKeyButton } from "./client";
 
 const Page = async () => {
-	// const { getToken, userId, orgId } = getAuth({
-	// 	redirect: true,
-	// });
+	const { user } = await getAuth();
 
-	// let token = null;
+	if (!user) {
+		return redirect("/auth/google");
+	}
 
-	// // If the user is not in an organization, find or generate a personal token
-	// if (!orgId) {
-	// 	const user = await clerkClient.users.getUser(userId);
-	// 	let isToken = z.string().safeParse(user.privateMetadata.api_token);
-
-	// 	if (!isToken.success) {
-	// 		const newToken = await getToken({ template: "API_TOKEN" });
-	// 		await clerkClient.users.updateUserMetadata(userId, {
-	// 			privateMetadata: {
-	// 				api_token: newToken,
-	// 			},
-	// 		});
-	// 		token = newToken;
-	// 	} else {
-	// 		token = isToken.data;
-	// 	}
-	// } else {
-	// 	const organization = await clerkClient.organizations.getOrganization({
-	// 		organizationId: orgId,
-	// 	});
-
-	// 	let isToken = z
-	// 		.string()
-	// 		.safeParse(organization.privateMetadata.api_token);
-
-	// 	if (!isToken.success) {
-	// 		const newToken = await getToken({ template: "API_TOKEN" });
-	// 		await clerkClient.organizations.updateOrganizationMetadata(
-	// 			organization.id,
-	// 			{
-	// 				privateMetadata: {
-	// 					api_token: newToken,
-	// 				},
-	// 			}
-	// 		);
-	// 		token = newToken;
-	// 	} else {
-	// 		token = isToken.data;
-	// 	}
-	// }
+	const keysList = await db.query.keys.findMany({
+		where: eq(keys.userId, user.id),
+	});
 
 	return (
 		<>
-			<h2>API Keys</h2>
-			<p className="text-muted-foreground">View and manage API access</p>
+			<div className="flex items-center justify-between">
+				<div>
+					<h2>API Keys</h2>
+					<p className="text-muted-foreground">
+						View and manage API access
+					</p>
+				</div>
+				<AddKeyDialog />
+			</div>
 			<Separator className="my-8" />
-			<Card className="mt-8">
-				<CardHeader>
-					<CardTitle>API Key</CardTitle>
-					<CardDescription>
-						Do not distribute this key.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="flex w-full flex-col">
-					WIP
-					{/* <div
-						className={buttonVariants({
-							variant: "secondary",
-							className: "w-full flex-1 justify-between gap-3",
-						})}
-					>
-						<p className="truncate text-sm text-muted-foreground">
-							{token
-								? "**************" +
-								  token.slice(token.length - 5, token.length)
-								: "No API key generated yet"}
-						</p>
-						{token && <CopyButton text={token} />}
-					</div> */}
-				</CardContent>
-			</Card>
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead className="w-[200px]">Name</TableHead>
+						<TableHead className="flex-1">Key</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{keysList.map((key) => (
+						<TableRow key={key.id}>
+							<TableCell className="font-medium">
+								{key.name}
+							</TableCell>
+							<TableCell>
+								<APIKeyCell secret={key.key} />
+							</TableCell>
+							<TableCell className="text-right">
+								<DeleteKeyButton id={key.id} />
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
 		</>
 	);
 };
