@@ -22,7 +22,7 @@ import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { uploadCourse } from "@/server/actions/course";
+import { deleteCourse, uploadCourse } from "@/server/actions/course";
 import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -117,8 +117,8 @@ const UploadForm = () => {
 
 			const courseId = input.id ?? crypto.randomUUID();
 
-			await Promise.all(
-				Object.keys(course.files).map(async (path) => {
+			const results = await Promise.allSettled(
+				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const url = await getPresignedUrl(
@@ -136,6 +136,17 @@ const UploadForm = () => {
 					});
 				})
 			);
+
+			const failed = results.some(
+				(result) => result.status === "rejected"
+			);
+
+			if (failed) {
+				await deleteCourse({
+					id: courseId,
+				});
+				throw new Error("Failed to upload course");
+			}
 
 			return uploadCourse({ ...input, id: courseId });
 		},
