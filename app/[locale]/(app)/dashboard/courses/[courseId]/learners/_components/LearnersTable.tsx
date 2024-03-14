@@ -52,7 +52,7 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 			</div>
 		);
 	}
-	return <p>{labels[status]}</p>;
+	return labels[status];
 };
 
 const LearnerActions = ({
