@@ -1,6 +1,6 @@
 "use client";
 
-import { updateLearner } from "@/server/actions/learner";
+import { updateLearnerAction } from "@/server/actions/learner";
 import { Course } from "@/types/course";
 import { Learner } from "@/types/learner";
 import {
@@ -210,7 +210,7 @@ const useSCORM = ({
 
 const LMSProvider = ({ children, version, learner }: Props) => {
 	const { mutate } = useMutation({
-		mutationFn: updateLearner,
+		mutationFn: updateLearnerAction,
 	});
 	const { data } = useSCORM({
 		version,

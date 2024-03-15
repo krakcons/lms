@@ -2,27 +2,34 @@
 
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
-import { getInitialScormData } from "@/lib/scorm";
 import { db } from "@/server/db/db";
-import { courses, learners } from "@/server/db/schema";
-import { svix } from "@/server/svix";
+import { learners } from "@/server/db/schema";
 import { Course } from "@/types/course";
 import {
 	CreateLearnerSchema,
 	DeleteLearnerSchema,
-	ExtendLearner,
-	LearnerSchema,
 	SelectLearnerSchema,
 	UpdateLearnerSchema,
 } from "@/types/learner";
 import { renderAsync } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import React from "react";
 import { z } from "zod";
+import {
+	createLearner,
+	deleteLearner,
+	getLearner,
+	updateLearner,
+} from "../db/learners";
 import { resend } from "../resend";
 import { action } from "./client";
 
-const inviteLearner = async (id: string, email: string, course: Course) => {
+export const inviteLearnerAction = async (
+	id: string,
+	email: string,
+	course: Course
+) => {
 	const html = await renderAsync(
 		React.createElement(LearnerInvite, {
 			email,
@@ -39,153 +46,33 @@ const inviteLearner = async (id: string, email: string, course: Course) => {
 	});
 };
 
-export const createLearner = action(
+export const createLearnerAction = action(
 	CreateLearnerSchema,
-	async ({ email = null, sendEmail = false, courseId, id }) => {
-		if (id === "") {
-			id = undefined;
-		}
-
-		if (id) {
-			const learner = await db.query.learners.findFirst({
-				where: and(eq(learners.id, id)),
-			});
-			if (learner) {
-				throw new Error("Learner already exists with that identifier");
-			}
-		}
-
-		// Check if learner already exists by email
-		if (email) {
-			const learner = await db.query.learners.findFirst({
-				where: and(
-					eq(learners.email, email),
-					eq(learners.courseId, courseId)
-				),
-			});
-
-			if (learner) {
-				throw new Error("Learner is already a member of this course");
-			}
-		}
-
-		const course = await db.query.courses.findFirst({
-			where: eq(courses.id, courseId),
-		});
-
-		if (!course) {
-			throw new Error("Course not found");
-		}
-
-		// Create a new learner
-		const newLearner = {
-			id: id ?? crypto.randomUUID(),
-			courseId: course.id,
-			email,
-			data: getInitialScormData(course.version),
-			version: course.version,
-		};
-
-		if (sendEmail && email) {
-			await inviteLearner(newLearner.id, email, course);
-		}
-
-		await db.insert(learners).values(newLearner);
-
-		return ExtendLearner.parse(newLearner);
+	async (input) => {
+		return await createLearner(input);
 	}
 );
 
-export const getLearner = action(
-	SelectLearnerSchema,
-	async ({ id, courseId }) => {
-		const learner = await db.query.learners.findFirst({
-			where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-			with: {
-				course: true,
-			},
-		});
+export const getLearnerAction = action(SelectLearnerSchema, async (input) => {
+	return await getLearner(input);
+});
 
-		if (!learner) {
-			throw new Error("Learner not found");
-		}
-
-		return ExtendLearner.parse(learner);
-	}
-);
-
-export const getLearners = action(
-	LearnerSchema.pick({ courseId: true }),
-	async ({ courseId }) => {
-		const learnerList = await db.query.learners.findMany({
-			where: eq(learners.courseId, courseId),
-		});
-
-		return ExtendLearner.array().parse(learnerList);
-	}
-);
-
-export const updateLearner = action(
+export const updateLearnerAction = action(
 	UpdateLearnerSchema,
-	async ({ id, courseId, ...rest }) => {
-		const learner = await db.query.learners.findFirst({
-			where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-		});
-		const oldLearner = ExtendLearner.parse(learner);
-
-		if (!learner) {
-			throw new Error("Learner not found");
-		}
-
-		await db
-			.update(learners)
-			.set({ ...rest })
-			.where(and(eq(learners.courseId, courseId), eq(learners.id, id)));
-
-		const newLearner = ExtendLearner.parse({
-			...learner,
-			...rest,
-		});
-
-		// Send update to SVIX
-		if (
-			oldLearner.status !== newLearner.status ||
-			oldLearner.score.max !== newLearner.score.max ||
-			oldLearner.score.min !== newLearner.score.min ||
-			oldLearner.score.raw !== newLearner.score.raw ||
-			oldLearner.email !== newLearner.email
-		) {
-			console.log("Sending update to SVIX");
-			await svix.message.create(`app_${courseId}`, {
-				eventType: "learner.update",
-				payload: newLearner,
-			});
-		}
-
-		return newLearner;
+	async (input) => {
+		return await updateLearner(input);
 	}
 );
 
-export const deleteLearner = action(
+export const deleteLearnerAction = action(
 	DeleteLearnerSchema,
-	async ({ id, courseId }) => {
-		const learner = await db.query.learners.findFirst({
-			where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-		});
-
-		if (!learner) {
-			throw new Error("Learner not found");
-		}
-
-		await db
-			.delete(learners)
-			.where(and(eq(learners.id, id), eq(learners.courseId, courseId)));
-
-		return ExtendLearner.parse(learner);
+	async (input) => {
+		await deleteLearner(input);
+		revalidatePath(`/dashboard/courses/${input.courseId}/learners`);
 	}
 );
 
-export const reinviteLearner = action(
+export const reinviteLearnerAction = action(
 	z.object({
 		id: z.string(),
 		courseId: z.string(),

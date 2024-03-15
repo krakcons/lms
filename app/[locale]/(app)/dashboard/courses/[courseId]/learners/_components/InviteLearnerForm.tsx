@@ -18,7 +18,7 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "@/lib/navigation";
-import { createLearner } from "@/server/actions/learner";
+import { createLearnerAction } from "@/server/actions/learner";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -36,7 +36,7 @@ const InviteLearnerForm = ({
 	const router = useRouter();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: createLearner,
+		mutationFn: createLearnerAction,
 		onSuccess: (_, { email }) => {
 			router.refresh();
 			toast("Successfully Invited", {

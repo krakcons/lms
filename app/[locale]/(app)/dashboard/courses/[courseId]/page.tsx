@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getCourse } from "@/server/actions/course";
-import { getLearners } from "@/server/actions/learner";
+import { redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/auth";
+import { getCourse } from "@/server/db/courses";
+import { getLearners } from "@/server/db/learners";
+import { LCDSError } from "@/server/errors";
+
 import { EyeOff, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -10,12 +14,23 @@ const Page = async ({
 }: {
 	params: { courseId: string };
 }) => {
-	const { data: course } = await getCourse({ id: courseId });
-	const { data: learners = [] } = await getLearners({ courseId });
+	const { user } = await getAuth();
 
-	if (!course) {
-		return notFound();
+	if (!user) {
+		return redirect("/auth/google");
 	}
+
+	let course;
+	try {
+		course = await getCourse({ id: courseId }, user.id);
+	} catch (error) {
+		if (error instanceof LCDSError && error.code === "NOT_FOUND") {
+			return notFound();
+		}
+		throw error;
+	}
+
+	const learners = await getLearners({ courseId }, user.id);
 
 	return (
 		<main>

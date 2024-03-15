@@ -29,3 +29,4 @@ export const UpdateCourseSchema = CourseSchema.pick({
 	id: true,
 	name: true,
 });
+export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;

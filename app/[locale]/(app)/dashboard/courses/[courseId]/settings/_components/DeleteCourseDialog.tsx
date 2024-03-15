@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { useRouter } from "@/lib/navigation";
-import { deleteCourse } from "@/server/actions/course";
+import { deleteCourseAction } from "@/server/actions/course";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -25,7 +25,7 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 	const router = useRouter();
 
 	const { mutate } = useMutation({
-		mutationFn: deleteCourse,
+		mutationFn: deleteCourseAction,
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();

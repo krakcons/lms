@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { getLearner } from "@/server/actions/learner";
+import { getLearnerAction } from "@/server/actions/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
 import LMSProvider from "./_components/LMSProvider";
@@ -66,7 +66,7 @@ const Page = async ({
 	}
 
 	// Get course user
-	let { data: learner } = await getLearner({
+	let { data: learner } = await getLearnerAction({
 		id: learnerId,
 		courseId,
 	});

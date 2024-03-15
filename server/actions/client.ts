@@ -1,12 +1,13 @@
 import { getAuth } from "@/server/actions/cached";
 import { createSafeActionClient } from "next-safe-action";
+import { LCDSError } from "../errors";
 
 export const action = createSafeActionClient();
 
 export const authAction = createSafeActionClient({
 	handleReturnedServerError: (error) => {
-		if (error.message === "UNAUTHORIZED") {
-			return "UNAUTHORIZED";
+		if (error instanceof LCDSError) {
+			return error.message ?? error.code;
 		} else {
 			return "INTERNAL_SERVER_ERROR";
 		}
@@ -15,7 +16,10 @@ export const authAction = createSafeActionClient({
 		const { user, session } = await getAuth();
 
 		if (!user) {
-			throw new Error("UNAUTHORIZED");
+			throw new LCDSError({
+				code: "UNAUTHORIZED",
+				message: "Unauthorized",
+			});
 		}
 
 		return { user, session };

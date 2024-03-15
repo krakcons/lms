@@ -22,7 +22,10 @@ import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
 import { formatBytes } from "@/lib/helpers";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { deleteCourse, uploadCourse } from "@/server/actions/course";
+import {
+	deleteCourseAction,
+	uploadCourseAction,
+} from "@/server/actions/course";
 import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadCourse, UploadCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -142,13 +145,13 @@ const UploadForm = () => {
 			);
 
 			if (failed) {
-				await deleteCourse({
+				await deleteCourseAction({
 					id: courseId,
 				});
 				throw new Error("Failed to upload course");
 			}
 
-			return uploadCourse({ ...input, id: courseId });
+			return uploadCourseAction({ ...input, id: courseId });
 		},
 		onMutate: () => {
 			toast("Uploading...", {
@@ -160,7 +163,6 @@ const UploadForm = () => {
 				description: "Your file has been uploaded",
 			});
 			router.push(`/dashboard/courses/${data?.courseId}`);
-			router.refresh();
 		},
 		onError: (err: any) => {
 			form.setError("root", {

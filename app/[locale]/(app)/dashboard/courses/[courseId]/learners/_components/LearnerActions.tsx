@@ -9,8 +9,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "@/lib/navigation";
-import { deleteLearner } from "@/server/actions/learner";
+import { deleteLearnerAction } from "@/server/actions/learner";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
@@ -20,12 +19,8 @@ const LearnerActions = ({
 }: {
 	learner: Learner;
 }) => {
-	const router = useRouter();
 	const { mutate } = useMutation({
-		mutationFn: deleteLearner,
-		onSuccess: () => {
-			router.refresh();
-		},
+		mutationFn: deleteLearnerAction,
 	});
 
 	return (

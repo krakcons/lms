@@ -1,11 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/lib/navigation";
-import { getCourses } from "@/server/actions/course";
+import { Link, redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/auth";
+import { db } from "@/server/db/db";
+import { courses } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 import { Plus } from "lucide-react";
 
 const Page = async () => {
-	const { data: courses } = await getCourses(undefined);
+	const { user } = await getAuth();
+
+	if (!user) {
+		return redirect("/auth/google");
+	}
+
+	const courseList = await db.query.courses.findMany({
+		where: eq(courses.userId, user.id),
+	});
 
 	return (
 		<>
@@ -25,7 +36,7 @@ const Page = async () => {
 						Create Course
 					</div>
 				</Link>
-				{courses?.map((course) => (
+				{courseList?.map((course) => (
 					<Link
 						href={`/dashboard/courses/${course.id}`}
 						key={course.id}

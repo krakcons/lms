@@ -2,7 +2,8 @@ import CopyButton from "@/components/CopyButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
-import { getLearners } from "@/server/actions/learner";
+import { getAuth } from "@/server/actions/cached";
+import { getLearners } from "@/server/db/learners";
 import { Suspense } from "react";
 import InviteLearnerDialog from "./_components/InviteLearnerDialog";
 import LearnersTable from "./_components/LearnersTable";
@@ -10,9 +11,13 @@ import LearnersTable from "./_components/LearnersTable";
 export const runtime = "nodejs";
 
 const Table = async ({ courseId }: { courseId: string }) => {
-	const { data: learners = [] } = await getLearners({
-		courseId,
-	});
+	const { user } = await getAuth();
+
+	if (!user) {
+		return null;
+	}
+
+	const learners = await getLearners({ courseId }, user.id);
 
 	return <LearnersTable learners={learners} />;
 };

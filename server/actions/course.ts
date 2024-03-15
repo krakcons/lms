@@ -1,67 +1,23 @@
 "use server";
 
 import { db } from "@/server/db/db";
-import { courses, learners } from "@/server/db/schema";
+import { courses } from "@/server/db/schema";
 import { svix } from "@/server/svix";
-import {
-	DeleteCourseSchema,
-	SelectCourseSchema,
-	UpdateCourseSchema,
-	UploadCourseSchema,
-} from "@/types/course";
+import { DeleteCourseSchema, UploadCourseSchema } from "@/types/course";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { deleteCourse } from "../db/courses";
 import { authAction } from "./client";
-import { deleteFolder } from "./s3";
 
-export const getCourse = authAction(
-	SelectCourseSchema,
-	async ({ id }, { user }) => {
-		const course = await db.query.courses.findFirst({
-			where: and(eq(courses.id, id), eq(courses.userId, user.id)),
-			with: {
-				learners: true,
-			},
-		});
-
-		if (!course) {
-			throw new Error("Course not found or does not belong to you");
-		}
-
-		return course;
-	}
-);
-
-export const getCourses = authAction(z.undefined(), async (_, { user }) => {
-	return await db.query.courses.findMany({
-		where: eq(courses.userId, user.id),
-	});
-});
-
-export const deleteCourse = authAction(
+export const deleteCourseAction = authAction(
 	DeleteCourseSchema,
-	async ({ id }, { user }) => {
-		await db
-			.delete(courses)
-			.where(and(eq(courses.id, id), eq(courses.userId, user.id)));
-		await db.delete(learners).where(eq(learners.courseId, id));
-		await deleteFolder(`courses/${id}`);
-
-		return undefined;
+	async (input, { user }) => {
+		await deleteCourse(input, user.id);
+		revalidatePath("/dashboard");
 	}
 );
 
-export const updateCourse = authAction(
-	UpdateCourseSchema,
-	async ({ id, ...rest }, { user }) => {
-		await db
-			.update(courses)
-			.set({ ...rest })
-			.where(and(eq(courses.id, id), eq(courses.userId, user.id)));
-	}
-);
-
-export const uploadCourse = authAction(
+export const uploadCourseAction = authAction(
 	UploadCourseSchema,
 	async ({ name, version, id }, { user }) => {
 		if (id === "") {

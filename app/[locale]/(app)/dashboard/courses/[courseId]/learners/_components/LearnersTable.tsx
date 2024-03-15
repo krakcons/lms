@@ -10,8 +10,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "@/lib/navigation";
-import { deleteLearner, reinviteLearner } from "@/server/actions/learner";
+import {
+	deleteLearnerAction,
+	reinviteLearnerAction,
+} from "@/server/actions/learner";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -39,7 +41,7 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 					onClick={() => {
 						if (reinvited) return;
 						setReinvited(true);
-						reinviteLearner({
+						reinviteLearnerAction({
 							id: info.row.original.id,
 							courseId: info.row.original.courseId,
 						});
@@ -60,12 +62,8 @@ const LearnerActions = ({
 }: {
 	learner: Learner;
 }) => {
-	const router = useRouter();
 	const { mutate } = useMutation({
-		mutationFn: deleteLearner,
-		onSuccess: () => {
-			router.refresh();
-		},
+		mutationFn: deleteLearnerAction,
 	});
 
 	return (

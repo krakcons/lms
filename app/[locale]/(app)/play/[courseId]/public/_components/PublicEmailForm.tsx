@@ -12,7 +12,7 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "@/lib/navigation";
-import { createLearner } from "@/server/actions/learner";
+import { createLearnerAction } from "@/server/actions/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -28,7 +28,7 @@ type Input = z.infer<typeof InputSchema>;
 const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
-		mutationFn: createLearner,
+		mutationFn: createLearnerAction,
 		onSuccess: ({ data }) => {
 			router.push(`/play/${courseId}?learnerId=${data?.id}`);
 		},
