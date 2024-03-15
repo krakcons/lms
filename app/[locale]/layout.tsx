@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
+import { unstable_setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";
 import Providers from "./Providers";
 import "./globals.css";
@@ -10,6 +11,10 @@ export const metadata: Metadata = {
 	description: "LDCS for modern times, cheap and easy to use",
 };
 
+export const generateStaticParams = () => {
+	return [{ locale: "en" }, { locale: "fr" }];
+};
+
 const RootLayout = async ({
 	children,
 	params: { locale },
@@ -17,6 +22,8 @@ const RootLayout = async ({
 	children: React.ReactNode;
 	params: { locale: string };
 }) => {
+	unstable_setRequestLocale(locale);
+
 	return (
 		<html lang={locale} suppressHydrationWarning>
 			<body className={`${inter.className} flex min-h-screen flex-col`}>

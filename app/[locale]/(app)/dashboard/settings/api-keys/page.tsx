@@ -12,9 +12,10 @@ import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
 import { keys } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { Suspense } from "react";
 import { APIKeyCell, AddKeyDialog, DeleteKeyButton } from "./client";
 
-const Page = async () => {
+const Keys = async () => {
 	const { user } = await getAuth();
 
 	if (!user) {
@@ -25,6 +26,24 @@ const Page = async () => {
 		where: eq(keys.userId, user.id),
 	});
 
+	return (
+		<TableBody>
+			{keysList.map((key) => (
+				<TableRow key={key.id}>
+					<TableCell className="font-medium">{key.name}</TableCell>
+					<TableCell>
+						<APIKeyCell secret={key.key} />
+					</TableCell>
+					<TableCell className="text-right">
+						<DeleteKeyButton id={key.id} />
+					</TableCell>
+				</TableRow>
+			))}
+		</TableBody>
+	);
+};
+
+const Page = async () => {
 	return (
 		<>
 			<div className="flex items-center justify-between">
@@ -44,21 +63,9 @@ const Page = async () => {
 						<TableHead className="flex-1">Key</TableHead>
 					</TableRow>
 				</TableHeader>
-				<TableBody>
-					{keysList.map((key) => (
-						<TableRow key={key.id}>
-							<TableCell className="font-medium">
-								{key.name}
-							</TableCell>
-							<TableCell>
-								<APIKeyCell secret={key.key} />
-							</TableCell>
-							<TableCell className="text-right">
-								<DeleteKeyButton id={key.id} />
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
+				<Suspense>
+					<Keys />
+				</Suspense>
 			</Table>
 		</>
 	);
