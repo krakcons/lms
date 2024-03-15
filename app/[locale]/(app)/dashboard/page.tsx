@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Link, redirect } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/auth";
+import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
 import { courses } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
