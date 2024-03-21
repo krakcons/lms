@@ -1,6 +1,3 @@
-"use client";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -11,68 +8,40 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useClerkAppearance } from "@/lib/clerk";
-import { useRouter } from "@/lib/navigation";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/cached";
+import { User as UserIcon } from "lucide-react";
+import Link from "next/link";
 
-const UserButton = () => {
-	const appearance = useClerkAppearance();
-	const { openUserProfile, openCreateOrganization, signOut } = useClerk();
-	const { user } = useUser();
-	const router = useRouter();
+const UserButton = async () => {
+	const { user } = await getAuth();
 
-	if (!user) return null;
+	if (user === null) return redirect("/auth/google");
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button
-					variant="ghost"
-					className="relative h-8 w-8 rounded-full"
-				>
-					<Avatar className="h-8 w-8">
-						<AvatarImage src={user.imageUrl} alt="User icon" />
-						<AvatarFallback>
-							{user.firstName ? user.firstName[0] : "U"}
-						</AvatarFallback>
-					</Avatar>
+				<Button className="h-10 w-10 rounded-full" size="icon">
+					<UserIcon size={20} />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-56" align="end" forceMount>
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col space-y-1">
-						<p className="text-sm font-medium leading-none">
-							{user.firstName} {user.lastName}
-						</p>
 						<p className="text-xs leading-none text-muted-foreground">
-							{user.emailAddresses[0].emailAddress}
+							{user.email}
 						</p>
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
-						Dashboard
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						onClick={() => openUserProfile({ appearance })}
-					>
-						Account
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						onClick={() =>
-							openCreateOrganization({
-								afterCreateOrganizationUrl: "/dashboard",
-								appearance,
-							})
-						}
-					>
-						New Team
+					<DropdownMenuItem asChild>
+						<Link href="/dashboard">Dashboard</Link>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem onClick={() => signOut()}>
-					Log out
+				<DropdownMenuItem asChild>
+					<Link href="/auth/signout">Sign out</Link>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

@@ -1,4 +1,4 @@
-import { courses } from "@/db/schema";
+import { courses } from "@/server/db/schema";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -29,3 +29,4 @@ export const UpdateCourseSchema = CourseSchema.pick({
 	id: true,
 	name: true,
 });
+export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;

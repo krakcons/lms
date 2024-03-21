@@ -1,9 +1,10 @@
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/lib/navigation";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
+import { unstable_setRequestLocale } from "next-intl/server";
 
-const Home = () => {
+const Home = ({ params: { locale } }: { params: { locale: string } }) => {
+	unstable_setRequestLocale(locale);
+
 	const t = useTranslations("Home");
 
 	return (
@@ -18,26 +19,14 @@ const Home = () => {
 				<div className="mt-6 flex sm:mt-12">
 					<p>{t("description")}</p>
 				</div>
-				<SignedIn>
-					<Link
-						href="/dashboard"
-						className={buttonVariants({
-							className: "mt-8 sm:mt-12",
-						})}
-					>
-						Dashboard
-					</Link>
-				</SignedIn>
-				<SignedOut>
-					<Link
-						href="/sign-up"
-						className={buttonVariants({
-							className: "mt-8 sm:mt-12",
-						})}
-					>
-						Get Started
-					</Link>
-				</SignedOut>
+				<a
+					href="/auth/google"
+					className={buttonVariants({
+						className: "mt-8 sm:mt-12",
+					})}
+				>
+					Get Started
+				</a>
 			</div>
 		</main>
 	);

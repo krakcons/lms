@@ -1,4 +1,4 @@
-import { learners } from "@/db/schema";
+import { learners } from "@/server/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { Scorm12DataSchema } from "./scorm/versions/12";
@@ -74,11 +74,14 @@ export const SelectLearnerSchema = LearnerSchema.pick({
 });
 export type SelectLearner = z.infer<typeof SelectLearnerSchema>;
 
+export const SelectLearnersSchema = LearnerSchema.pick({
+	courseId: true,
+});
+export type SelectLearners = z.infer<typeof SelectLearnersSchema>;
+
 export const UpdateLearnerSchema = LearnerSchema.pick({
 	id: true,
 	courseId: true,
-}).extend({
-	data: LearnerSchema.shape.data.optional(),
-	email: LearnerSchema.shape.email.optional(),
+	data: true,
 });
 export type UpdateLearner = z.infer<typeof UpdateLearnerSchema>;
