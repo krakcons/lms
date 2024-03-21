@@ -5,7 +5,7 @@ const nextConfig = {
 	reactStrictMode: true,
 	// Need to fix 404 on courses
 	experimental: {
-		ppr: true,
+		// ppr: true,
 	},
 };
 

@@ -1,6 +1,6 @@
 import { getAPIAuth } from "@/server/actions/auth";
 import { withErrorHandling } from "@/server/api";
-import { deleteCourse, getCourse, updateCourse } from "@/server/db/courses";
+import { coursesData } from "@/server/db/courses";
 import { UpdateCourseSchema } from "@/types/course";
 import { NextResponse } from "next/server";
 
@@ -11,7 +11,7 @@ export const GET = withErrorHandling(
 	) => {
 		const user = await getAPIAuth();
 
-		const course = await getCourse({ id: courseId }, user.id);
+		const course = await coursesData.get({ id: courseId }, user.id);
 
 		return NextResponse.json(course);
 	}
@@ -28,7 +28,7 @@ export const PUT = withErrorHandling(
 			await req.json()
 		);
 
-		await updateCourse({ ...newCourse, id: courseId }, user.id);
+		await coursesData.update({ ...newCourse, id: courseId }, user.id);
 
 		return NextResponse.json(newCourse);
 	}
@@ -41,7 +41,7 @@ export const DELETE = withErrorHandling(
 	) => {
 		const user = await getAPIAuth();
 
-		await deleteCourse({ id: courseId }, user.id);
+		await coursesData.delete({ id: courseId }, user.id);
 
 		return NextResponse.json(null);
 	}

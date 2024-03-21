@@ -1,5 +1,10 @@
 import { SidebarNav } from "@/components/ui/sidebar";
-import { Home, Settings, Users, Webhook } from "lucide-react";
+import { redirect } from "@/lib/navigation";
+import { getAuth } from "@/server/actions/cached";
+import { coursesData } from "@/server/db/courses";
+import { LCDSError } from "@/server/errors";
+import { File, Home, Settings, Users, Webhook } from "lucide-react";
+import { notFound } from "next/navigation";
 
 const items = [
 	{
@@ -8,7 +13,7 @@ const items = [
 	},
 ];
 
-const Layout = ({
+const Layout = async ({
 	children,
 	params: { courseId },
 }: {
@@ -27,6 +32,11 @@ const Layout = ({
 			icon: <Users size={18} />,
 		},
 		{
+			href: `/dashboard/courses/${courseId}/modules`,
+			title: "Modules",
+			icon: <File size={18} />,
+		},
+		{
 			href: `/dashboard/courses/${courseId}/webhooks`,
 			title: "Webhooks",
 			icon: <Webhook size={18} />,
@@ -37,6 +47,22 @@ const Layout = ({
 			icon: <Settings size={18} />,
 		},
 	];
+
+	const { user } = await getAuth();
+
+	if (!user) {
+		return redirect("/auth/google");
+	}
+
+	let course;
+	try {
+		course = await coursesData.get({ id: courseId }, user.id);
+	} catch (error) {
+		if (error instanceof LCDSError && error.code === "NOT_FOUND") {
+			return notFound();
+		}
+		throw error;
+	}
 
 	return (
 		<>

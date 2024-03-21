@@ -3,7 +3,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { getAuth } from "@/server/actions/cached";
-import { getLearners } from "@/server/db/learners";
+import { coursesData } from "@/server/db/courses";
+import { ExtendLearner } from "@/types/learner";
 import { Suspense } from "react";
 import InviteLearnerDialog from "./_components/InviteLearnerDialog";
 import LearnersTable from "./_components/LearnersTable";
@@ -17,9 +18,21 @@ const Table = async ({ courseId }: { courseId: string }) => {
 		return null;
 	}
 
-	const learners = await getLearners({ courseId }, user.id);
+	const course = await coursesData.getCourseWithModules(
+		{ id: courseId },
+		user.id
+	);
 
-	return <LearnersTable learners={learners} />;
+	return (
+		<>
+			{course?.modules.map((module) => {
+				const learners = ExtendLearner(module.type)
+					.array()
+					.parse(module.learners);
+				return <LearnersTable key={module.id} learners={learners} />;
+			})}
+		</>
+	);
 };
 
 const Page = async ({

@@ -1,7 +1,15 @@
 import { relations } from "drizzle-orm";
-import { json, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	json,
+	pgEnum,
+	pgTable,
+	primaryKey,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
+import { generateId } from "lucia";
 
-export const courseVersionEnum = pgEnum("version", ["1.2", "2004"]);
+export const moduleTypeEnum = pgEnum("module_type", ["1.2", "2004"]);
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -46,33 +54,102 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 	}),
 }));
 
-export const courses = pgTable("courses", {
+export const collections = pgTable("collections", {
 	id: text("id").primaryKey().notNull(),
 	userId: text("userId").notNull(),
 	name: text("name").notNull(),
-	version: courseVersionEnum("version").notNull(),
+	description: text("description").notNull(),
 });
 
-export const coursesRelations = relations(courses, ({ many, one }) => ({
+export const collectionsRelations = relations(collections, ({ one, many }) => ({
+	user: one(users, {
+		fields: [collections.userId],
+		references: [users.id],
+		relationName: "user",
+	}),
+	collectionsToCourses: many(collectionsToCourses),
+}));
+
+export const collectionsToCourses = pgTable(
+	"collections_to_courses",
+	{
+		collectionId: text("collectionId").notNull(),
+		courseId: text("courseId").notNull(),
+	},
+	(t) => ({
+		pk: primaryKey({
+			columns: [t.collectionId, t.courseId],
+		}),
+	})
+);
+
+export const collectionsToCoursesRelations = relations(
+	collectionsToCourses,
+	({ one }) => ({
+		collection: one(collections, {
+			fields: [collectionsToCourses.collectionId],
+			references: [collections.id],
+		}),
+		course: one(courses, {
+			fields: [collectionsToCourses.courseId],
+			references: [courses.id],
+		}),
+	})
+);
+
+export const courses = pgTable("courses", {
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
+	userId: text("userId").notNull(),
+	name: text("name").notNull(),
+	description: text("description").notNull(),
+});
+
+export const coursesRelations = relations(courses, ({ one, many }) => ({
 	user: one(users, {
 		fields: [courses.userId],
 		references: [users.id],
 		relationName: "user",
+	}),
+	collectionsToCourses: many(collectionsToCourses),
+	modules: many(modules),
+}));
+
+export const modules = pgTable("modules", {
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
+	courseId: text("courseId").notNull(),
+	userId: text("userId").notNull(),
+	language: text("language").notNull(),
+	type: moduleTypeEnum("type").notNull(),
+});
+
+export const modulesRelations = relations(modules, ({ many, one }) => ({
+	user: one(users, {
+		fields: [modules.userId],
+		references: [users.id],
+	}),
+	course: one(courses, {
+		fields: [modules.courseId],
+		references: [courses.id],
 	}),
 	learners: many(learners),
 }));
 
 export const learners = pgTable("learners", {
 	id: text("id").primaryKey().notNull(),
-	courseId: text("courseId").notNull(),
+	moduleId: text("moduleId").notNull(),
 	email: text("email"),
 	data: json("data").$type<Record<string, string>>().notNull().default({}),
-	version: courseVersionEnum("version").notNull(),
 });
 
 export const learnersRelations = relations(learners, ({ one }) => ({
-	course: one(courses, {
-		fields: [learners.courseId],
-		references: [courses.id],
+	module: one(modules, {
+		fields: [learners.moduleId],
+		references: [modules.id],
 	}),
 }));

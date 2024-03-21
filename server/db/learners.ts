@@ -1,106 +1,81 @@
 import { getInitialScormData } from "@/lib/scorm";
-import { inviteLearnerAction } from "@/server/actions/learner";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import {
 	CreateLearner,
 	ExtendLearner,
 	SelectLearner,
-	SelectLearners,
 	UpdateLearner,
 } from "@/types/learner";
 import { and, eq } from "drizzle-orm";
+import { cache } from "react";
 import { LCDSError } from "../errors";
 import { svix } from "../svix";
-import { getCourse, getCourseUnauthed } from "./courses";
+import { modulesData } from "./modules";
 
-export const createLearner = async ({
-	courseId,
-	email,
-	sendEmail,
-	id,
-}: CreateLearner) => {
-	const course = await getCourseUnauthed({ id: courseId });
+export const learnersData = {
+	create: async ({ moduleId, email, sendEmail, id }: CreateLearner) => {
+		const courseModule = await modulesData.get({ id: moduleId });
 
-	// Create a new learner
-	const newLearner = {
-		id: id ?? crypto.randomUUID(),
-		courseId: course.id,
-		email: email ? email : null,
-		data: getInitialScormData(course.version),
-		version: course.version,
-	};
+		// Create a new learner
+		const newLearner = {
+			id: id ?? crypto.randomUUID(),
+			moduleId: courseModule.id,
+			email: email ? email : null,
+			data: getInitialScormData(courseModule.type),
+			contentType: courseModule.type,
+		};
 
-	if (sendEmail && email) {
-		await inviteLearnerAction(newLearner.id, email, course);
-	}
+		// if (sendEmail && email) {
+		// 	await inviteLearnerAction(newLearner.id, email, courseModule);
+		// }
 
-	await db.insert(learners).values(newLearner).onConflictDoNothing();
+		await db.insert(learners).values(newLearner).onConflictDoNothing();
 
-	return ExtendLearner.parse(newLearner);
-};
+		return ExtendLearner(courseModule.type).parse(newLearner);
+	},
+	get: cache(async ({ id, moduleId }: SelectLearner) => {
+		const courseModule = await modulesData.get({ id: moduleId });
 
-export const getLearner = async ({ id, courseId }: SelectLearner) => {
-	await getCourseUnauthed({ id: courseId });
-
-	const learner = await db.query.learners.findFirst({
-		where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-	});
-
-	if (!learner) {
-		throw new LCDSError({
-			code: "NOT_FOUND",
-			message: "Learner not found.",
+		const learner = await db.query.learners.findFirst({
+			where: and(eq(learners.id, id), eq(learners.moduleId, moduleId)),
 		});
-	}
 
-	return ExtendLearner.parse(learner);
-};
+		if (!learner) {
+			throw new LCDSError({
+				code: "NOT_FOUND",
+				message: "Learner not found.",
+			});
+		}
 
-export const getLearners = async (
-	{ courseId }: SelectLearners,
-	userId: string
-) => {
-	await getCourse({ id: courseId }, userId);
+		return ExtendLearner(courseModule.type).parse(learner);
+	}),
+	update: async ({ id, moduleId, data }: UpdateLearner) => {
+		const courseModule = await modulesData.get({ id: moduleId });
+		const learner = await learnersData.get({ id, moduleId });
 
-	const learnerList = await db.query.learners.findMany({
-		where: eq(learners.courseId, courseId),
-	});
+		await db
+			.update(learners)
+			.set({ data })
+			.where(and(eq(learners.moduleId, moduleId), eq(learners.id, id)));
 
-	return ExtendLearner.array().parse(learnerList);
-};
+		const newLearner = ExtendLearner(courseModule.type).parse({
+			...learner,
+			data,
+		});
 
-export const updateLearner = async ({ id, courseId, data }: UpdateLearner) => {
-	const learner = await db.query.learners.findFirst({
-		where: and(eq(learners.id, id), eq(learners.courseId, courseId)),
-	});
+		await svix.message.create(`app_${moduleId}`, {
+			eventType: "learner.update",
+			payload: newLearner,
+		});
 
-	if (!learner) {
-		return new Response("Learner not found", { status: 404 });
-	}
+		return newLearner;
+	},
+	delete: async ({ id, moduleId }: SelectLearner) => {
+		await learnersData.get({ id, moduleId });
 
-	await db
-		.update(learners)
-		.set({ data })
-		.where(and(eq(learners.courseId, courseId), eq(learners.id, id)));
-
-	const newLearner = ExtendLearner.parse({
-		...learner,
-		data,
-	});
-
-	await svix.message.create(`app_${courseId}`, {
-		eventType: "learner.update",
-		payload: newLearner,
-	});
-
-	return newLearner;
-};
-
-export const deleteLearner = async ({ id, courseId }: SelectLearner) => {
-	await getLearner({ id, courseId });
-
-	await db
-		.delete(learners)
-		.where(and(eq(learners.id, id), eq(learners.courseId, courseId)));
+		await db
+			.delete(learners)
+			.where(and(eq(learners.id, id), eq(learners.moduleId, moduleId)));
+	},
 };

@@ -2,12 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
-import { getCourse } from "@/server/db/courses";
-import { getLearners } from "@/server/db/learners";
-import { LCDSError } from "@/server/errors";
+import { coursesData } from "@/server/db/courses";
 
 import { EyeOff, Users } from "lucide-react";
-import { notFound } from "next/navigation";
 
 const Page = async ({
 	params: { courseId },
@@ -20,17 +17,9 @@ const Page = async ({
 		return redirect("/auth/google");
 	}
 
-	let course;
-	try {
-		course = await getCourse({ id: courseId }, user.id);
-	} catch (error) {
-		if (error instanceof LCDSError && error.code === "NOT_FOUND") {
-			return notFound();
-		}
-		throw error;
-	}
+	const course = await coursesData.get({ id: courseId }, user.id);
 
-	const learners = await getLearners({ courseId }, user.id);
+	// const learners = await getLearners({ courseId }, user.id);
 
 	return (
 		<main>
@@ -46,9 +35,9 @@ const Page = async ({
 						<Users size={20} className="text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						{/* <div className="text-2xl font-bold">
 							{learners.length}
-						</div>
+						</div> */}
 					</CardContent>
 				</Card>
 				<Card className="flex-1">
@@ -59,12 +48,12 @@ const Page = async ({
 						<EyeOff size={19} className="text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
+						{/* <div className="text-2xl font-bold">
 							{
 								learners.filter((learner) => !learner.email)
 									.length
 							}
-						</div>
+						</div> */}
 					</CardContent>
 				</Card>
 			</div>

@@ -1,13 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import {
 	Form,
 	FormControl,
 	FormField,
@@ -18,16 +11,23 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CourseFileSchema, CourseUploadSchema } from "@/lib/course";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { formatBytes } from "@/lib/helpers";
+import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import {
-	deleteCourseAction,
-	uploadCourseAction,
-} from "@/server/actions/course";
+	deleteModuleAction,
+	uploadModuleAction,
+} from "@/server/actions/module";
 import { getPresignedUrl } from "@/server/actions/s3";
-import { UploadCourse, UploadCourseSchema } from "@/types/course";
+import { UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
@@ -88,44 +88,45 @@ const Dropzone = ({
 	);
 };
 
-const UploadForm = () => {
+const UploadForm = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
 
 	const form = useForm<{
 		file: File;
-		upload: UploadCourse;
+		upload: UploadModule;
 	}>({
 		resolver: zodResolver(
 			z.object({
-				file: CourseFileSchema,
-				upload: UploadCourseSchema,
+				file: ModuleFileSchema,
+				upload: UploadModuleSchema,
 			})
 		),
 		defaultValues: {
 			file: undefined,
 			upload: {
-				name: "",
-				version: undefined,
+				type: undefined,
 				id: undefined,
+				language: "en",
+				courseId: courseId,
 			},
 		},
 	});
 
 	const file = form.watch("file");
-	const version = form.watch("upload.version");
+	const moduleType = form.watch("upload.type");
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: async (input: UploadCourse) => {
+		mutationFn: async (input: UploadModule) => {
 			const course = await JSZip.loadAsync(file);
 
-			const courseId = input.id ?? crypto.randomUUID();
+			const moduleId = input.id ?? crypto.randomUUID();
 
 			const results = await Promise.allSettled(
 				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const url = await getPresignedUrl(
-						`courses/${courseId}/${path}`
+						`courses/${courseId}/${moduleId}/${path}`
 					);
 
 					await fetch(url, {
@@ -145,24 +146,33 @@ const UploadForm = () => {
 			);
 
 			if (failed) {
-				await deleteCourseAction({
-					id: courseId,
+				await deleteModuleAction({
+					id: moduleId,
 				});
-				throw new Error("Failed to upload course");
+				throw new Error("Failed to upload module");
 			}
 
-			return uploadCourseAction({ ...input, id: courseId });
+			const { data, serverError } = await uploadModuleAction({
+				...input,
+				id: moduleId,
+			});
+
+			if (serverError) {
+				throw new Error(serverError);
+			}
+
+			return data;
 		},
 		onMutate: () => {
 			toast("Uploading...", {
 				description: "Your file is being uploaded",
 			});
 		},
-		onSuccess: async ({ data }) => {
+		onSuccess: async (_, { courseId }) => {
 			toast("Upload Successful", {
 				description: "Your file has been uploaded",
 			});
-			router.push(`/dashboard/courses/${data?.courseId}`);
+			router.push(`/dashboard/courses/${courseId}/modules`);
 		},
 		onError: (err: any) => {
 			form.setError("root", {
@@ -179,7 +189,7 @@ const UploadForm = () => {
 		upload,
 	}: {
 		file: File;
-		upload: UploadCourse;
+		upload: UploadModule;
 	}) => {
 		mutate(upload);
 	};
@@ -195,21 +205,22 @@ const UploadForm = () => {
 							rules={{ required: true }}
 							render={({ field: { value, onChange } }) => (
 								<FormItem>
-									<FormLabel>Course File</FormLabel>
+									<FormLabel>Module File</FormLabel>
 									<Dropzone
 										value={value}
 										hidden={!!file}
 										setValue={async (file) => {
 											const parse =
-												await CourseUploadSchema.safeParseAsync(
+												await ModuleUploadSchema.safeParseAsync(
 													file
 												);
 											if (parse.success) {
 												form.clearErrors();
-												form.setValue(
-													"upload",
-													parse.data.upload
-												);
+												form.setValue("upload", {
+													...parse.data.upload,
+													courseId,
+													language: "en",
+												});
 												onChange(file);
 											} else {
 												form.setError("file", {
@@ -226,70 +237,71 @@ const UploadForm = () => {
 						/>
 					)}
 					{file && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Course Details</CardTitle>
-								<CardDescription>
-									Verify course details and fix errors before
-									upload.
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-4">
-									{form.formState.errors.root?.message && (
-										<FormError
-											message={
-												form.formState.errors.root
-													.message
-											}
-										/>
-									)}
-									<FormField
-										control={form.control}
-										name="upload.id"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>
-													Identifier
-													<span className="text-muted-foreground">
-														{" (Optional)"}
-													</span>
-												</FormLabel>
-												<FormControl>
-													<Input {...field} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<FormField
-										control={form.control}
-										name="upload.name"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Name</FormLabel>
-												<FormControl>
-													<Input {...field} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<div>
-										<Label>Size</Label>
-										<p className="flex-1 truncate">
-											{formatBytes(file.size)}
-										</p>
-									</div>
-									<div>
-										<Label>Version</Label>
-										<p className="flex-1 truncate">
-											{version ? version : "Unknown"}
-										</p>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+						<div className="space-y-4">
+							{form.formState.errors.root?.message && (
+								<FormError
+									message={form.formState.errors.root.message}
+								/>
+							)}
+							<FormField
+								control={form.control}
+								name="upload.id"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											Identifier
+											<span className="text-muted-foreground">
+												{" (Optional)"}
+											</span>
+										</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="upload.language"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Language</FormLabel>
+										<Select
+											value={field.value}
+											onValueChange={field.onChange}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Select a language" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="en">
+													English
+												</SelectItem>
+												<SelectItem value="fr">
+													Francais
+												</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<div>
+								<Label>Size</Label>
+								<p className="flex-1 truncate">
+									{formatBytes(file.size)}
+								</p>
+							</div>
+							<div>
+								<Label>Type</Label>
+								<p className="flex-1 truncate">
+									{moduleType ? moduleType : "Unknown"}
+								</p>
+							</div>
+						</div>
 					)}
 					<Button
 						className="mr-4 mt-8"

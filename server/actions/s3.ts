@@ -26,7 +26,6 @@ export const deleteFolder = async (Prefix: string) => {
 
 	// Delete each object
 	const deletePromises = data.Contents?.map((obj) => {
-		console.log(obj.Key);
 		return s3.send(
 			new DeleteObjectCommand({
 				Bucket: "krak-lcds",
