@@ -18,14 +18,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/lib/api";
 import { formatBytes } from "@/lib/helpers";
 import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import {
-	deleteModuleAction,
-	uploadModuleAction,
-} from "@/server/actions/module";
+import { uploadModuleAction } from "@/server/actions/module";
 import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,12 +119,21 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 
 			const moduleId = input.id ?? crypto.randomUUID();
 
+			const { data, serverError } = await uploadModuleAction({
+				...input,
+				id: moduleId,
+			});
+
+			if (serverError) {
+				throw new Error(serverError);
+			}
+
 			const results = await Promise.allSettled(
 				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const url = await getPresignedUrl(
-						`courses/${courseId}/${moduleId}/${path}`
+						`courses/${courseId}/${input.language}/${path}`
 					);
 
 					await fetch(url, {
@@ -141,24 +148,17 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 				})
 			);
 
+			console.log(results);
+
 			const failed = results.some(
 				(result) => result.status === "rejected"
 			);
 
 			if (failed) {
-				await deleteModuleAction({
-					id: moduleId,
+				await api.api.modules[":id"].$delete({
+					param: { id: moduleId },
 				});
 				throw new Error("Failed to upload module");
-			}
-
-			const { data, serverError } = await uploadModuleAction({
-				...input,
-				id: moduleId,
-			});
-
-			if (serverError) {
-				throw new Error(serverError);
 			}
 
 			return data;

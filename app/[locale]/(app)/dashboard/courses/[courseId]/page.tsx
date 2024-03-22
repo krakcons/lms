@@ -3,6 +3,9 @@ import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
 import { coursesData } from "@/server/db/courses";
+import { db } from "@/server/db/db";
+import { courses } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 import { EyeOff, Users } from "lucide-react";
 
@@ -19,7 +22,15 @@ const Page = async ({
 
 	const course = await coursesData.get({ id: courseId }, user.id);
 
-	// const learners = await getLearners({ courseId }, user.id);
+	const courseModules = await db.query.modules.findMany({
+		where: eq(courses.id, courseId),
+		with: {
+			learners: true,
+		},
+	});
+	const learners = courseModules.flatMap((module) =>
+		module.learners.map((learner) => learner)
+	);
 
 	return (
 		<main>
@@ -35,9 +46,9 @@ const Page = async ({
 						<Users size={20} className="text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						{/* <div className="text-2xl font-bold">
+						<div className="text-2xl font-bold">
 							{learners.length}
-						</div> */}
+						</div>
 					</CardContent>
 				</Card>
 				<Card className="flex-1">
@@ -48,12 +59,12 @@ const Page = async ({
 						<EyeOff size={19} className="text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						{/* <div className="text-2xl font-bold">
+						<div className="text-2xl font-bold">
 							{
 								learners.filter((learner) => !learner.email)
 									.length
 							}
-						</div> */}
+						</div>
 					</CardContent>
 				</Card>
 			</div>

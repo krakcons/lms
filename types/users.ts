@@ -1,10 +1,6 @@
-export type User = {
-	id: string;
-	lastName: string | null;
-	firstName: string | null;
-	username: string | null;
-	imageUrl: string;
-	emailAddress: string | null;
-};
+import { users } from "@/server/db/schema";
+import { createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
-export type WithUser<T> = T & { user: User };
+export const UserSchema = createSelectSchema(users);
+export type User = z.infer<typeof UserSchema>;

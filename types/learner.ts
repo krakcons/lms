@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Module } from "./module";
 import { Scorm12DataSchema } from "./scorm/versions/12";
 import { Scorm2004DataSchema } from "./scorm/versions/2004";
-import { WithUser } from "./users";
 
 export const BaseLearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
@@ -63,7 +62,7 @@ export const CreateLearnerSchema = LearnerSchema.pick({
 export type CreateLearner = z.infer<typeof CreateLearnerSchema>;
 
 export type FullLearner = Prettify<
-	WithUser<Learner> & {
+	Learner & {
 		status: string;
 		score?: {
 			raw?: number | string;
@@ -75,7 +74,6 @@ export type FullLearner = Prettify<
 
 export const SelectLearnerSchema = LearnerSchema.pick({
 	id: true,
-	moduleId: true,
 });
 export type SelectLearner = z.infer<typeof SelectLearnerSchema>;
 

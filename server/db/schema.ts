@@ -6,6 +6,7 @@ import {
 	primaryKey,
 	text,
 	timestamp,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { generateId } from "lucia";
 
@@ -117,16 +118,22 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	modules: many(modules),
 }));
 
-export const modules = pgTable("modules", {
-	id: text("id")
-		.primaryKey()
-		.notNull()
-		.$default(() => generateId(15)),
-	courseId: text("courseId").notNull(),
-	userId: text("userId").notNull(),
-	language: text("language").notNull(),
-	type: moduleTypeEnum("type").notNull(),
-});
+export const modules = pgTable(
+	"modules",
+	{
+		id: text("id")
+			.primaryKey()
+			.notNull()
+			.$default(() => generateId(15)),
+		courseId: text("courseId").notNull(),
+		userId: text("userId").notNull(),
+		language: text("language").notNull(),
+		type: moduleTypeEnum("type").notNull(),
+	},
+	(t) => ({
+		unq_module: uniqueIndex("unq_module").on(t.courseId, t.language),
+	})
+);
 
 export const modulesRelations = relations(modules, ({ many, one }) => ({
 	user: one(users, {

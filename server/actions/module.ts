@@ -2,17 +2,13 @@
 
 import { db } from "@/server/db/db";
 import { modules } from "@/server/db/schema";
-import { DeleteModuleSchema, UploadModuleSchema } from "@/types/module";
+import { UploadModuleSchema } from "@/types/module";
 import { and, eq } from "drizzle-orm";
-import { modulesData } from "../db/modules";
 import { authAction } from "./client";
 
 export const uploadModuleAction = authAction(
 	UploadModuleSchema,
-	async ({ type, id, courseId }, { user }) => {
-		console.log("id", id);
-		console.log("courseId", courseId);
-
+	async ({ type, id, courseId, language }, { user }) => {
 		if (id === "") {
 			id = undefined;
 		}
@@ -34,14 +30,7 @@ export const uploadModuleAction = authAction(
 			courseId,
 			userId: user.id,
 			type,
-			language: "en",
+			language,
 		});
-	}
-);
-
-export const deleteModuleAction = authAction(
-	DeleteModuleSchema,
-	async ({ id }, { user }) => {
-		await modulesData.delete({ id }, user.id);
 	}
 );

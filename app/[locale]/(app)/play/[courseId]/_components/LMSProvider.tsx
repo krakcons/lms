@@ -1,8 +1,8 @@
 "use client";
 
-import { updateLearnerAction } from "@/server/actions/learner";
-import { Course } from "@/types/course";
+import { api } from "@/lib/api";
 import { Learner } from "@/types/learner";
+import { Module } from "@/types/module";
 import {
 	Scorm12ErrorCode,
 	Scorm12ErrorMessage,
@@ -23,15 +23,15 @@ declare global {
 
 type Props = {
 	children: React.ReactNode;
-	version: Course["version"];
+	type: Module["type"];
 	learner: Learner;
 };
 
 const useSCORM = ({
-	version,
+	type,
 	initialData,
 }: {
-	version: Course["version"];
+	type: Module["type"];
 	initialData: Record<string, any>;
 }) => {
 	const [data, setData] = useState<Record<string, string>>(initialData);
@@ -48,7 +48,9 @@ const useSCORM = ({
 		}
 	}, [error]);
 
-	if (version === "1.2" && typeof window !== "undefined") {
+	console.log("useSCORM", type === "1.2" && typeof window !== "undefined");
+
+	if (type === "1.2" && typeof window !== "undefined") {
 		window.API = {
 			LMSInitialize: (): boolean => {
 				console.log("LMSInitialize");
@@ -123,7 +125,7 @@ const useSCORM = ({
 				return true;
 			},
 		};
-	} else if (version === "2004" && typeof window !== "undefined") {
+	} else if (type === "2004" && typeof window !== "undefined") {
 		window.API_1484_11 = {
 			Initialize: (): boolean => {
 				console.log("Initialize");
@@ -208,17 +210,18 @@ const useSCORM = ({
 	return { data };
 };
 
-const LMSProvider = ({ children, version, learner }: Props) => {
+const LMSProvider = ({ children, type, learner }: Props) => {
 	const { mutate } = useMutation({
-		mutationFn: updateLearnerAction,
+		mutationFn: api.api.learners[":id"].$put,
 	});
+
 	const { data } = useSCORM({
-		version,
+		type,
 		initialData: learner.data,
 	});
 
 	useEffect(() => {
-		mutate({ ...learner, data });
+		mutate({ param: { id: learner.id }, json: { ...learner, data } });
 	}, [data, learner, mutate]);
 
 	return <>{children}</>;

@@ -4,13 +4,7 @@ import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
-import { Course } from "@/types/course";
-import {
-	CreateLearnerSchema,
-	DeleteLearnerSchema,
-	SelectLearnerSchema,
-	UpdateLearnerSchema,
-} from "@/types/learner";
+import { DeleteLearnerSchema } from "@/types/learner";
 import { renderAsync } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -19,45 +13,6 @@ import { z } from "zod";
 import { learnersData } from "../db/learners";
 import { resend } from "../resend";
 import { action } from "./client";
-
-export const inviteLearnerAction = async (
-	id: string,
-	email: string,
-	course: Course
-) => {
-	const html = await renderAsync(
-		React.createElement(LearnerInvite, {
-			email,
-			course: course.name,
-			organization: "Krak LMS",
-			href: `${env.NEXT_PUBLIC_SITE_URL}/play/${course.id}?learnerId=${id}`,
-		})
-	);
-	await resend.emails.send({
-		html,
-		to: email,
-		subject: course.name,
-		from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
-	});
-};
-
-export const createLearnerAction = action(
-	CreateLearnerSchema,
-	async (input) => {
-		return await learnersData.create(input);
-	}
-);
-
-export const getLearnerAction = action(SelectLearnerSchema, async (input) => {
-	return await learnersData.get(input);
-});
-
-export const updateLearnerAction = action(
-	UpdateLearnerSchema,
-	async (input) => {
-		return await learnersData.update(input);
-	}
-);
 
 export const deleteLearnerAction = action(
 	DeleteLearnerSchema,

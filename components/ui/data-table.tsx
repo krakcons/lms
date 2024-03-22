@@ -133,7 +133,7 @@ export const DataTable = <TData, TValue>({
 														header.column.columnDef
 															.header,
 														header.getContext()
-												  )}
+													)}
 										</TableHead>
 									);
 								})}

@@ -21,7 +21,7 @@ export const validateModule = async (file: File, ctx: z.RefinementCtx) => {
 	if (file.size > MAX_FILE_SIZE) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: `Course is too large. Maximum file size is ${formatBytes(
+			message: `Module is too large. Maximum file size is ${formatBytes(
 				MAX_FILE_SIZE
 			)}.`,
 			fatal: true,
@@ -34,7 +34,7 @@ export const validateModule = async (file: File, ctx: z.RefinementCtx) => {
 	if (!manifestFile) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: "Course does not contain imsmanifest.xml file",
+			message: "Module does not contain imsmanifest.xml file",
 			fatal: true,
 		});
 		return z.NEVER;

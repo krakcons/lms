@@ -1,6 +1,6 @@
 import { SelectCourse } from "@/types/course";
 import { and, eq } from "drizzle-orm";
-import { LCDSError } from "../errors";
+import { HTTPException } from "hono/http-exception";
 import { db } from "./db";
 import { modules } from "./schema";
 
@@ -13,21 +13,16 @@ export const modulesData = {
 		});
 
 		if (!courseModule) {
-			throw new LCDSError({
-				code: "NOT_FOUND",
+			throw new HTTPException(404, {
 				message: "Module not found",
 			});
 		}
 
 		return courseModule;
 	},
-	delete: async ({ id }: SelectCourse, userId: string) => {
-		const courseModule = await modulesData.get({ id }, userId);
-
-		await db
-			.delete(modules)
-			.where(
-				and(eq(modules.id, courseModule.id), eq(modules.userId, userId))
-			);
+	getLearners: async ({ id }: { id: string }, userId: string) => {
+		return await db.query.learners.findMany({
+			where: and(eq(modules.id, id), eq(modules.userId, userId)),
+		});
 	},
 };

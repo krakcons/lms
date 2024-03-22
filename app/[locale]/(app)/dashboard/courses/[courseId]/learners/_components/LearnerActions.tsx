@@ -9,18 +9,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteLearnerAction } from "@/server/actions/learner";
+import { api } from "@/lib/api";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 
-const LearnerActions = ({
-	learner: { id, courseId },
-}: {
-	learner: Learner;
-}) => {
+const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
 	const { mutate } = useMutation({
-		mutationFn: deleteLearnerAction,
+		mutationFn: api.api.learners[":id"].$delete,
 	});
 
 	return (
@@ -38,8 +34,7 @@ const LearnerActions = ({
 					className="cursor-pointer"
 					onSelect={() =>
 						mutate({
-							id,
-							courseId,
+							param: { id },
 						})
 					}
 				>
