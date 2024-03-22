@@ -2,5 +2,13 @@
 	"Home": {
 		"title": { "1": "Modern Learning", "2": "For Less" },
 		"description": "Discover modern, affordable, and easy learning management for an empowering educational experience."
+	},
+	"Public": {
+		"title": "Join this course",
+		"guest": "Continue as guest"
+	},
+	"Form": {
+		"email": "Email",
+		"submit": "Submit"
 	}
 }

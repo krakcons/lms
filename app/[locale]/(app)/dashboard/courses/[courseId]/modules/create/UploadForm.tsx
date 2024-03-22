@@ -173,6 +173,7 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 				description: "Your file has been uploaded",
 			});
 			router.push(`/dashboard/courses/${courseId}/modules`);
+			router.refresh();
 		},
 		onError: (err: any) => {
 			form.setError("root", {

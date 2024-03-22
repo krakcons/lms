@@ -1,8 +1,12 @@
-import UploadForm from "./_components/UploadForm";
+import UploadForm from "./UploadForm";
 
 export const runtime = "nodejs";
 
-const Page = ({ params: { courseId } }: { params: { courseId: string } }) => {
+const Page = ({
+	params: { courseId, locale },
+}: {
+	params: { courseId: string; locale: string };
+}) => {
 	return (
 		<main>
 			<h1 className="mb-8">Upload Module</h1>

@@ -28,9 +28,15 @@ type Input = z.infer<typeof InputSchema>;
 const PublicEmailForm = ({
 	courseId,
 	moduleId,
+	text,
 }: {
 	moduleId: string;
 	courseId: string;
+	text: {
+		email: string;
+		submit: string;
+		guest: string;
+	};
 }) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
@@ -72,7 +78,7 @@ const PublicEmailForm = ({
 					name="email"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Email</FormLabel>
+							<FormLabel>{text.email}</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -85,7 +91,7 @@ const PublicEmailForm = ({
 						{form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
-						Submit
+						{text.submit}
 					</Button>
 					<Button
 						variant="outline"
@@ -102,7 +108,7 @@ const PublicEmailForm = ({
 						{!form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
-						Continue as guest
+						{text.guest}
 					</Button>
 				</div>
 			</form>

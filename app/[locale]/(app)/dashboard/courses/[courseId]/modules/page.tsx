@@ -13,6 +13,7 @@ import { getAuth } from "@/server/actions/cached";
 import { coursesData } from "@/server/db/courses";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import DeleteModule from "./DeleteModule";
 
 const Page = async ({
 	params: { courseId },
@@ -56,6 +57,7 @@ const Page = async ({
 						<TableHead>Id</TableHead>
 						<TableHead>Type</TableHead>
 						<TableHead>Language</TableHead>
+						<TableHead></TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -67,6 +69,9 @@ const Page = async ({
 								{module.language === "fr"
 									? "Francais"
 									: "English"}
+							</TableCell>
+							<TableCell>
+								<DeleteModule moduleId={module.id} />
 							</TableCell>
 						</TableRow>
 					))}
