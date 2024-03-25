@@ -4,23 +4,12 @@ import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
-import { DeleteLearnerSchema } from "@/types/learner";
 import { renderAsync } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import React from "react";
 import { z } from "zod";
-import { learnersData } from "../db/learners";
 import { resend } from "../resend";
 import { action } from "./client";
-
-export const deleteLearnerAction = action(
-	DeleteLearnerSchema,
-	async (input) => {
-		await learnersData.delete(input);
-		revalidatePath(`/dashboard/courses/${input.courseId}/learners`);
-	}
-);
 
 export const reinviteLearnerAction = action(
 	z.object({

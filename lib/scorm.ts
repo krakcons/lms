@@ -1,7 +1,7 @@
-import { Course } from "@/types/course";
+import { Module } from "@/types/module";
 
 export const getInitialScormData = (
-	version: Course["version"]
+	version: Module["type"]
 ): Record<string, string> => {
 	console.log(version);
 	console.log(typeof version);
