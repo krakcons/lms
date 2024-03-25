@@ -1,7 +1,5 @@
-import { routes } from "@/app/api/[[...route]]/route";
 import { env } from "@/env.mjs";
+import { AppType } from "@/server/api/hono";
 import { hc } from "hono/client";
 
-type AppType = typeof routes;
-
-export const api = hc<AppType>(env.NEXT_PUBLIC_SITE_URL);
+export const client = hc<AppType>(env.NEXT_PUBLIC_SITE_URL);

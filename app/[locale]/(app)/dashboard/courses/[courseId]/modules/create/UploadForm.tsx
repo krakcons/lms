@@ -18,7 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { formatBytes } from "@/lib/helpers";
 import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
@@ -155,7 +155,7 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 			);
 
 			if (failed) {
-				await api.api.modules[":id"].$delete({
+				await client.api.modules[":id"].$delete({
 					param: { id: moduleId },
 				});
 				throw new Error("Failed to upload module");

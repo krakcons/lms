@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -40,7 +40,7 @@ const PublicEmailForm = ({
 }) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
-		mutationFn: api.api.modules[":id"].learners.$post,
+		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: async (res) => {
 			const data = await res.json();
 			router.push(`/play/${courseId}?learnerId=${data?.id}`);
@@ -97,6 +97,7 @@ const PublicEmailForm = ({
 						variant="outline"
 						onClick={(e) => {
 							e.preventDefault();
+							console.log(moduleId);
 							mutate({
 								param: {
 									id: moduleId,

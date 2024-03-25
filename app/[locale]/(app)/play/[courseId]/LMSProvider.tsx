@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { Learner } from "@/types/learner";
 import { Module } from "@/types/module";
 import {
@@ -212,7 +212,7 @@ const useSCORM = ({
 
 const LMSProvider = ({ children, type, learner }: Props) => {
 	const { mutate } = useMutation({
-		mutationFn: api.api.learners[":id"].$put,
+		mutationFn: client.api.learners[":id"].$put,
 	});
 
 	const { data } = useSCORM({

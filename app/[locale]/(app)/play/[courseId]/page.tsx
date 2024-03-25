@@ -1,9 +1,12 @@
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { learnersData } from "@/server/db/learners";
+import { db } from "@/server/db/db";
+import { learners } from "@/server/db/schema";
+import { ExtendLearner } from "@/types/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
+import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
-import LMSProvider from "./_components/LMSProvider";
+import LMSProvider from "./LMSProvider";
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -66,11 +69,22 @@ const Page = async ({
 	}
 
 	// Get course user
-	const learner = await learnersData.get({ id: learnerId });
+	const learner = await db.query.learners.findFirst({
+		where: and(eq(learners.id, learnerId)),
+		with: {
+			module: true,
+		},
+	});
 
 	if (!learner) {
 		throw new Error("Learner not found");
 	}
+
+	if (learner.module.language !== locale) {
+		throw new Error("Learner found but language does not match");
+	}
+
+	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
 
 	const { scorm, resources } = await parseCourse(courseId, locale);
 
@@ -79,10 +93,10 @@ const Page = async ({
 			<div className="flex flex-1 flex-row">
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
-					learner={learner}
+					learner={extendedLearner}
 				>
 					<iframe
-						src={`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/${locale}/${resources[0].href}`}
+						src={`/content/${courseId}/${locale}/${resources[0].href}`}
 						className="flex-1"
 					/>
 				</LMSProvider>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Trash } from "lucide-react";
@@ -9,7 +9,7 @@ import { Loader2, Trash } from "lucide-react";
 const DeleteModule = ({ moduleId }: { moduleId: string }) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
-		mutationFn: api.api.modules[":id"].$delete,
+		mutationFn: client.api.modules[":id"].$delete,
 		onSettled: () => {
 			router.refresh();
 		},

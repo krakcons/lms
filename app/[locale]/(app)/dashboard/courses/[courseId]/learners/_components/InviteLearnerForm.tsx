@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +36,7 @@ const InviteLearnerForm = ({
 	const router = useRouter();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: api.api.modules[":id"].learners.$post,
+		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: () => {
 			router.refresh();
 			toast("Successfully Invited", {

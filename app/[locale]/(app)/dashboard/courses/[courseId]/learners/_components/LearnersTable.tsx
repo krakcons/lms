@@ -10,7 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/api";
+import { client } from "@/lib/api";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -42,7 +42,7 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 
 const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
 	const { mutate } = useMutation({
-		mutationFn: api.api.learners[":id"].$delete,
+		mutationFn: client.api.learners[":id"].$delete,
 	});
 
 	return (

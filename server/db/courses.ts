@@ -4,7 +4,7 @@ import { cache } from "react";
 import { deleteFolder } from "../actions/s3";
 import { LCDSError } from "../errors";
 import { db } from "./db";
-import { courses } from "./schema";
+import { courses, learners, modules } from "./schema";
 
 export const coursesData = {
 	create: async (course: CreateCourse, userId: string) => {
@@ -49,7 +49,17 @@ export const coursesData = {
 		await db
 			.delete(courses)
 			.where(and(eq(courses.id, course.id), eq(courses.userId, userId)));
-		// await db.delete(learners).where(eq(learners.courseId, course.id));
+
+		const modulesList = await db.query.modules.findMany({
+			where: eq(courses.id, course.id),
+		});
+
+		modulesList.forEach(async (module) => {
+			await db.delete(learners).where(eq(learners.moduleId, module.id));
+		});
+
+		await db.delete(modules).where(eq(courses.id, course.id));
+
 		await deleteFolder(`courses/${course.id}`);
 	},
 	getAll: cache(async (_: undefined, userId: string) => {

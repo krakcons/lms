@@ -103,6 +103,8 @@ export const modulesHandler = new Hono()
 				)
 			);
 
+		await db.delete(learners).where(eq(learners.moduleId, courseModule.id));
+
 		await deleteFolder(
 			`courses/${courseModule.courseId}/${courseModule.language}`
 		);
