@@ -4,7 +4,7 @@ import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
-import { courses } from "@/server/db/schema";
+import { modules } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 import { EyeOff, Users } from "lucide-react";
@@ -23,7 +23,7 @@ const Page = async ({
 	const course = await coursesData.get({ id: courseId }, user.id);
 
 	const courseModules = await db.query.modules.findMany({
-		where: eq(courses.id, courseId),
+		where: eq(modules.courseId, courseId),
 		with: {
 			learners: true,
 		},
@@ -35,7 +35,7 @@ const Page = async ({
 	return (
 		<main>
 			<h2>{course.name}</h2>
-			<p className="text-muted-foreground">View course overview</p>
+			<p className="text-muted-foreground">{course.description}</p>
 			<Separator className="my-8" />
 			<div className="flex justify-between gap-4">
 				<Card className="flex-1">
