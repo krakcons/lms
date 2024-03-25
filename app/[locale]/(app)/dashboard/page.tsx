@@ -79,6 +79,23 @@ const Page = async () => {
 			</p>
 			<div className="flex flex-col rounded-xl border border-blue-400 p-3">
 				<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button
+								variant="outline"
+								className="flex h-32 flex-col"
+							>
+								<div className="flex flex-col items-center justify-center gap-4">
+									<Plus size={24} />
+									Add Course
+								</div>
+							</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogTitle>Add Course</DialogTitle>
+							{/* <CreateCourseForm /> */}
+						</DialogContent>
+					</Dialog>
 					{courseList?.map((course) => (
 						<Link
 							href={`/dashboard/courses/${course.id}`}
@@ -96,11 +113,6 @@ const Page = async () => {
 							</Badge>
 						</Link>
 					))}
-				</div>
-				<hr className="my-3" />
-				<div className="flex gap-2">
-					<Button variant="outline">Invite Learners</Button>
-					<Button variant="outline">Add course</Button>
 				</div>
 			</div>
 		</>
