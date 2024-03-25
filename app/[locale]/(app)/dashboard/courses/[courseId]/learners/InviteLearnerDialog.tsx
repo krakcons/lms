@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const InviteLearnerForm = dynamic(() => import("./InviteLearnerForm"), {});
 
-const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
+const InviteLearnerDialog = ({ moduleId }: { moduleId: string }) => {
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -21,7 +21,7 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 			</DialogTrigger>
 			<InviteLearnerForm
 				close={() => setOpen(false)}
-				courseId={courseId}
+				moduleId={moduleId}
 			/>
 		</Dialog>
 	);

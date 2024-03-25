@@ -10,10 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-	deleteLearnerAction,
-	reinviteLearnerAction,
-} from "@/server/actions/learner";
+import { client } from "@/lib/api";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -37,33 +34,15 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 		return (
 			<div className="flex items-center gap-4">
 				<p className="text-sm">Invited</p>
-				<Button
-					onClick={() => {
-						if (reinvited) return;
-						setReinvited(true);
-						reinviteLearnerAction({
-							id: info.row.original.id,
-							courseId: info.row.original.courseId,
-						});
-					}}
-					variant={"outline"}
-					size={"sm"}
-				>
-					{reinvited ? "Reinvited" : "Reinvite"}
-				</Button>
 			</div>
 		);
 	}
 	return labels[status];
 };
 
-const LearnerActions = ({
-	learner: { id, courseId },
-}: {
-	learner: Learner;
-}) => {
+const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
 	const { mutate } = useMutation({
-		mutationFn: deleteLearnerAction,
+		mutationFn: client.api.learners[":id"].$delete,
 	});
 
 	return (
@@ -81,8 +60,7 @@ const LearnerActions = ({
 					className="cursor-pointer"
 					onSelect={() =>
 						mutate({
-							id,
-							courseId,
+							param: { id },
 						})
 					}
 				>

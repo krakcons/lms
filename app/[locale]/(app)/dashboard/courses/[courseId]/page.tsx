@@ -2,12 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
-import { getCourse } from "@/server/db/courses";
-import { getLearners } from "@/server/db/learners";
-import { LCDSError } from "@/server/errors";
+import { coursesData } from "@/server/db/courses";
+import { db } from "@/server/db/db";
+import { modules } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 import { EyeOff, Users } from "lucide-react";
-import { notFound } from "next/navigation";
 
 const Page = async ({
 	params: { courseId },
@@ -20,22 +20,22 @@ const Page = async ({
 		return redirect("/auth/google");
 	}
 
-	let course;
-	try {
-		course = await getCourse({ id: courseId }, user.id);
-	} catch (error) {
-		if (error instanceof LCDSError && error.code === "NOT_FOUND") {
-			return notFound();
-		}
-		throw error;
-	}
+	const course = await coursesData.get({ id: courseId }, user.id);
 
-	const learners = await getLearners({ courseId }, user.id);
+	const courseModules = await db.query.modules.findMany({
+		where: eq(modules.courseId, courseId),
+		with: {
+			learners: true,
+		},
+	});
+	const learners = courseModules.flatMap((module) =>
+		module.learners.map((learner) => learner)
+	);
 
 	return (
 		<main>
 			<h2>{course.name}</h2>
-			<p className="text-muted-foreground">View course overview</p>
+			<p className="text-muted-foreground">{course.description}</p>
 			<Separator className="my-8" />
 			<div className="flex justify-between gap-4">
 				<Card className="flex-1">

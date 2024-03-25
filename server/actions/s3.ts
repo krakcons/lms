@@ -2,6 +2,7 @@
 
 import {
 	DeleteObjectCommand,
+	GetObjectCommand,
 	ListObjectsV2Command,
 	PutObjectCommand,
 } from "@aws-sdk/client-s3";
@@ -26,7 +27,6 @@ export const deleteFolder = async (Prefix: string) => {
 
 	// Delete each object
 	const deletePromises = data.Contents?.map((obj) => {
-		console.log(obj.Key);
 		return s3.send(
 			new DeleteObjectCommand({
 				Bucket: "krak-lcds",
@@ -36,4 +36,17 @@ export const deleteFolder = async (Prefix: string) => {
 	});
 
 	if (deletePromises) await Promise.all(deletePromises);
+};
+
+// Get a course file from S3
+export const getCourseFile = async (url: string) => {
+	const courseZip = await s3.send(
+		new GetObjectCommand({
+			Bucket: "krak-lcds",
+			Key: `courses/${url}`,
+		})
+	);
+	const body = await courseZip.Body?.transformToByteArray();
+	if (!body) return null;
+	return body;
 };

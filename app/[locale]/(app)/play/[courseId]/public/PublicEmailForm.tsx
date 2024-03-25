@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
+import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
-import { createLearnerAction } from "@/server/actions/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -25,11 +25,24 @@ const InputSchema = z.object({
 });
 type Input = z.infer<typeof InputSchema>;
 
-const PublicEmailForm = ({ courseId }: { courseId: string }) => {
+const PublicEmailForm = ({
+	courseId,
+	moduleId,
+	text,
+}: {
+	moduleId: string;
+	courseId: string;
+	text: {
+		email: string;
+		submit: string;
+		guest: string;
+	};
+}) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
-		mutationFn: createLearnerAction,
-		onSuccess: ({ data }) => {
+		mutationFn: client.api.modules[":id"].learners.$post,
+		onSuccess: async (res) => {
+			const data = await res.json();
 			router.push(`/play/${courseId}?learnerId=${data?.id}`);
 		},
 		onError: (err) => {
@@ -51,7 +64,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 	});
 
 	const onSubmit = async ({ email }: Input) => {
-		mutate({ email, courseId });
+		mutate({ param: { id: moduleId }, json: { email } });
 	};
 
 	return (
@@ -65,7 +78,7 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 					name="email"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Email</FormLabel>
+							<FormLabel>{text.email}</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -78,19 +91,25 @@ const PublicEmailForm = ({ courseId }: { courseId: string }) => {
 						{form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
-						Submit
+						{text.submit}
 					</Button>
 					<Button
 						variant="outline"
 						onClick={(e) => {
 							e.preventDefault();
-							mutate({ email: undefined, courseId });
+							console.log(moduleId);
+							mutate({
+								param: {
+									id: moduleId,
+								},
+								json: { email: undefined },
+							});
 						}}
 					>
 						{!form.formState.isSubmitted && isPending && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						)}
-						Continue as guest
+						{text.guest}
 					</Button>
 				</div>
 			</form>

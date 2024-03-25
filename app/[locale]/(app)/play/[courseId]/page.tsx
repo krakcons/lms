@@ -1,9 +1,13 @@
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { getLearnerAction } from "@/server/actions/learner";
+import { db } from "@/server/db/db";
+import { learners } from "@/server/db/schema";
+import { ExtendLearner } from "@/types/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
+import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
-import LMSProvider from "./_components/LMSProvider";
+import { unstable_noStore } from "next/cache";
+import LMSProvider from "./LMSProvider";
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -28,9 +32,9 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 	return resources;
 };
 
-const parseCourse = async (courseId: string) => {
+const parseCourse = async (courseId: string, language: string) => {
 	const res = await fetch(
-		`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/imsmanifest.xml`
+		`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/${language}/imsmanifest.xml`
 	);
 	const text = await res.text();
 
@@ -60,35 +64,42 @@ const Page = async ({
 	params: { courseId: string; locale: string };
 	searchParams: { learnerId?: string };
 }) => {
+	unstable_noStore();
 	if (!learnerId) {
 		redirect(`/play/${courseId}/public`);
 		return;
 	}
 
 	// Get course user
-	let { data: learner } = await getLearnerAction({
-		id: learnerId,
-		courseId,
+	const learner = await db.query.learners.findFirst({
+		where: and(eq(learners.id, learnerId)),
+		with: {
+			module: true,
+		},
 	});
 
 	if (!learner) {
 		throw new Error("Learner not found");
 	}
 
-	const { scorm, resources } = await parseCourse(courseId);
+	if (learner.module.language !== locale) {
+		throw new Error("Learner found but language does not match");
+	}
+
+	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
+
+	const { scorm, resources } = await parseCourse(courseId, locale);
+
+	console.log("URL", resources[0].href);
 
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
 			<div className="flex flex-1 flex-row">
 				<LMSProvider
-					version={`${scorm.metadata.schemaversion}`}
-					learner={learner}
-				>
-					<iframe
-						src={`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/${resources[0].href}`}
-						className="flex-1"
-					/>
-				</LMSProvider>
+					type={`${scorm.metadata.schemaversion}`}
+					learner={extendedLearner}
+					url={`/${locale}/r2/courses/${courseId}/${locale}/${resources[0].href}`}
+				/>
 			</div>
 		</main>
 	);

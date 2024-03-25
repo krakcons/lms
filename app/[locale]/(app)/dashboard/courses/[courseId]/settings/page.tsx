@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import DeleteCourseDialog from "./_components/DeleteCourseDialog";
+import DeleteCourseDialog from "./DeleteCourseDialog";
 
 const Page = ({ params: { courseId } }: { params: { courseId: string } }) => {
 	return (

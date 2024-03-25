@@ -1,4 +1,4 @@
-import { UploadCourse } from "@/types/course";
+import { UploadModule } from "@/types/module";
 import { IMSManifestSchema } from "@/types/scorm/content";
 import { XMLParser } from "fast-xml-parser";
 import JSZip from "jszip";
@@ -12,7 +12,7 @@ const parser = new XMLParser({
 	attributeNamePrefix: "",
 });
 
-export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
+export const validateModule = async (file: File, ctx: z.RefinementCtx) => {
 	const zip = new JSZip();
 
 	const fileBuffer = await file.arrayBuffer();
@@ -21,7 +21,7 @@ export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
 	if (file.size > MAX_FILE_SIZE) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: `Course is too large. Maximum file size is ${formatBytes(
+			message: `Module is too large. Maximum file size is ${formatBytes(
 				MAX_FILE_SIZE
 			)}.`,
 			fatal: true,
@@ -34,7 +34,7 @@ export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
 	if (!manifestFile) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: "Course does not contain imsmanifest.xml file",
+			message: "Module does not contain imsmanifest.xml file",
 			fatal: true,
 		});
 		return z.NEVER;
@@ -62,20 +62,19 @@ export const validateCourse = async (file: File, ctx: z.RefinementCtx) => {
 			name: Array.isArray(scorm.organizations.organization)
 				? scorm.organizations.organization[0].title
 				: scorm.organizations.organization.title,
-			version:
-				scorm.metadata.schemaversion.toString() as UploadCourse["version"],
+			type: scorm.metadata.schemaversion.toString() as UploadModule["type"],
 		},
 	};
 };
 
 export const FileSchema = z.custom<File>((val) => val instanceof File);
 
-export const CourseFileSchema = FileSchema.superRefine(async (file, ctx) => {
-	return await validateCourse(file, ctx);
+export const ModuleFileSchema = FileSchema.superRefine(async (file, ctx) => {
+	return await validateModule(file, ctx);
 });
-export type CourseFile = z.infer<typeof CourseFileSchema>;
+export type ModuleFile = z.infer<typeof ModuleFileSchema>;
 
-export const CourseUploadSchema = FileSchema.transform(async (file, ctx) => {
-	return await validateCourse(file, ctx);
+export const ModuleUploadSchema = FileSchema.transform(async (file, ctx) => {
+	return await validateModule(file, ctx);
 });
-export type CourseUpload = z.infer<typeof CourseUploadSchema>;
+export type ModuleUpload = z.infer<typeof ModuleUploadSchema>;

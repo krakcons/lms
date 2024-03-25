@@ -3,10 +3,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { getAuth } from "@/server/actions/cached";
-import { getLearners } from "@/server/db/learners";
+import { db } from "@/server/db/db";
+import { modules } from "@/server/db/schema";
+import { ExtendLearner } from "@/types/learner";
+import { eq } from "drizzle-orm";
 import { Suspense } from "react";
-import InviteLearnerDialog from "./_components/InviteLearnerDialog";
-import LearnersTable from "./_components/LearnersTable";
+import LearnersTable from "./LearnersTable";
 
 export const runtime = "nodejs";
 
@@ -17,7 +19,17 @@ const Table = async ({ courseId }: { courseId: string }) => {
 		return null;
 	}
 
-	const learners = await getLearners({ courseId }, user.id);
+	const courseModules = await db.query.modules.findMany({
+		where: eq(modules.courseId, courseId),
+		with: {
+			learners: true,
+		},
+	});
+	const learners = courseModules.flatMap((module) =>
+		ExtendLearner(module.type)
+			.array()
+			.parse(module.learners.map((learner) => learner))
+	);
 
 	return <LearnersTable learners={learners} />;
 };
@@ -36,7 +48,6 @@ const Page = async ({
 						View and manage this courses learners
 					</p>
 				</div>
-				<InviteLearnerDialog courseId={courseId} />
 			</div>
 			<Separator className="my-8" />
 			<div className="flex w-full flex-col gap-1">
