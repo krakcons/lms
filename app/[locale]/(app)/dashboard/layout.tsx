@@ -1,7 +1,7 @@
 import UserButton from "@/components/auth/UserButton";
 import { Link } from "@/lib/navigation";
 import { Suspense } from "react";
-import ThemeButton from "./_components/ThemeButton";
+import ThemeButton from "./ThemeButton";
 
 type Props = {
 	children: React.ReactNode;

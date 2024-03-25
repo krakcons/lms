@@ -4,11 +4,11 @@ import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
-import { courses } from "@/server/db/schema";
+import { modules } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
-import LearnersTable from "./_components/LearnersTable";
+import LearnersTable from "./LearnersTable";
 
 export const runtime = "nodejs";
 
@@ -20,7 +20,7 @@ const Table = async ({ courseId }: { courseId: string }) => {
 	}
 
 	const courseModules = await db.query.modules.findMany({
-		where: eq(courses.id, courseId),
+		where: eq(modules.courseId, courseId),
 		with: {
 			learners: true,
 		},

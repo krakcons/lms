@@ -12,7 +12,7 @@ import { db } from "@/server/db/db";
 import { courses } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { Plus } from "lucide-react";
-import CreateCourseForm from "./_components/CreateCourseForm";
+import CreateCourseForm from "./CreateCourseForm";
 
 const Page = async () => {
 	const { user } = await getAuth();
