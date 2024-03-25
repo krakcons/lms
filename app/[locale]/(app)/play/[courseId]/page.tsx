@@ -6,6 +6,7 @@ import { ExtendLearner } from "@/types/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
+import { unstable_noStore } from "next/cache";
 import LMSProvider from "./LMSProvider";
 
 const parser = new XMLParser({
@@ -63,6 +64,7 @@ const Page = async ({
 	params: { courseId: string; locale: string };
 	searchParams: { learnerId?: string };
 }) => {
+	unstable_noStore();
 	if (!learnerId) {
 		redirect(`/play/${courseId}/public`);
 		return;
@@ -88,18 +90,16 @@ const Page = async ({
 
 	const { scorm, resources } = await parseCourse(courseId, locale);
 
+	console.log("URL", resources[0].href);
+
 	return (
 		<main className="flex h-screen w-full flex-col bg-slate-100">
 			<div className="flex flex-1 flex-row">
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-				>
-					<iframe
-						src={`/content/${courseId}/${locale}/${resources[0].href}`}
-						className="flex-1"
-					/>
-				</LMSProvider>
+					url={`/${locale}/r2/courses/${courseId}/${locale}/${resources[0].href}`}
+				/>
 			</div>
 		</main>
 	);

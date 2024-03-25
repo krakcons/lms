@@ -22,9 +22,9 @@ declare global {
 }
 
 type Props = {
-	children: React.ReactNode;
 	type: Module["type"];
 	learner: Learner;
+	url: string;
 };
 
 const useSCORM = ({
@@ -210,7 +210,7 @@ const useSCORM = ({
 	return { data };
 };
 
-const LMSProvider = ({ children, type, learner }: Props) => {
+const LMSProvider = ({ type, learner, url }: Props) => {
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$put,
 	});
@@ -224,7 +224,7 @@ const LMSProvider = ({ children, type, learner }: Props) => {
 		mutate({ param: { id: learner.id }, json: { ...learner, data } });
 	}, [data, learner, mutate]);
 
-	return <>{children}</>;
+	return <iframe src={url} className="flex-1" />;
 };
 
 export default LMSProvider;
