@@ -1,5 +1,5 @@
 import { SidebarNav } from "@/components/ui/sidebar";
-import { Key } from "lucide-react";
+import { Globe, Key } from "lucide-react";
 
 const Layout = ({
 	children,
@@ -15,6 +15,11 @@ const Layout = ({
 			href: `/dashboard/${teamId}/settings/api-keys`,
 			title: "API Keys",
 			icon: <Key size={18} />,
+		},
+		{
+			href: `/dashboard/${teamId}/settings/domains`,
+			title: "Domains",
+			icon: <Globe size={18} />,
 		},
 	];
 

@@ -12,6 +12,9 @@ export const env = createEnv({
 		R2_KEY_ID: z.string().min(1),
 		GOOGLE_CLIENT_ID: z.string().min(1),
 		GOOGLE_CLIENT_SECRET: z.string().min(1),
+		TEAM_ID_VERCEL: z.string().min(1),
+		PROJECT_ID_VERCEL: z.string().min(1),
+		AUTH_BEARER_TOKEN_VERCEL: z.string().min(1),
 	},
 	client: {
 		NEXT_PUBLIC_SITE_URL: z.string().url(),
