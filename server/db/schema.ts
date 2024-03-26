@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
 	json,
 	pgEnum,
@@ -148,9 +148,24 @@ export const modulesRelations = relations(modules, ({ many, one }) => ({
 }));
 
 export const learners = pgTable("learners", {
-	id: text("id").primaryKey().notNull(),
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
 	moduleId: text("moduleId").notNull(),
-	email: text("email"),
+	email: text("email").notNull(),
+	firstName: text("firstName").notNull(),
+	lastName: text("lastName").notNull(),
+	completedAt: timestamp("completedAt", {
+		withTimezone: true,
+	})
+		.default(sql`null`)
+		.$type<Date | null>(),
+	startedAt: timestamp("startedAt", {
+		withTimezone: true,
+	})
+		.default(sql`null`)
+		.$type<Date | null>(),
 	data: json("data").$type<Record<string, string>>().notNull().default({}),
 });
 

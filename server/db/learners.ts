@@ -26,13 +26,24 @@ export const learnersData = {
 	update: async ({ id, moduleId, data }: UpdateLearner) => {
 		const courseModule = await modulesData.get({ id: moduleId });
 		const learner = await learnersData.get({ id });
+		const newLearner = ExtendLearner(courseModule.type).parse({
+			...learner,
+			data,
+		});
 
 		await db
 			.update(learners)
-			.set({ data })
+			.set({
+				data,
+				startedAt: learner.startedAt ?? new Date(),
+				completedAt:
+					!learner.completedAt && newLearner.status === "passed"
+						? new Date()
+						: null,
+			})
 			.where(and(eq(learners.moduleId, moduleId), eq(learners.id, id)));
 
-		const newLearner = ExtendLearner(courseModule.type).parse({
+		return ExtendLearner(courseModule.type).parse({
 			...learner,
 			data,
 		});
@@ -41,7 +52,5 @@ export const learnersData = {
 		// 	eventType: "learner.update",
 		// 	payload: newLearner,
 		// });
-
-		return newLearner;
 	},
 };

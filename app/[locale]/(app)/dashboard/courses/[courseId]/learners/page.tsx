@@ -51,7 +51,7 @@ const Page = async ({
 			</div>
 			<Separator className="my-8" />
 			<div className="flex w-full flex-col gap-1">
-				<p>Share public link</p>
+				<p>Share join link</p>
 				<div
 					className={buttonVariants({
 						variant: "secondary",
@@ -59,10 +59,10 @@ const Page = async ({
 					})}
 				>
 					<p className="truncate text-sm text-muted-foreground">
-						{env.NEXT_PUBLIC_SITE_URL}/play/{courseId}/public
+						{env.NEXT_PUBLIC_SITE_URL}/play/{courseId}/join
 					</p>
 					<CopyButton
-						text={`${env.NEXT_PUBLIC_SITE_URL}/play/${courseId}/public`}
+						text={`${env.NEXT_PUBLIC_SITE_URL}/play/${courseId}/join`}
 					/>
 				</div>
 			</div>

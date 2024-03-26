@@ -8,7 +8,11 @@
 		"guest": "Continuer en tant qu'invité"
 	},
 	"Form": {
-		"email": "Courriel",
+		"learner": {
+			"firstName": "Prénom",
+			"lastName": "Nom de famille",
+			"email": "Adresse e-mail"
+		},
 		"submit": "Soumettre"
 	}
 }

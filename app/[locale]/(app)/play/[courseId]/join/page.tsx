@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
-import PublicEmailForm from "./PublicEmailForm";
+import { JoinCourseForm } from "./JoinCourseForm";
 
 const Page = async ({
 	params: { courseId, locale },
@@ -19,9 +19,10 @@ const Page = async ({
 			eq(modules.courseId, courseId),
 			eq(modules.language, locale)
 		),
+		with: {
+			course: true,
+		},
 	});
-
-	console.log(courseModule);
 
 	const t = await getTranslations({ locale });
 
@@ -32,11 +33,13 @@ const Page = async ({
 	return (
 		<main className="m-auto flex flex-col">
 			<h1 className="mb-8">{t("Public.title")}</h1>
-			<PublicEmailForm
+			<JoinCourseForm
 				moduleId={courseModule.id}
 				courseId={courseId}
 				text={{
-					email: t("Form.email"),
+					firstName: t("Form.learner.firstName"),
+					lastName: t("Form.learner.lastName"),
+					email: t("Form.learner.email"),
 					submit: t("Form.submit"),
 					guest: t("Public.guest"),
 				}}

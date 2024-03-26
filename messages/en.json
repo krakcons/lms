@@ -8,7 +8,11 @@
 		"guest": "Continue as guest"
 	},
 	"Form": {
-		"email": "Email",
+		"learner": {
+			"firstName": "First Name",
+			"lastName": "Last Name",
+			"email": "Email"
+		},
 		"submit": "Submit"
 	}
 }

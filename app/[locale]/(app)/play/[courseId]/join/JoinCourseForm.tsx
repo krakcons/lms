@@ -13,19 +13,14 @@ import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
+import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
-const InputSchema = z.object({
-	email: z.string().email(),
-});
-type Input = z.infer<typeof InputSchema>;
-
-const PublicEmailForm = ({
+export const JoinCourseForm = ({
 	courseId,
 	moduleId,
 	text,
@@ -33,6 +28,8 @@ const PublicEmailForm = ({
 	moduleId: string;
 	courseId: string;
 	text: {
+		firstName: string;
+		lastName: string;
 		email: string;
 		submit: string;
 		guest: string;
@@ -56,15 +53,19 @@ const PublicEmailForm = ({
 		},
 	});
 
-	const form = useForm<Input>({
-		resolver: zodResolver(InputSchema),
+	const form = useForm<CreateLearner>({
+		resolver: zodResolver(CreateLearnerSchema),
 		defaultValues: {
 			email: "",
+			moduleId,
+			sendEmail: false,
+			firstName: "",
+			lastName: "",
 		},
 	});
 
-	const onSubmit = async ({ email }: Input) => {
-		mutate({ param: { id: moduleId }, json: { email } });
+	const onSubmit = async (input: CreateLearner) => {
+		mutate({ param: { id: moduleId }, json: input });
 	};
 
 	return (
@@ -73,6 +74,32 @@ const PublicEmailForm = ({
 				{form.formState.errors.root?.message && (
 					<FormError message={form.formState.errors.root.message} />
 				)}
+				<FormField
+					control={form.control}
+					name="firstName"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>{text.firstName}</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="lastName"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>{text.lastName}</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				<FormField
 					control={form.control}
 					name="email"
@@ -93,28 +120,8 @@ const PublicEmailForm = ({
 						)}
 						{text.submit}
 					</Button>
-					<Button
-						variant="outline"
-						onClick={(e) => {
-							e.preventDefault();
-							console.log(moduleId);
-							mutate({
-								param: {
-									id: moduleId,
-								},
-								json: { email: undefined },
-							});
-						}}
-					>
-						{!form.formState.isSubmitted && isPending && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
-						{text.guest}
-					</Button>
 				</div>
 			</form>
 		</Form>
 	);
 };
-
-export default PublicEmailForm;

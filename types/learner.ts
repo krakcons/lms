@@ -7,7 +7,7 @@ import { Scorm2004DataSchema } from "./scorm/versions/2004";
 
 export const BaseLearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
-	email: z.string().email().nullable(),
+	email: z.string().email(),
 });
 export type BaseLearner = z.infer<typeof BaseLearnerSchema>;
 
@@ -52,12 +52,9 @@ export const DeleteLearnerSchema = LearnerSchema.pick({
 });
 export type DeleteLearner = z.infer<typeof DeleteLearnerSchema>;
 
-export const CreateLearnerSchema = LearnerSchema.pick({
-	moduleId: true,
-}).extend({
-	email: z.string().email().optional(),
+export const CreateLearnerSchema = InsertLearnerSchema.extend({
+	email: z.string().email(),
 	sendEmail: z.boolean().optional(),
-	id: z.string().optional(),
 });
 export type CreateLearner = z.infer<typeof CreateLearnerSchema>;
 

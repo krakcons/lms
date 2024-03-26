@@ -42,7 +42,9 @@ export const modulesHandler = new Hono()
 		),
 		async (c) => {
 			const { id } = c.req.param();
-			const { email, sendEmail, id: learnerId } = c.req.valid("json");
+			const learner = c.req.valid("json");
+
+			console.log("VALIDATED");
 
 			const courseModule = await db.query.modules.findFirst({
 				where: and(eq(modules.id, id)),
@@ -59,17 +61,21 @@ export const modulesHandler = new Hono()
 
 			// Create a new learner
 			const newLearner = {
-				id: learnerId ?? crypto.randomUUID(),
+				id: learner.id ?? crypto.randomUUID(),
 				moduleId: courseModule.id,
-				email: email ? email : null,
+				email: learner.email,
+				firstName: learner.firstName,
+				lastName: learner.lastName,
+				completedAt: learner.completedAt ?? null,
+				startedAt: learner.startedAt ?? null,
 				data: getInitialScormData(courseModule.type),
 				contentType: courseModule.type,
 			};
 
-			if (sendEmail && email) {
+			if (learner.sendEmail && learner.email) {
 				const html = await renderAsync(
 					React.createElement(LearnerInvite, {
-						email,
+						email: learner.email,
 						course: courseModule.course.name,
 						organization: "Krak LMS",
 						href: `${env.NEXT_PUBLIC_SITE_URL}/play/${courseModule.course.id}?learnerId=${id}`,
@@ -77,7 +83,7 @@ export const modulesHandler = new Hono()
 				);
 				await resend.emails.send({
 					html,
-					to: email,
+					to: learner.email,
 					subject: courseModule.course.name,
 					from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 				});
@@ -85,7 +91,15 @@ export const modulesHandler = new Hono()
 
 			await db.insert(learners).values(newLearner).onConflictDoNothing();
 
-			return c.json(ExtendLearner(courseModule.type).parse(newLearner));
+			console.log(newLearner);
+			try {
+				return c.json(
+					ExtendLearner(courseModule.type).parse(newLearner)
+				);
+			} catch (e) {
+				console.log("ERROR");
+				throw new HTTPException(400);
+			}
 		}
 	)
 	.delete("/:id", authedMiddleware, async (c) => {

@@ -11,16 +11,15 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
 
 const columnHelper = createColumnHelper<Learner>();
 
 const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
-	const [reinvited, setReinvited] = useState(false);
 	const status = info.row.original.status;
 
 	const labels = {
@@ -41,8 +40,12 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 };
 
 const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
+	const router = useRouter();
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$delete,
+		onSuccess: () => {
+			router.refresh();
+		},
 	});
 
 	return (
@@ -75,16 +78,25 @@ const columns = [
 	columnHelper.accessor("id", {
 		header: "ID",
 	}),
+	columnHelper.accessor((row) => `${row.firstName} ${row.lastName}`, {
+		id: "fullName",
+		header: "Name",
+	}),
 	columnHelper.accessor("email", {
 		header: "Email",
-		cell: (info) => {
-			if (info.row.original.email) {
-				return info.row.original.email;
-			} else {
-				return "Anonymous";
-			}
-		},
 	}),
+	columnHelper.accessor<(row: Learner) => string, string>(
+		(row) => row.startedAt?.toString() || "N/A",
+		{
+			header: "Started At",
+		}
+	),
+	columnHelper.accessor<(row: Learner) => string, string>(
+		(row) => row.completedAt?.toString() || "N/A",
+		{
+			header: "Completed At",
+		}
+	),
 	columnHelper.accessor("status", {
 		header: "Status",
 		cell: (info) => <StatusCell info={info} />,
