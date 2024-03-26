@@ -3,14 +3,14 @@ import UploadForm from "./UploadForm";
 export const runtime = "nodejs";
 
 const Page = ({
-	params: { courseId, locale },
+	params: { courseId, teamId },
 }: {
-	params: { courseId: string; locale: string };
+	params: { courseId: string; teamId: string };
 }) => {
 	return (
 		<main>
 			<h1 className="mb-8">Upload Module</h1>
-			<UploadForm courseId={courseId} />
+			<UploadForm courseId={courseId} teamId={teamId} />
 		</main>
 	);
 };

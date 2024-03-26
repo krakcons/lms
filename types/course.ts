@@ -20,7 +20,7 @@ export type SelectCourse = z.infer<typeof SelectCourseSchema>;
 export const CreateCourseSchema = createInsertSchema(courses, {
 	name: z.string().min(1, "Course name must be at least 1 character"),
 }).omit({
-	userId: true,
+	teamId: true,
 });
 export type CreateCourse = z.infer<typeof CreateCourseSchema>;
 

@@ -1,14 +1,14 @@
 import { lucia } from "@/server/auth/lucia";
 import { db } from "@/server/db/db";
 import { keys } from "@/server/db/schema";
-import { User } from "@/types/users";
 import { eq } from "drizzle-orm";
 import { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
+import { getTeam } from "../actions/auth";
 
 export const authedMiddleware: MiddlewareHandler<{
 	Variables: {
-		user: User;
+		teamId: string;
 	};
 }> = async (c, next) => {
 	const apiKey = c.req.header("x-api-key");
@@ -17,13 +17,10 @@ export const authedMiddleware: MiddlewareHandler<{
 	if (apiKey) {
 		const key = await db.query.keys.findFirst({
 			where: eq(keys.key, apiKey),
-			with: {
-				user: true,
-			},
 		});
 
 		if (key) {
-			c.set("user", key.user);
+			c.set("teamId", key.teamId);
 			return await next();
 		}
 	} else if (sessionId) {
@@ -33,7 +30,14 @@ export const authedMiddleware: MiddlewareHandler<{
 			return c.text("Invalid session", 401);
 		}
 
-		c.set("user", user.user);
+		// TODO: Identify the current team
+		const team = await getTeam("personal", user.user.id);
+
+		if (!team) {
+			return c.text("Invalid team", 401);
+		}
+
+		c.set("teamId", team.id);
 
 		return await next();
 	} else {

@@ -15,9 +15,7 @@ export const SelectModuleSchema = ModuleSchema.pick({
 });
 export type SelectModule = z.infer<typeof SelectModuleSchema>;
 
-export const UploadModuleSchema = createInsertSchema(modules).omit({
-	userId: true,
-});
+export const UploadModuleSchema = createInsertSchema(modules);
 export type UploadModule = z.infer<typeof UploadModuleSchema>;
 
 export const UpdateModuleSchema = ModuleSchema.pick({

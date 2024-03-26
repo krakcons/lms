@@ -1,122 +1,34 @@
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Link, redirect } from "@/lib/navigation";
+import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
-import { collections, courses } from "@/server/db/schema";
+import { teams, usersToTeams } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
-import { Plus } from "lucide-react";
-import CreateCourseForm from "./CreateCourseForm";
 
 const Page = async () => {
 	const { user } = await getAuth();
-
 	if (!user) {
 		return redirect("/auth/google");
 	}
 
-	const courseList = await db.query.courses.findMany({
-		where: eq(courses.userId, user.id),
-	});
-
-	const collectionList = await db.query.collections.findMany({
-		where: eq(collections.userId, user.id),
+	let id;
+	const team = await db.query.teams.findFirst({
 		with: {
-			collectionsToCourses: {
-				with: {
-					course: true,
-				},
+			usersToTeams: {
+				where: eq(usersToTeams.userId, user.id),
 			},
 		},
 	});
+	id = team?.id;
 
-	return (
-		<>
-			<h1 className="mb-6">Courses</h1>
-			<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button
-							variant="outline"
-							className="flex h-32 flex-col"
-						>
-							<div className="flex flex-col items-center justify-center gap-4">
-								<Plus size={24} />
-								Create Course
-							</div>
-						</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<DialogTitle>Create Course</DialogTitle>
-						<CreateCourseForm />
-					</DialogContent>
-				</Dialog>
-				{courseList?.map((course) => (
-					<Link
-						href={`/dashboard/courses/${course.id}`}
-						key={course.id}
-						className={buttonVariants({
-							variant: "outline",
-							className: "relative h-32 w-full gap-4 p-4",
-						})}
-					>
-						<p className="truncate text-center">{course.name}</p>
-						<Badge variant="outline" className="absolute top-2">
-							Free
-						</Badge>
-					</Link>
-				))}
-			</div>
-			<h1 className="mb-6 mt-12">Collections</h1>
-			<p className="mb-2 font-semibold text-blue-300">
-				Volunteer Onboarding
-			</p>
-			<div className="flex flex-col rounded-xl border border-blue-400 p-3">
-				<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button
-								variant="outline"
-								className="flex h-32 flex-col"
-							>
-								<div className="flex flex-col items-center justify-center gap-4">
-									<Plus size={24} />
-									Add Course
-								</div>
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogTitle>Add Course</DialogTitle>
-							{/* <CreateCourseForm /> */}
-						</DialogContent>
-					</Dialog>
-					{courseList?.map((course) => (
-						<Link
-							href={`/dashboard/courses/${course.id}`}
-							key={course.id}
-							className={buttonVariants({
-								variant: "outline",
-								className: "relative h-32 w-full gap-4 p-4",
-							})}
-						>
-							<p className="truncate text-center">
-								{course.name}
-							</p>
-							<Badge variant="outline" className="absolute top-2">
-								Free
-							</Badge>
-						</Link>
-					))}
-				</div>
-			</div>
-		</>
-	);
+	if (!team) {
+		await db.insert(teams).values({
+			id: user.id,
+			name: "Personal",
+		});
+		id = "personal";
+	}
+
+	return redirect(`/dashboard/${id}`);
 };
 
 export default Page;

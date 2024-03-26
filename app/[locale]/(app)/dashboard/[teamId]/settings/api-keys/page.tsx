@@ -8,6 +8,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { redirect } from "@/lib/navigation";
+import { getTeam } from "@/server/actions/auth";
 import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
 import { keys } from "@/server/db/schema";
@@ -15,16 +16,24 @@ import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 import { APIKeyCell, AddKeyDialog, DeleteKeyButton } from "./client";
 
-const Keys = async () => {
+const Keys = async ({ teamId }: { teamId: string }) => {
 	const { user } = await getAuth();
 
 	if (!user) {
 		return redirect("/auth/google");
 	}
 
+	const team = await getTeam(teamId, user.id);
+
+	if (!team) {
+		return redirect("/404");
+	}
+
 	const keysList = await db.query.keys.findMany({
-		where: eq(keys.userId, user.id),
+		where: eq(keys.teamId, team.id),
 	});
+
+	console.log("keysList", keysList);
 
 	return (
 		<TableBody>
@@ -43,7 +52,7 @@ const Keys = async () => {
 	);
 };
 
-const Page = async () => {
+const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 	return (
 		<>
 			<div className="flex items-center justify-between">
@@ -64,7 +73,7 @@ const Page = async () => {
 					</TableRow>
 				</TableHeader>
 				<Suspense>
-					<Keys />
+					<Keys teamId={teamId} />
 				</Suspense>
 			</Table>
 		</>

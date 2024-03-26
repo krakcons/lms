@@ -23,7 +23,6 @@ import { formatBytes } from "@/lib/helpers";
 import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { uploadModuleAction } from "@/server/actions/module";
 import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -86,7 +85,13 @@ const Dropzone = ({
 	);
 };
 
-const UploadForm = ({ courseId }: { courseId: string }) => {
+const UploadForm = ({
+	courseId,
+	teamId,
+}: {
+	courseId: string;
+	teamId: string;
+}) => {
 	const router = useRouter();
 
 	const form = useForm<{
@@ -117,16 +122,10 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 		mutationFn: async (input: UploadModule) => {
 			const course = await JSZip.loadAsync(file);
 
-			const moduleId = input.id ?? crypto.randomUUID();
-
-			const { data, serverError } = await uploadModuleAction({
-				...input,
-				id: moduleId,
+			const res = await client.api.modules.$post({
+				json: { ...input },
 			});
-
-			if (serverError) {
-				throw new Error(serverError);
-			}
+			const moduleId = (await res.json()).id;
 
 			const results = await Promise.allSettled(
 				Object.keys(course.files).map(async (path, index) => {
@@ -148,8 +147,6 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 				})
 			);
 
-			console.log(results);
-
 			const failed = results.some(
 				(result) => result.status === "rejected"
 			);
@@ -160,8 +157,6 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 				});
 				throw new Error("Failed to upload module");
 			}
-
-			return data;
 		},
 		onMutate: () => {
 			toast("Uploading...", {
@@ -172,7 +167,7 @@ const UploadForm = ({ courseId }: { courseId: string }) => {
 			toast("Upload Successful", {
 				description: "Your file has been uploaded",
 			});
-			router.push(`/dashboard/courses/${courseId}/modules`);
+			router.push(`/dashboard/${teamId}/courses/${courseId}/modules`);
 			router.refresh();
 		},
 		onError: (err: any) => {

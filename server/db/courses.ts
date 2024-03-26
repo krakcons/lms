@@ -7,16 +7,16 @@ import { db } from "./db";
 import { courses, learners, modules } from "./schema";
 
 export const coursesData = {
-	create: async (course: CreateCourse, userId: string) => {
+	create: async (course: CreateCourse, teamId: string) => {
 		const c = await db
 			.insert(courses)
-			.values({ ...course, userId })
+			.values({ ...course, teamId })
 			.returning();
 		return c[0];
 	},
-	get: cache(async ({ id }: SelectCourse, userId: string) => {
+	get: cache(async ({ id }: SelectCourse, teamId: string) => {
 		const course = await db.query.courses.findFirst({
-			where: and(eq(courses.id, id), eq(courses.userId, userId)),
+			where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
 		});
 
 		if (!course) {
@@ -28,14 +28,14 @@ export const coursesData = {
 
 		return course;
 	}),
-	update: async (newCourse: UpdateCourse, userId: string) => {
-		const course = await coursesData.get({ id: newCourse.id }, userId);
+	update: async (newCourse: UpdateCourse, teamId: string) => {
+		const course = await coursesData.get({ id: newCourse.id }, teamId);
 
 		await db
 			.update(courses)
 			.set(newCourse)
 			.where(
-				and(eq(courses.id, newCourse.id), eq(courses.userId, userId))
+				and(eq(courses.id, newCourse.id), eq(courses.teamId, teamId))
 			);
 
 		return {
@@ -43,12 +43,12 @@ export const coursesData = {
 			...newCourse,
 		};
 	},
-	delete: async ({ id }: SelectCourse, userId: string) => {
-		const course = await coursesData.get({ id }, userId);
+	delete: async ({ id }: SelectCourse, teamId: string) => {
+		const course = await coursesData.get({ id }, teamId);
 
 		await db
 			.delete(courses)
-			.where(and(eq(courses.id, course.id), eq(courses.userId, userId)));
+			.where(and(eq(courses.id, course.id), eq(courses.teamId, teamId)));
 
 		const modulesList = await db.query.modules.findMany({
 			where: eq(courses.id, course.id),
@@ -62,15 +62,15 @@ export const coursesData = {
 
 		await deleteFolder(`courses/${course.id}`);
 	},
-	getAll: cache(async (_: undefined, userId: string) => {
+	getAll: cache(async (_: undefined, teamId: string) => {
 		return await db.query.courses.findMany({
-			where: eq(courses.userId, userId),
+			where: eq(courses.teamId, teamId),
 		});
 	}),
 	getCourseWithModules: cache(
-		async ({ id }: SelectCourse, userId: string) => {
+		async ({ id }: SelectCourse, teamId: string) => {
 			return await db.query.courses.findFirst({
-				where: and(eq(courses.id, id), eq(courses.userId, userId)),
+				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
 				with: {
 					modules: {
 						with: {

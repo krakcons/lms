@@ -12,8 +12,8 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
+import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
-import { deleteCourseAction } from "@/server/actions/course";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -25,7 +25,7 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 	const router = useRouter();
 
 	const { mutate } = useMutation({
-		mutationFn: deleteCourseAction,
+		mutationFn: client.api.courses[":id"].$delete,
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();
@@ -59,7 +59,7 @@ const DeleteCourseDialog = ({ courseId }: Props) => {
 					<AlertDialogAction
 						onClick={() =>
 							mutate({
-								id: courseId,
+								param: { id: courseId },
 							})
 						}
 					>

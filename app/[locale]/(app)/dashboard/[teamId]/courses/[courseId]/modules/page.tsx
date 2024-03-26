@@ -16,9 +16,9 @@ import { redirect } from "next/navigation";
 import DeleteModule from "./DeleteModule";
 
 const Page = async ({
-	params: { courseId },
+	params: { courseId, teamId },
 }: {
-	params: { courseId: string };
+	params: { courseId: string; teamId: string };
 }) => {
 	const { user } = await getAuth();
 
@@ -41,7 +41,7 @@ const Page = async ({
 					</p>
 				</div>
 				<Link
-					href={`/dashboard/courses/${courseId}/modules/create`}
+					href={`/dashboard/${teamId}/courses/${courseId}/modules/create`}
 					className={buttonVariants({
 						variant: "outline",
 						className: "flex items-center gap-2",

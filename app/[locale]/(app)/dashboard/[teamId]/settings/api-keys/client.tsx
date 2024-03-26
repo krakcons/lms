@@ -17,8 +17,9 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { createKey, deleteKey } from "@/server/actions/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Clipboard, Eye, EyeOff, Plus, Trash } from "lucide-react";
@@ -32,6 +33,7 @@ const AddKeyFormSchema = z.object({
 type AddKeyForm = z.infer<typeof AddKeyFormSchema>;
 
 export const AddKeyDialog = () => {
+	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const form = useForm({
 		resolver: zodResolver(AddKeyFormSchema),
@@ -40,15 +42,18 @@ export const AddKeyDialog = () => {
 		},
 	});
 	const { mutate } = useMutation({
-		mutationFn: createKey,
+		mutationFn: client.api.keys.$post,
 		onSuccess: () => {
 			setOpen(false);
 			form.reset();
+			router.refresh();
 		},
 	});
 
 	const onSubmit = (data: AddKeyForm) => {
-		mutate(data);
+		mutate({
+			json: data,
+		});
 	};
 
 	return (
@@ -95,12 +100,20 @@ export const AddKeyDialog = () => {
 };
 
 export const DeleteKeyButton = ({ id }: { id: string }) => {
+	const router = useRouter();
 	const { mutate } = useMutation({
-		mutationFn: deleteKey,
+		mutationFn: client.api.keys[":id"].$delete,
+		onSettled: () => {
+			router.refresh();
+		},
 	});
 
 	return (
-		<Button variant="outline" size="icon" onClick={() => mutate({ id })}>
+		<Button
+			variant="outline"
+			size="icon"
+			onClick={() => mutate({ param: { id } })}
+		>
 			<Trash size={20} />
 		</Button>
 	);

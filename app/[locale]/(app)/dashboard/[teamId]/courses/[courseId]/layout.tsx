@@ -6,43 +6,36 @@ import { LCDSError } from "@/server/errors";
 import { File, Home, Settings, Users, Webhook } from "lucide-react";
 import { notFound } from "next/navigation";
 
-const items = [
-	{
-		href: "/dashboard/courses/:courseId",
-		title: "Home",
-	},
-];
-
 const Layout = async ({
 	children,
-	params: { courseId },
+	params: { courseId, teamId },
 }: {
 	children: React.ReactNode;
-	params: { courseId: string };
+	params: { courseId: string; teamId: string };
 }) => {
 	const items = [
 		{
-			href: `/dashboard/courses/${courseId}`,
+			href: `/dashboard/${teamId}/courses/${courseId}`,
 			title: "Home",
 			icon: <Home size={18} />,
 		},
 		{
-			href: `/dashboard/courses/${courseId}/learners`,
+			href: `/dashboard/${teamId}/courses/${courseId}/learners`,
 			title: "Learners",
 			icon: <Users size={18} />,
 		},
 		{
-			href: `/dashboard/courses/${courseId}/modules`,
+			href: `/dashboard/${teamId}/courses/${courseId}/modules`,
 			title: "Modules",
 			icon: <File size={18} />,
 		},
 		{
-			href: `/dashboard/courses/${courseId}/webhooks`,
+			href: `/dashboard/${teamId}/courses/${courseId}/webhooks`,
 			title: "Webhooks",
 			icon: <Webhook size={18} />,
 		},
 		{
-			href: `/dashboard/courses/${courseId}/settings`,
+			href: `/dashboard/${teamId}/courses/${courseId}/settings`,
 			title: "Settings",
 			icon: <Settings size={18} />,
 		},

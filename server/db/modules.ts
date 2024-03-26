@@ -5,11 +5,9 @@ import { db } from "./db";
 import { modules } from "./schema";
 
 export const modulesData = {
-	get: async ({ id }: SelectCourse, userId?: string) => {
-		const authed = userId ? eq(modules.userId, userId) : undefined;
-
+	get: async ({ id }: SelectCourse) => {
 		const courseModule = await db.query.modules.findFirst({
-			where: and(eq(modules.id, id), authed),
+			where: eq(modules.id, id),
 		});
 
 		if (!courseModule) {
@@ -22,7 +20,7 @@ export const modulesData = {
 	},
 	getLearners: async ({ id }: { id: string }, userId: string) => {
 		return await db.query.learners.findMany({
-			where: and(eq(modules.id, id), eq(modules.userId, userId)),
+			where: and(eq(modules.id, id)),
 		});
 	},
 };

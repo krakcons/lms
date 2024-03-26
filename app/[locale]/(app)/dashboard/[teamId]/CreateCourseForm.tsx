@@ -10,9 +10,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createCourseAction } from "@/server/actions/course";
+import { client } from "@/lib/api";
 import { CreateCourse, CreateCourseSchema } from "@/types/course";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
 const CreateCourseForm = () => {
@@ -25,9 +26,15 @@ const CreateCourseForm = () => {
 		},
 	});
 
+	const { mutate } = useMutation({
+		mutationFn: client.api.courses.$post,
+	});
+
 	// 2. Define a submit handler.
 	const onSubmit = (values: CreateCourse) => {
-		createCourseAction(values);
+		mutate({
+			json: values,
+		});
 	};
 
 	return (

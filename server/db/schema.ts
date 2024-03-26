@@ -19,22 +19,57 @@ export const users = pgTable("users", {
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
+	usersToTeams: many(usersToTeams),
+}));
+
+export const teams = pgTable("teams", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+});
+
+export const teamRelations = relations(teams, ({ many }) => ({
+	usersToTeams: many(usersToTeams),
 	courses: many(courses),
 	keys: many(keys),
 }));
 
+export const usersToTeams = pgTable(
+	"users_to_teams",
+	{
+		userId: text("userId").notNull(),
+		teamId: text("teamId").notNull(),
+	},
+	(t) => ({
+		pk: primaryKey({
+			columns: [t.userId, t.teamId],
+		}),
+	})
+);
+
+export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
+	user: one(users, {
+		fields: [usersToTeams.userId],
+		references: [users.id],
+	}),
+	team: one(teams, {
+		fields: [usersToTeams.teamId],
+		references: [teams.id],
+	}),
+}));
+
 export const keys = pgTable("keys", {
-	id: text("id").primaryKey(),
-	userId: text("userId").notNull(),
+	id: text("id")
+		.primaryKey()
+		.$default(() => generateId(15)),
+	teamId: text("teamId").notNull(),
 	name: text("name").notNull(),
 	key: text("key").notNull(),
 });
 
 export const keysRelations = relations(keys, ({ one }) => ({
-	user: one(users, {
-		fields: [keys.userId],
-		references: [users.id],
-		relationName: "user",
+	team: one(teams, {
+		fields: [keys.teamId],
+		references: [teams.id],
 	}),
 }));
 
@@ -57,16 +92,15 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 
 export const collections = pgTable("collections", {
 	id: text("id").primaryKey().notNull(),
-	userId: text("userId").notNull(),
+	teamId: text("teamId").notNull(),
 	name: text("name").notNull(),
 	description: text("description").notNull(),
 });
 
 export const collectionsRelations = relations(collections, ({ one, many }) => ({
-	user: one(users, {
-		fields: [collections.userId],
-		references: [users.id],
-		relationName: "user",
+	team: one(teams, {
+		fields: [collections.teamId],
+		references: [teams.id],
 	}),
 	collectionsToCourses: many(collectionsToCourses),
 }));
@@ -103,16 +137,15 @@ export const courses = pgTable("courses", {
 		.primaryKey()
 		.notNull()
 		.$default(() => generateId(15)),
-	userId: text("userId").notNull(),
+	teamId: text("teamId").notNull(),
 	name: text("name").notNull(),
 	description: text("description").notNull(),
 });
 
 export const coursesRelations = relations(courses, ({ one, many }) => ({
-	user: one(users, {
-		fields: [courses.userId],
-		references: [users.id],
-		relationName: "user",
+	team: one(teams, {
+		fields: [courses.teamId],
+		references: [teams.id],
 	}),
 	collectionsToCourses: many(collectionsToCourses),
 	modules: many(modules),
@@ -126,7 +159,6 @@ export const modules = pgTable(
 			.notNull()
 			.$default(() => generateId(15)),
 		courseId: text("courseId").notNull(),
-		userId: text("userId").notNull(),
 		language: text("language").notNull(),
 		type: moduleTypeEnum("type").notNull(),
 	},
@@ -136,10 +168,6 @@ export const modules = pgTable(
 );
 
 export const modulesRelations = relations(modules, ({ many, one }) => ({
-	user: one(users, {
-		fields: [modules.userId],
-		references: [users.id],
-	}),
 	course: one(courses, {
 		fields: [modules.courseId],
 		references: [courses.id],
