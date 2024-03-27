@@ -19,7 +19,7 @@ export default async function middleware(req: NextRequest) {
 		const team = await db.query.teams.findFirst({
 			where: eq(teams.customDomain, hostname),
 		});
-		req.nextUrl.pathname = `/play/${team?.id}`;
+		req.nextUrl.pathname = `/play/${team?.id}${path}`;
 	}
 
 	// Remove https

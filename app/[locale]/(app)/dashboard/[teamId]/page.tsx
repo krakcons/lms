@@ -49,7 +49,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 					</DialogTrigger>
 					<DialogContent>
 						<DialogTitle>Create Course</DialogTitle>
-						<CreateCourseForm />
+						<CreateCourseForm teamId={teamId} />
 					</DialogContent>
 				</Dialog>
 				{courseList?.map((course) => (
