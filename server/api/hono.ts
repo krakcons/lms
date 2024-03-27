@@ -15,11 +15,9 @@ const app = new Hono()
 			origin: "*",
 			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 			allowHeaders: ["x-api-key", "Content-Type"],
+			maxAge: 600,
 		})
 	)
-	.options("*", (c) => {
-		return c.text("", 204);
-	})
 	.route("/learners", learnersHandler)
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)
