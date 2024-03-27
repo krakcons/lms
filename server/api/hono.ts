@@ -17,6 +17,9 @@ const app = new Hono()
 			allowHeaders: ["x-api-key", "Content-Type"],
 		})
 	)
+	.options("*", (c) => {
+		return c.text("", 204);
+	})
 	.route("/learners", learnersHandler)
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)
