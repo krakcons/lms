@@ -44,7 +44,6 @@ const Page = async ({
 					href={`/dashboard/${teamId}/courses/${courseId}/modules/create`}
 					className={buttonVariants({
 						variant: "outline",
-						className: "flex items-center gap-2",
 					})}
 				>
 					Add Module

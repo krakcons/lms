@@ -14,7 +14,7 @@ const InviteLearnerDialog = ({ moduleId }: { moduleId: string }) => {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button className="gap-2">
+				<Button>
 					<UserPlus size={18} />
 					Invite Learner
 				</Button>

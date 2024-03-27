@@ -59,7 +59,7 @@ export const AddKeyDialog = () => {
 	return (
 		<Dialog onOpenChange={setOpen} open={open}>
 			<DialogTrigger asChild>
-				<Button className="gap-2">
+				<Button>
 					<Plus size={16} />
 					Create Key
 				</Button>

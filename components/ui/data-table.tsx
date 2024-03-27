@@ -92,7 +92,7 @@ export const DataTable = <TData, TValue>({
 					<ExportCSVButton data={data} filename={name} />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="outline" className="gap-2">
+							<Button variant="outline">
 								<Sliders size={16} />
 								Filter
 							</Button>

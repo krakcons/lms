@@ -22,7 +22,6 @@ import { useRouter } from "@/lib/navigation";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -123,10 +122,7 @@ const InviteLearnerForm = ({
 							</FormItem>
 						)}
 					/>
-					<Button type="submit">
-						{isPending && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
+					<Button type="submit" isPending={isPending}>
 						Submit
 					</Button>
 				</form>

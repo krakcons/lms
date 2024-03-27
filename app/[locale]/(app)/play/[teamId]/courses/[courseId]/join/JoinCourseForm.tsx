@@ -16,7 +16,6 @@ import { useRouter } from "@/lib/navigation";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -118,10 +117,11 @@ export const JoinCourseForm = ({
 					)}
 				/>
 				<div className="flex gap-3">
-					<Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-						{form.formState.isSubmitted && isPending && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
+					<Button
+						type="submit"
+						onClick={form.handleSubmit(onSubmit)}
+						isPending={form.formState.isSubmitted && isPending}
+					>
 						{text.submit}
 					</Button>
 				</div>

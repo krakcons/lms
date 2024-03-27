@@ -32,8 +32,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
 						buttonVariants({ variant: "ghost" }),
 						pathname === href
 							? "bg-muted hover:bg-muted"
-							: "hover:bg-transparent hover:underline",
-						"items-center justify-start gap-2"
+							: "hover:bg-transparent hover:underline"
 					)}
 				>
 					{icon}

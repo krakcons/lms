@@ -15,7 +15,6 @@ import { useRouter } from "@/lib/navigation";
 import { Team, validDomainSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -58,7 +57,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 				<FormField
 					control={form.control}
 					name="customDomain"
@@ -66,26 +65,18 @@ const DomainForm = ({ team }: { team: Team }) => {
 						<FormItem>
 							<FormLabel>Custom Domain</FormLabel>
 							<FormControl>
-								<div className="flex items-center gap-2">
-									<Input
-										placeholder="Enter domain in format (example.com)"
-										{...field}
-									/>
-									<Button type="submit" className="gap-2">
-										{isPending && (
-											<Loader2
-												size={20}
-												className="animate-spin"
-											/>
-										)}
-										Submit
-									</Button>
-								</div>
+								<Input
+									placeholder="Enter domain in format (example.com)"
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
+				<Button type="submit" isPending={isPending}>
+					Submit
+				</Button>
 			</form>
 		</Form>
 	);

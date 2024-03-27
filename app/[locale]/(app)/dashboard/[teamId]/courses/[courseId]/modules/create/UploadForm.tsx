@@ -28,7 +28,7 @@ import { UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
-import { Loader2, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import mime from "mime-types";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
@@ -303,10 +303,8 @@ const UploadForm = ({
 						className="mr-4 mt-8"
 						type="submit"
 						disabled={!file}
+						isPending={isPending}
 					>
-						{isPending && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
 						Upload
 					</Button>
 					<Button

@@ -21,7 +21,7 @@ const ExportCSVButton = ({
 	};
 
 	return (
-		<Button variant="outline" className="gap-2" onClick={downloadCSV}>
+		<Button variant="outline" onClick={downloadCSV}>
 			<Download size={18} />
 			Export
 		</Button>
