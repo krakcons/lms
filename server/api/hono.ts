@@ -13,7 +13,7 @@ const app = new Hono()
 	.use(
 		cors({
 			origin: "*",
-			allowHeaders: ["x-api-key"],
+			allowHeaders: ["x-api-key", "Content-Type"],
 			credentials: true,
 		})
 	)
