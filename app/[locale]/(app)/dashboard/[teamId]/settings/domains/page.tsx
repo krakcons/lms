@@ -270,7 +270,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 											Value
 										</p>
 										<p className="mt-2 font-mono text-sm">
-											cname.{env.NEXT_PUBLIC_ROOT_DOMAIN}
+											cname.vercel-dns.com.
 										</p>
 									</div>
 									<div>
