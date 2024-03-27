@@ -25,6 +25,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const teams = pgTable("teams", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
+	customDomain: text("customDomain").unique(),
 });
 
 export const teamRelations = relations(teams, ({ many }) => ({
