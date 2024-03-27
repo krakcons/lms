@@ -93,10 +93,6 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	const recordType: "A" | "CNAME" = "A";
 
-	if (status === "Domain Not Found") {
-		return null;
-	}
-
 	if (status === "Valid Configuration") {
 		return (
 			<div>
@@ -325,7 +321,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
-			<DomainStatus team={team} />
+			{team.customDomain && <DomainStatus team={team} />}
 		</div>
 	);
 };
