@@ -19,9 +19,11 @@ export const env = createEnv({
 	client: {
 		NEXT_PUBLIC_SITE_URL: z.string().url(),
 		NEXT_PUBLIC_R2_URL: z.string().min(1),
+		NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(1),
 	},
 	experimental__runtimeEnv: {
 		NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 		NEXT_PUBLIC_R2_URL: process.env.NEXT_PUBLIC_R2_URL,
+		NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
 	},
 });
