@@ -93,6 +93,10 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	const recordType: "A" | "CNAME" = "A";
 
+	if (status === "Domain Not Found") {
+		return null;
+	}
+
 	if (status === "Valid Configuration") {
 		return (
 			<div>
@@ -119,6 +123,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	return (
 		<div>
+			<Separator className="my-8" />
 			<div className="mb-4 flex items-center space-x-2">
 				{status === "Pending Verification" ? (
 					<AlertCircle
@@ -319,7 +324,6 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
-			<Separator className="my-8" />
 			<DomainStatus team={team} />
 		</div>
 	);
