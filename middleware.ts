@@ -7,7 +7,6 @@ import { db } from "./server/db/db";
 import { teams } from "./server/db/schema";
 
 export default async function middleware(req: NextRequest) {
-	const url = req.nextUrl;
 	let hostname = req.headers.get("host");
 	const [, locale, ...segments] = req.nextUrl.pathname.split("/");
 
@@ -19,7 +18,7 @@ export default async function middleware(req: NextRequest) {
 		const team = await db.query.teams.findFirst({
 			where: eq(teams.customDomain, hostname),
 		});
-		req.nextUrl.pathname = `/${locale}/play/${team?.id}${segments.join("/")}`;
+		req.nextUrl.pathname = `/${locale}/play/${team?.id}/${segments.join("/")}`;
 	}
 
 	const handleI18nRouting = createIntlMiddleware({
