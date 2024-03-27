@@ -19,8 +19,8 @@ app.use(logger());
 app.use(
 	cors({
 		origin: "*",
-		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		allowHeaders: ["*"],
+		allowHeaders: ["x-api-key"],
+		credentials: true,
 	})
 );
 
