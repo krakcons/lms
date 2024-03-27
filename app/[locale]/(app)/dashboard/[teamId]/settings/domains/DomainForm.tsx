@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { Team, validDomainSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -25,6 +26,7 @@ export const DomainFormSchema = z.object({
 export type DomainForm = z.infer<typeof DomainFormSchema>;
 
 const DomainForm = ({ team }: { team: Team }) => {
+	const router = useRouter();
 	const form = useForm<DomainForm>({
 		resolver: zodResolver(DomainFormSchema),
 		defaultValues: {
@@ -43,6 +45,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 			} else {
 				toast("Successfully updated domain");
 			}
+			router.refresh();
 		},
 	});
 

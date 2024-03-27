@@ -17,7 +17,27 @@ export const teamsHandler = new Hono()
 			const teamId = c.get("teamId");
 			const { name, customDomain } = c.req.valid("json");
 
-			if (customDomain) {
+			const team = await db.query.teams.findFirst({
+				where: eq(teams.id, teamId),
+			});
+
+			if (customDomain && team?.customDomain !== customDomain) {
+				if (team?.customDomain) {
+					const res = await fetch(
+						`https://api.vercel.com/v9/projects/${env.PROJECT_ID_VERCEL}/domains/${team.customDomain}?teamId=${env.TEAM_ID_VERCEL}`,
+						{
+							headers: {
+								Authorization: `Bearer ${env.AUTH_BEARER_TOKEN_VERCEL}`,
+							},
+							method: "DELETE",
+						}
+					);
+					if (!res.ok) {
+						throw new HTTPException(500, {
+							message: "Failed to remove domain from Vercel.",
+						});
+					}
+				}
 				const res = await fetch(
 					`https://api.vercel.com/v10/projects/${env.PROJECT_ID_VERCEL}/domains?teamId=${env.TEAM_ID_VERCEL}`,
 					{
@@ -28,10 +48,6 @@ export const teamsHandler = new Hono()
 						},
 						body: JSON.stringify({
 							name: customDomain,
-							// TODO: Redirect www. to root domain
-							// ...(domain.startsWith("www.") && {
-							//   redirect: domain.replace("www.", ""),
-							// }),
 						}),
 					}
 				);
@@ -41,8 +57,6 @@ export const teamsHandler = new Hono()
 						message: "Failed to add domain to Vercel.",
 					});
 				}
-
-				// TODO: Remove domain from Vercel if new one is added
 			}
 
 			await db

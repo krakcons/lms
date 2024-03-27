@@ -5,7 +5,7 @@ import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { getTeam } from "@/server/actions/auth";
 import { getAuth } from "@/server/actions/cached";
-import { DomainVerificationStatusProps } from "@/types/domain";
+import { DomainResponse, DomainVerificationStatusProps } from "@/types/domain";
 import { Team } from "@/types/team";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import DomainForm from "./DomainForm";
@@ -37,7 +37,9 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 			},
 		}
 	);
-	const domainJson = await domainRes.json();
+	const domainJson = (await domainRes.json()) as DomainResponse & {
+		error: { code: string; message: string };
+	};
 
 	const configRes = await fetch(
 		`https://api.vercel.com/v6/domains/${team.customDomain}/config?teamId=${process.env.TEAM_ID_VERCEL}`,
@@ -107,6 +109,14 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 		);
 	}
 
+	const subdomain =
+		domainJson.name === domainJson.apexName
+			? null
+			: domainJson.name.slice(
+					0,
+					domainJson.name.length - domainJson.apexName.length - 1
+				);
+
 	return (
 		<div>
 			<div className="mb-4 flex items-center space-x-2">
@@ -175,13 +185,13 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 				</p>
 			) : (
 				<>
-					<Tabs defaultValue="a">
+					<Tabs defaultValue={subdomain ? "cname" : "a"}>
 						<TabsList>
 							<TabsTrigger value="a">
-								A Record (recommended)
+								A Record{!subdomain && " (recommended)"}
 							</TabsTrigger>
 							<TabsTrigger value="cname">
-								CNAME Record
+								CNAME Record{subdomain && " (recommended)"}
 							</TabsTrigger>
 						</TabsList>
 						<TabsContent value="a">
@@ -252,7 +262,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 											Name
 										</p>
 										<p className="mt-2 font-mono text-sm">
-											content
+											{subdomain ?? "www"}
 										</p>
 									</div>
 									<div>
@@ -260,7 +270,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 											Value
 										</p>
 										<p className="mt-2 font-mono text-sm">
-											cname.krakconsultants.com
+											cname.{env.NEXT_PUBLIC_ROOT_DOMAIN}
 										</p>
 									</div>
 									<div>
