@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { coursesHandler } from "./handlers/courses";
 import { keysHandler } from "./handlers/keys";
@@ -15,5 +16,6 @@ export const app = new Hono()
 	.route("/teams", teamsHandler);
 
 app.use(logger());
+app.use(cors());
 
 export type AppType = typeof app;
