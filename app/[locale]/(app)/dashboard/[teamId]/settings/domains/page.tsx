@@ -100,6 +100,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 	if (status === "Valid Configuration") {
 		return (
 			<div>
+				<Separator className="my-8" />
 				<div className="mb-4 flex items-center space-x-2">
 					<CheckCircle size={20} />
 					<p className="text-lg font-semibold dark:text-white">
