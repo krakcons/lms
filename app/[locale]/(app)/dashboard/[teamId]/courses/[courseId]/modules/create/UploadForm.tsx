@@ -132,7 +132,7 @@ const UploadForm = ({
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const url = await getPresignedUrl(
-						`courses/${courseId}/${input.language}/${path}`
+						`${teamId}/courses/${courseId}/${input.language}/${path}`
 					);
 
 					await fetch(url, {

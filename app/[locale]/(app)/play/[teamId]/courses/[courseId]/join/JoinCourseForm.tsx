@@ -23,10 +23,12 @@ import { toast } from "sonner";
 export const JoinCourseForm = ({
 	courseId,
 	moduleId,
+	teamId,
 	text,
 }: {
 	moduleId: string;
 	courseId: string;
+	teamId: string;
 	text: {
 		firstName: string;
 		lastName: string;
@@ -40,7 +42,9 @@ export const JoinCourseForm = ({
 		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: async (res) => {
 			const data = await res.json();
-			router.push(`/play/${courseId}?learnerId=${data?.id}`);
+			router.push(
+				`/play/${teamId}/courses/${courseId}?learnerId=${data?.id}`
+			);
 		},
 		onError: (err) => {
 			form.setError("root", {

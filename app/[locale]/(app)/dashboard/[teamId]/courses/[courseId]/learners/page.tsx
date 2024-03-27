@@ -2,6 +2,8 @@ import CopyButton from "@/components/CopyButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
+import { redirect } from "@/lib/navigation";
+import { getTeam } from "@/server/actions/auth";
 import { getAuth } from "@/server/actions/cached";
 import { db } from "@/server/db/db";
 import { modules } from "@/server/db/schema";
@@ -35,10 +37,22 @@ const Table = async ({ courseId }: { courseId: string }) => {
 };
 
 const Page = async ({
-	params: { courseId },
+	params: { courseId, teamId },
 }: {
-	params: { courseId: string };
+	params: { courseId: string; teamId: string };
 }) => {
+	const { user } = await getAuth();
+
+	if (!user) {
+		return redirect("/auth/google");
+	}
+
+	const team = await getTeam(teamId, user.id);
+
+	if (!team) {
+		return redirect("/dashboard");
+	}
+
 	return (
 		<main>
 			<div className="flex items-center justify-between">
@@ -59,10 +73,18 @@ const Page = async ({
 					})}
 				>
 					<p className="truncate text-sm text-muted-foreground">
-						{env.NEXT_PUBLIC_SITE_URL}/play/{courseId}/join
+						{team.customDomain
+							? `https://${team.customDomain}/courses/${courseId}/join`
+							: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join
+						`}
 					</p>
 					<CopyButton
-						text={`${env.NEXT_PUBLIC_SITE_URL}/play/${courseId}/join`}
+						text={
+							team.customDomain
+								? `https://${team.customDomain}/courses/${courseId}/join`
+								: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join
+						`
+						}
 					/>
 				</div>
 			</div>

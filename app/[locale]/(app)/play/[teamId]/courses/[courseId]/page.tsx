@@ -1,5 +1,4 @@
 import { env } from "@/env.mjs";
-import { redirect } from "@/lib/navigation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
@@ -58,16 +57,15 @@ const parseCourse = async (courseId: string, language: string) => {
 };
 
 const Page = async ({
-	params: { courseId, locale },
+	params: { courseId, locale, teamId },
 	searchParams: { learnerId },
 }: {
-	params: { courseId: string; locale: string };
+	params: { courseId: string; locale: string; teamId: string };
 	searchParams: { learnerId?: string };
 }) => {
 	unstable_noStore();
 	if (!learnerId) {
-		redirect(`/play/${courseId}/public`);
-		return;
+		throw new Error("Learner ID not found");
 	}
 
 	// Get course user
@@ -98,7 +96,7 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-					url={`/${locale}/r2/courses/${courseId}/${locale}/${resources[0].href}`}
+					url={`/${locale}/r2/${teamId}/courses/${courseId}/${locale}/${resources[0].href}`}
 				/>
 			</div>
 		</main>

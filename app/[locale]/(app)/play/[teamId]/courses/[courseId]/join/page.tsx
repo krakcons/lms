@@ -7,9 +7,9 @@ import { notFound } from "next/navigation";
 import { JoinCourseForm } from "./JoinCourseForm";
 
 const Page = async ({
-	params: { courseId, locale },
+	params: { courseId, locale, teamId },
 }: {
-	params: { courseId: string; locale: string };
+	params: { courseId: string; locale: string; teamId: string };
 }) => {
 	unstable_setRequestLocale(locale);
 	unstable_noStore();
@@ -36,6 +36,7 @@ const Page = async ({
 			<JoinCourseForm
 				moduleId={courseModule.id}
 				courseId={courseId}
+				teamId={teamId}
 				text={{
 					firstName: t("Form.learner.firstName"),
 					lastName: t("Form.learner.lastName"),

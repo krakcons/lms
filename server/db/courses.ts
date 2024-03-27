@@ -60,7 +60,7 @@ export const coursesData = {
 
 		await db.delete(modules).where(eq(courses.id, course.id));
 
-		await deleteFolder(`courses/${course.id}`);
+		await deleteFolder(`${teamId}/courses/${course.id}`);
 	},
 	getAll: cache(async (_: undefined, teamId: string) => {
 		return await db.query.courses.findMany({
