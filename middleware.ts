@@ -9,23 +9,18 @@ import { teams } from "./server/db/schema";
 export default async function middleware(req: NextRequest) {
 	const url = req.nextUrl;
 	let hostname = req.headers.get("host");
+	const [, locale, ...segments] = req.nextUrl.pathname.split("/");
 
-	const searchParams = url.searchParams.toString();
-	const path = `${url.pathname}${
-		searchParams.length > 0 ? `?${searchParams}` : ""
-	}`;
-
-	if (hostname && hostname !== env.NEXT_PUBLIC_ROOT_DOMAIN) {
+	if (
+		hostname &&
+		hostname !== env.NEXT_PUBLIC_ROOT_DOMAIN &&
+		locales.includes(locale)
+	) {
 		const team = await db.query.teams.findFirst({
 			where: eq(teams.customDomain, hostname),
 		});
-		req.nextUrl.pathname = `/play/${team?.id}${path}`;
+		req.nextUrl.pathname = `/${locale}/play/${team?.id}${segments.join("/")}`;
 	}
-
-	// Remove https
-	// Get the team id from the domain
-	// Rewrite to /play/:teamid
-	// Should show as revivios.com/courses/:courseId
 
 	const handleI18nRouting = createIntlMiddleware({
 		locales,
