@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -6,7 +7,7 @@ import { getTeam } from "@/server/actions/auth";
 import { getAuth } from "@/server/actions/cached";
 import { DomainVerificationStatusProps } from "@/types/domain";
 import { Team } from "@/types/team";
-import { AlertCircle, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import DomainForm from "./DomainForm";
 
 export const InlineSnippet = ({
@@ -17,12 +18,7 @@ export const InlineSnippet = ({
 	children: string;
 }) => {
 	return (
-		<span
-			className={cn(
-				"inline-block rounded-md bg-blue-100 px-1 py-0.5 font-mono text-blue-900 dark:bg-blue-900 dark:text-blue-100",
-				className
-			)}
-		>
+		<span className={cn("rounded border px-2 py-1", className)}>
 			{children}
 		</span>
 	);
@@ -30,7 +26,8 @@ export const InlineSnippet = ({
 
 const DomainStatus = async ({ team }: { team: Team }) => {
 	let status: DomainVerificationStatusProps = "Valid Configuration";
-	const res = await fetch(
+
+	const domainRes = await fetch(
 		`https://api.vercel.com/v9/projects/${env.PROJECT_ID_VERCEL}/domains/${team.customDomain}?teamId=${env.TEAM_ID_VERCEL}`,
 		{
 			method: "GET",
@@ -40,9 +37,9 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 			},
 		}
 	);
-	const domainJson = await res.json();
+	const domainJson = await domainRes.json();
 
-	const res2 = await fetch(
+	const configRes = await fetch(
 		`https://api.vercel.com/v6/domains/${team.customDomain}/config?teamId=${process.env.TEAM_ID_VERCEL}`,
 		{
 			method: "GET",
@@ -52,7 +49,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 			},
 		}
 	);
-	const configJson = await res2.json();
+	const configJson = await configRes.json();
 
 	if (domainJson?.error?.code === "not_found") {
 		// domain not found on Vercel project
@@ -87,8 +84,6 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 		status = "Valid Configuration";
 	}
 
-	if (!status || status === "Valid Configuration" || !domainJson) return null;
-
 	const txtVerification =
 		(status === "Pending Verification" &&
 			domainJson.verification.find((x: any) => x.type === "TXT")) ||
@@ -96,8 +91,24 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	const recordType: "A" | "CNAME" = "A";
 
+	if (status === "Valid Configuration") {
+		return (
+			<div>
+				<div className="mb-4 flex items-center space-x-2">
+					<CheckCircle size={20} />
+					<p className="text-lg font-semibold dark:text-white">
+						{status}
+					</p>
+				</div>
+				<p className="text-sm text-muted-foreground">
+					Your domain is configured correctly!
+				</p>
+			</div>
+		);
+	}
+
 	return (
-		<div className="border-t border-stone-200 px-10 pb-5 pt-7 dark:border-stone-700">
+		<div>
 			<div className="mb-4 flex items-center space-x-2">
 				{status === "Pending Verification" ? (
 					<AlertCircle
@@ -124,7 +135,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 						prove ownership of{" "}
 						<InlineSnippet>{domainJson.name}</InlineSnippet>:
 					</p>
-					<div className="my-5 flex items-start justify-start space-x-10 rounded-md bg-stone-50 p-2 dark:bg-stone-800 dark:text-white">
+					<div className="flex items-center justify-between gap-6 rounded border p-3">
 						<div>
 							<p className="text-sm font-bold">Type</p>
 							<p className="mt-2 font-mono text-sm">
@@ -164,76 +175,109 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 				</p>
 			) : (
 				<>
-					<div className="flex justify-start space-x-4">
-						<button
-							type="button"
-							// onClick={() => setRecordType("A")}
-							className={`${
-								recordType == "A"
-									? "border-black text-black dark:border-white dark:text-white"
-									: "border-white text-stone-400 dark:border-black dark:text-stone-600"
-							} ease border-b-2 pb-1 text-sm transition-all duration-150`}
-						>
-							A Record (recommended)
-						</button>
-						<button
-							type="button"
-							// onClick={() => setRecordType("CNAME")}
-							className={`${
-								// @ts-expect-error
-								recordType == "CNAME"
-									? "border-black text-black dark:border-white dark:text-white"
-									: "border-white text-stone-400 dark:border-black dark:text-stone-600"
-							} ease border-b-2 pb-1 text-sm transition-all duration-150`}
-						>
-							CNAME Record (recommended)
-						</button>
-					</div>
-					<div className="my-3 text-left">
-						<p className="my-5 text-sm dark:text-white">
-							To configure your{" "}
-							{recordType === "A" ? "apex domain" : "subdomain"} (
-							<InlineSnippet>
-								{recordType === "A"
-									? domainJson.apexName
-									: domainJson.name}
-							</InlineSnippet>
-							), set the following {recordType} record on your DNS
-							provider to continue:
-						</p>
-						<div className="flex items-center justify-start space-x-10 rounded-md bg-stone-50 p-2 dark:bg-stone-800 dark:text-white">
-							<div>
-								<p className="text-sm font-bold">Type</p>
-								<p className="mt-2 font-mono text-sm">
-									{recordType}
+					<Tabs defaultValue="a">
+						<TabsList>
+							<TabsTrigger value="a">
+								A Record (recommended)
+							</TabsTrigger>
+							<TabsTrigger value="cname">
+								CNAME Record
+							</TabsTrigger>
+						</TabsList>
+						<TabsContent value="a">
+							<div className="my-3 text-left">
+								<p className="my-5 text-sm dark:text-white">
+									To configure your apex domain (
+									<InlineSnippet>
+										{domainJson.apexName}
+									</InlineSnippet>
+									), set the following {recordType} record on
+									your DNS provider to continue:
 								</p>
+								<div className="flex items-center justify-between gap-6 rounded border p-3">
+									<div>
+										<p className="text-sm font-bold">
+											Type
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											{recordType}
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">
+											Name
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											@
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">
+											Value
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											76.76.21.21
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">TTL</p>
+										<p className="mt-2 font-mono text-sm">
+											86400
+										</p>
+									</div>
+								</div>
 							</div>
-							<div>
-								<p className="text-sm font-bold">Name</p>
-								<p className="mt-2 font-mono text-sm">
-									{recordType === "A" ? "@" : "www"}
+						</TabsContent>
+						<TabsContent value="cname">
+							<div className="my-3 text-left">
+								<p className="my-5 text-sm dark:text-white">
+									To configure your subdomain (
+									<InlineSnippet>
+										{domainJson.name}
+									</InlineSnippet>
+									), set the following {recordType} record on
+									your DNS provider to continue:
 								</p>
+								<div className="flex items-center justify-between gap-6 rounded border p-3">
+									<div>
+										<p className="text-sm font-bold">
+											Type
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											CNAME
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">
+											Name
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											content
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">
+											Value
+										</p>
+										<p className="mt-2 font-mono text-sm">
+											cname.krakconsultants.com
+										</p>
+									</div>
+									<div>
+										<p className="text-sm font-bold">TTL</p>
+										<p className="mt-2 font-mono text-sm">
+											86400
+										</p>
+									</div>
+								</div>
 							</div>
-							<div>
-								<p className="text-sm font-bold">Value</p>
-								<p className="mt-2 font-mono text-sm">
-									{recordType === "A"
-										? `76.76.21.21`
-										: `cname.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}
-								</p>
-							</div>
-							<div>
-								<p className="text-sm font-bold">TTL</p>
-								<p className="mt-2 font-mono text-sm">86400</p>
-							</div>
-						</div>
-						<p className="mt-5 text-sm dark:text-white">
-							Note: for TTL, if{" "}
-							<InlineSnippet>86400</InlineSnippet> is not
-							available, set the highest value possible. Also,
-							domain propagation can take up to an hour.
-						</p>
-					</div>
+						</TabsContent>
+					</Tabs>
+					<p className="mt-5 text-sm dark:text-white">
+						Note: for TTL, if <InlineSnippet>86400</InlineSnippet>{" "}
+						is not available, set the highest value possible. Also,
+						domain propagation can take up to an hour.
+					</p>
 				</>
 			)}
 		</div>
@@ -265,6 +309,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
+			<Separator className="my-8" />
 			<DomainStatus team={team} />
 		</div>
 	);

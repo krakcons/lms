@@ -54,7 +54,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FormField
 					control={form.control}
 					name="customDomain"
@@ -62,21 +62,26 @@ const DomainForm = ({ team }: { team: Team }) => {
 						<FormItem>
 							<FormLabel>Custom Domain</FormLabel>
 							<FormControl>
-								<Input
-									placeholder="Enter domain in format (example.com)"
-									{...field}
-								/>
+								<div className="flex items-center gap-2">
+									<Input
+										placeholder="Enter domain in format (example.com)"
+										{...field}
+									/>
+									<Button type="submit" className="gap-2">
+										{isPending && (
+											<Loader2
+												size={20}
+												className="animate-spin"
+											/>
+										)}
+										Submit
+									</Button>
+								</div>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" className="gap-2">
-					{isPending && (
-						<Loader2 size={20} className="animate-spin" />
-					)}
-					Submit
-				</Button>
 			</form>
 		</Form>
 	);
