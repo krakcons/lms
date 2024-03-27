@@ -31,10 +31,8 @@ const getAllResources = (resource: Resource | Resource[]): Resource[] => {
 	return resources;
 };
 
-const parseCourse = async (courseId: string, language: string) => {
-	const res = await fetch(
-		`${env.NEXT_PUBLIC_R2_URL}/courses/${courseId}/${language}/imsmanifest.xml`
-	);
+const parseCourse = async (url: string) => {
+	const res = await fetch(url);
 	const text = await res.text();
 
 	if (!text) throw new Error("404");
@@ -86,7 +84,9 @@ const Page = async ({
 
 	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
 
-	const { scorm, resources } = await parseCourse(courseId, locale);
+	const { scorm, resources } = await parseCourse(
+		`${env.NEXT_PUBLIC_R2_URL}/${teamId}/courses/${courseId}/${learner.module.language}/imsmanifest.xml`
+	);
 
 	console.log("URL", resources[0].href);
 

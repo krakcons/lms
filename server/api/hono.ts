@@ -16,6 +16,12 @@ export const app = new Hono()
 	.route("/teams", teamsHandler);
 
 app.use(logger());
-app.use(cors());
+app.use(
+	cors({
+		origin: "*",
+		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		allowHeaders: ["*"],
+	})
+);
 
 export type AppType = typeof app;
