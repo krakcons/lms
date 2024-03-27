@@ -12,7 +12,7 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/api";
-import { useRouter } from "@/lib/navigation";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -37,12 +37,13 @@ export const JoinCourseForm = ({
 	};
 }) => {
 	const router = useRouter();
+	const pathname = usePathname();
 	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: async (res) => {
 			const data = await res.json();
 			router.push(
-				`/play/${teamId}/courses/${courseId}?learnerId=${data?.id}`
+				`${pathname.replace("/join", "")}?learnerId=${data?.id}`
 			);
 		},
 		onError: (err) => {
