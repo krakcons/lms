@@ -11,19 +11,22 @@ const Page = async () => {
 	}
 
 	let id;
-	const team = await db.query.teams.findFirst({
+	const userToTeam = await db.query.usersToTeams.findFirst({
+		where: eq(usersToTeams.userId, user.id),
 		with: {
-			usersToTeams: {
-				where: eq(usersToTeams.userId, user.id),
-			},
+			team: true,
 		},
 	});
-	id = team?.id;
+	id = userToTeam?.team?.id;
 
-	if (!team) {
+	if (!id) {
 		await db.insert(teams).values({
 			id: user.id,
 			name: "Personal",
+		});
+		await db.insert(usersToTeams).values({
+			userId: user.id,
+			teamId: user.id,
 		});
 		id = "personal";
 	}
