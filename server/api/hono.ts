@@ -11,6 +11,7 @@ const app = new Hono()
 	.basePath("/api")
 	.use(logger())
 	.use(
+		"*",
 		cors({
 			origin: "*",
 			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -18,6 +19,7 @@ const app = new Hono()
 			maxAge: 600,
 		})
 	)
+	.options("*", (c) => c.text("", 204))
 	.route("/learners", learnersHandler)
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)
