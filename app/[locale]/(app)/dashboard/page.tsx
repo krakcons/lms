@@ -1,5 +1,5 @@
 import { redirect } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/cached";
+import { getAuth } from "@/server/actions/auth";
 import { db } from "@/server/db/db";
 import { teams, usersToTeams } from "@/server/db/schema";
 import { eq } from "drizzle-orm";

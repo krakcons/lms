@@ -9,7 +9,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { getAuth } from "@/server/actions/cached";
+import { getAuth } from "@/server/actions/auth";
 import { coursesData } from "@/server/db/courses";
 import Link from "next/link";
 import { redirect } from "next/navigation";

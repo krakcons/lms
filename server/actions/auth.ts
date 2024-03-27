@@ -1,12 +1,13 @@
 "use server";
 
 import { lucia } from "@/server/auth/lucia";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { db } from "../db/db";
-import { teams } from "../db/schema";
+import { usersToTeams } from "../db/schema";
 
-export const getAuth = async () => {
+export const getAuth = cache(async () => {
 	const sessionId = cookies().get("auth_session");
 
 	if (!sessionId?.value) {
@@ -17,7 +18,7 @@ export const getAuth = async () => {
 	}
 
 	return await lucia.validateSession(sessionId.value);
-};
+});
 
 export const logout = async () => {
 	const session = cookies().get("auth_session");
@@ -27,8 +28,15 @@ export const logout = async () => {
 	await lucia.invalidateSession(session.value);
 };
 
-export const getTeam = async (id: string, userId: string) => {
-	return await db.query.teams.findFirst({
-		where: eq(teams.id, id === "personal" ? userId : id),
+export const getTeam = cache(async (id: string, userId: string) => {
+	const userToTeam = await db.query.usersToTeams.findFirst({
+		where: and(
+			eq(usersToTeams.teamId, id === "personal" ? userId : id),
+			eq(usersToTeams.userId, userId)
+		),
+		with: {
+			team: true,
+		},
 	});
-};
+	return userToTeam?.team;
+});

@@ -9,7 +9,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { redirect } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/cached";
+import { getAuth } from "@/server/actions/auth";
 import { User as UserIcon } from "lucide-react";
 import Link from "next/link";
 

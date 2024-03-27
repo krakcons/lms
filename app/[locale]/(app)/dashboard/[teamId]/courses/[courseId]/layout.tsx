@@ -1,6 +1,6 @@
 import { SidebarNav } from "@/components/ui/sidebar";
 import { redirect } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/cached";
+import { getAuth } from "@/server/actions/auth";
 import { coursesData } from "@/server/db/courses";
 import { LCDSError } from "@/server/errors";
 import { File, Home, Settings, Users, Webhook } from "lucide-react";

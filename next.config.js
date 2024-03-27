@@ -40,10 +40,9 @@ const nextConfig = {
 			},
 		];
 	},
-	// Need to fix 404 on courses
-	// experimental: {
-	// ppr: true,
-	// },
+	experimental: {
+		ppr: true,
+	},
 };
 
 module.exports = withNextIntl(nextConfig);
