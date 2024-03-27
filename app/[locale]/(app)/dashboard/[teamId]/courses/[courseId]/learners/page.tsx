@@ -14,6 +14,20 @@ import LearnersTable from "./LearnersTable";
 
 export const runtime = "nodejs";
 
+const CopyText = async ({ text }: { text: string }) => {
+	return (
+		<div
+			className={buttonVariants({
+				variant: "secondary",
+				className: "flex-1 justify-between gap-3",
+			})}
+		>
+			<p className="truncate text-sm text-muted-foreground">{text}</p>
+			<CopyButton text={text} />
+		</div>
+	);
+};
+
 const Table = async ({ courseId }: { courseId: string }) => {
 	const { user } = await getAuth();
 
@@ -66,27 +80,19 @@ const Page = async ({
 			<Separator className="my-8" />
 			<div className="flex w-full flex-col gap-1">
 				<p>Share join link</p>
-				<div
-					className={buttonVariants({
-						variant: "secondary",
-						className: "flex-1 justify-between gap-3",
-					})}
-				>
-					<p className="truncate text-sm text-muted-foreground">
-						{team.customDomain
+				<CopyText
+					text={
+						team.customDomain
 							? `https://${team.customDomain}/courses/${courseId}/join`
 							: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join
-						`}
-					</p>
-					<CopyButton
-						text={
-							team.customDomain
-								? `https://${team.customDomain}/courses/${courseId}/join`
-								: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join
 						`
-						}
+					}
+				/>
+				{env.NEXT_PUBLIC_SITE_URL === "http://localhost:3000" && (
+					<CopyText
+						text={`http://localhost:3000/play/${teamId}/courses/${courseId}/join`}
 					/>
-				</div>
+				)}
 			</div>
 			<Separator className="my-8" />
 			<Suspense fallback={<div>Loading...</div>}>
