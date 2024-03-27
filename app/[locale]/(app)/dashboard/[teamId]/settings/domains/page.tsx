@@ -10,7 +10,7 @@ import { Team } from "@/types/team";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import DomainForm from "./DomainForm";
 
-export const InlineSnippet = ({
+const InlineSnippet = ({
 	className,
 	children,
 }: {
