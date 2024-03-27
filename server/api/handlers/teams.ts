@@ -10,11 +10,19 @@ import { authedMiddleware } from "../middleware";
 
 export const teamsHandler = new Hono()
 	.put(
-		"/",
+		"/:id",
 		zValidator("json", TeamSchema.omit({ id: true })),
 		authedMiddleware,
 		async (c) => {
+			const id = c.req.param("id");
 			const teamId = c.get("teamId");
+
+			if (id !== teamId) {
+				throw new HTTPException(401, {
+					message: "Unauthorized",
+				});
+			}
+
 			const { name, customDomain } = c.req.valid("json");
 
 			const team = await db.query.teams.findFirst({

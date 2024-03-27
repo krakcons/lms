@@ -35,7 +35,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 	});
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.teams.$put,
+		mutationFn: client.api.teams[":id"].$put,
 		onSettled: (res) => {
 			if (res && !res.ok) {
 				form.setError("customDomain", {
@@ -51,6 +51,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 
 	const onSubmit = async (input: DomainForm) => {
 		mutate({
+			param: { id: team.id },
 			json: { ...team, ...input },
 		});
 	};
