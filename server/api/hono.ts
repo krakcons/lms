@@ -13,8 +13,8 @@ const app = new Hono()
 	.use(
 		cors({
 			origin: "*",
+			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 			allowHeaders: ["x-api-key", "Content-Type"],
-			credentials: true,
 		})
 	)
 	.route("/learners", learnersHandler)
