@@ -32,11 +32,6 @@ export const teamsHandler = new Hono()
 							method: "DELETE",
 						}
 					);
-					if (!res.ok) {
-						throw new HTTPException(500, {
-							message: "Failed to remove domain from Vercel.",
-						});
-					}
 				}
 				const res = await fetch(
 					`https://api.vercel.com/v10/projects/${env.PROJECT_ID_VERCEL}/domains?teamId=${env.TEAM_ID_VERCEL}`,
