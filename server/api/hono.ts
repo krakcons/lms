@@ -8,7 +8,6 @@ import { modulesHandler } from "./handlers/modules";
 import { teamsHandler } from "./handlers/teams";
 
 const app = new Hono()
-	.basePath("/api")
 	.use(logger())
 	.use(
 		"*",
@@ -20,6 +19,7 @@ const app = new Hono()
 		})
 	)
 	.options("*", (c) => c.text("", 204))
+	.basePath("/api")
 	.route("/learners", learnersHandler)
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)
