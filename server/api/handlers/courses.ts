@@ -114,7 +114,7 @@ export const coursesHandler = new Hono()
 
 			await db.insert(learners).values(learnerList).onConflictDoNothing();
 
-			Promise.all(
+			const res = await Promise.allSettled(
 				learnerList.map((learner) => {
 					if (learner.sendEmail && learner.email) {
 						return learnersData.invite({
@@ -125,6 +125,12 @@ export const coursesHandler = new Hono()
 					}
 				})
 			);
+
+			for (const result of results) {
+				if (result.status === "rejected") {
+					throw result.reason;
+				}
+			}
 
 			if (learnerList.length === 1) {
 				return c.json(ExtendLearner().parse(learnerList[0]));

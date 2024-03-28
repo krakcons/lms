@@ -89,7 +89,7 @@ export const learnersData = {
 			})
 		);
 
-		const { error } = await resend.emails.send({
+		const { data, error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: course.name,
