@@ -128,7 +128,10 @@ export const coursesHandler = new Hono()
 
 			for (const result of res) {
 				if (result.status === "rejected") {
-					throw result.reason;
+					throw new HTTPException(500, {
+						message: "Failed to send email",
+						cause: result.reason,
+					});
 				}
 			}
 
