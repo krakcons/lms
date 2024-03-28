@@ -22,12 +22,10 @@ import { toast } from "sonner";
 export const JoinCourseForm = ({
 	courseId,
 	moduleId,
-	teamId,
 	text,
 }: {
 	moduleId: string;
 	courseId: string;
-	teamId: string;
 	text: {
 		firstName: string;
 		lastName: string;
@@ -62,6 +60,7 @@ export const JoinCourseForm = ({
 		defaultValues: {
 			email: "",
 			moduleId,
+			courseId,
 			sendEmail: false,
 			firstName: "",
 			lastName: "",

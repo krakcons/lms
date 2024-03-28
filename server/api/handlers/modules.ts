@@ -1,5 +1,3 @@
-import LearnerInvite from "@/emails/LearnerInvite";
-import { env } from "@/env.mjs";
 import { getInitialScormData } from "@/lib/scorm";
 import { deleteFolder } from "@/server/actions/s3";
 import { coursesData } from "@/server/db/courses";
@@ -7,16 +5,13 @@ import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { modulesData } from "@/server/db/modules";
 import { learners, modules } from "@/server/db/schema";
-import { resend } from "@/server/resend";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { UploadModuleSchema } from "@/types/module";
 import { zValidator } from "@hono/zod-validator";
-import { renderAsync } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
-import React from "react";
 import { authedMiddleware } from "../middleware";
 
 export const modulesHandler = new Hono()
@@ -64,45 +59,24 @@ export const modulesHandler = new Hono()
 
 			// Create a new learner
 			const newLearner = {
+				...learner,
 				id: learner.id ?? generateId(32),
 				moduleId: courseModule.id,
-				email: learner.email,
-				firstName: learner.firstName,
-				lastName: learner.lastName,
-				completedAt: learner.completedAt ?? null,
-				startedAt: learner.startedAt ?? null,
+				courseId: courseModule.courseId,
 				data: getInitialScormData(courseModule.type),
-				contentType: courseModule.type,
 			};
 
 			if (learner.sendEmail && learner.email) {
-				const html = await renderAsync(
-					React.createElement(LearnerInvite, {
-						email: learner.email,
-						course: courseModule.course.name,
-						organization: "Krak LMS",
-						href: `${env.NEXT_PUBLIC_SITE_URL}/play/${courseModule.course.id}?learnerId=${id}`,
-					})
-				);
-				await resend.emails.send({
-					html,
-					to: learner.email,
-					subject: courseModule.course.name,
-					from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+				await learnersData.invite({
+					email: newLearner.email,
+					learnerId: newLearner.id,
+					course: courseModule.course,
 				});
 			}
 
 			await db.insert(learners).values(newLearner).onConflictDoNothing();
 
-			console.log(newLearner);
-			try {
-				return c.json(
-					ExtendLearner(courseModule.type).parse(newLearner)
-				);
-			} catch (e) {
-				console.log("ERROR");
-				throw new HTTPException(400);
-			}
+			return c.json(ExtendLearner(courseModule.type).parse(newLearner));
 		}
 	)
 	.delete("/:id", authedMiddleware, async (c) => {

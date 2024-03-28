@@ -5,10 +5,11 @@ import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { getAuth, getTeam } from "@/server/actions/auth";
 import { db } from "@/server/db/db";
-import { modules } from "@/server/db/schema";
+import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
+import InviteLearnerDialog from "./InviteLearnerDialog";
 import LearnersTable from "./LearnersTable";
 
 export const runtime = "nodejs";
@@ -34,19 +35,12 @@ const Table = async ({ courseId }: { courseId: string }) => {
 		return null;
 	}
 
-	const courseModules = await db.query.modules.findMany({
-		where: eq(modules.courseId, courseId),
-		with: {
-			learners: true,
-		},
+	const learnerList = await db.query.learners.findMany({
+		where: eq(learners.courseId, courseId),
 	});
-	const learners = courseModules.flatMap((module) =>
-		ExtendLearner(module.type)
-			.array()
-			.parse(module.learners.map((learner) => learner))
-	);
+	const extenededLearnerList = ExtendLearner().array().parse(learnerList);
 
-	return <LearnersTable learners={learners} />;
+	return <LearnersTable learners={extenededLearnerList} />;
 };
 
 const Page = async ({
@@ -75,6 +69,7 @@ const Page = async ({
 						View and manage this courses learners
 					</p>
 				</div>
+				<InviteLearnerDialog courseId={courseId} />
 			</div>
 			<Separator className="my-8" />
 			<div className="flex w-full flex-col gap-1">

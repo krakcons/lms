@@ -23,17 +23,27 @@ export const LearnerSchema = BaseLearnerSchema.extend({
 });
 export type Learner = z.infer<typeof LearnerSchema>;
 
-export const ExtendLearner = (type: Module["type"]) => {
+export const ExtendLearner = (type?: Module["type"]) => {
 	return BaseLearnerSchema.transform((data) => {
 		if (type === "1.2") {
 			return {
 				...data,
 				...Scorm12DataSchema.parse(data.data),
 			};
-		} else {
+		} else if (type === "2004") {
 			return {
 				...data,
 				...Scorm2004DataSchema.parse(data.data),
+			};
+		} else {
+			return {
+				...data,
+				status: "not-started" as const,
+				score: {
+					raw: 0,
+					max: 100,
+					min: 0,
+				},
 			};
 		}
 	});
@@ -44,17 +54,14 @@ export const InsertLearnerSchema = createInsertSchema(learners, {
 });
 export type InsertLearner = z.infer<typeof InsertLearnerSchema>;
 
-export const DeleteLearnerSchema = LearnerSchema.pick({
-	id: true,
-	moduleId: true,
-}).extend({
-	courseId: z.string(),
-});
-export type DeleteLearner = z.infer<typeof DeleteLearnerSchema>;
-
 export const CreateLearnerSchema = InsertLearnerSchema.extend({
 	email: z.string().email(),
 	sendEmail: z.boolean().optional(),
+	firstName: z.string().min(1),
+	lastName: z.string().min(1),
+}).omit({
+	completedAt: true,
+	startedAt: true,
 });
 export type CreateLearner = z.infer<typeof CreateLearnerSchema>;
 

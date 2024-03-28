@@ -1,9 +1,14 @@
+import LearnerInvite from "@/emails/LearnerInvite";
+import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
+import { Course } from "@/types/course";
 import { ExtendLearner, SelectLearner, UpdateLearner } from "@/types/learner";
+import { renderAsync } from "@react-email/components";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import { cache } from "react";
+import React, { cache } from "react";
+import { resend } from "../resend";
 import { modulesData } from "./modules";
 
 export const learnersData = {
@@ -21,12 +26,21 @@ export const learnersData = {
 			});
 		}
 
+		if (!learner.module) {
+			throw new HTTPException(404, {
+				message: "Module not found.",
+			});
+		}
+
 		return ExtendLearner(learner.module.type).parse(learner);
 	}),
 	update: async ({ id, moduleId, data }: UpdateLearner) => {
-		const courseModule = await modulesData.get({ id: moduleId });
+		let courseModule;
+		if (moduleId) {
+			courseModule = await modulesData.get({ id: moduleId });
+		}
 		const learner = await learnersData.get({ id });
-		const newLearner = ExtendLearner(courseModule.type).parse({
+		const newLearner = ExtendLearner(courseModule?.type).parse({
 			...learner,
 			data,
 		});
@@ -36,14 +50,15 @@ export const learnersData = {
 			.set({
 				data,
 				startedAt: learner.startedAt ?? new Date(),
-				completedAt:
-					!learner.completedAt && newLearner.status === "passed"
+				completedAt: courseModule
+					? !learner.completedAt && newLearner.status === "passed"
 						? new Date()
-						: null,
+						: null
+					: null,
 			})
-			.where(and(eq(learners.moduleId, moduleId), eq(learners.id, id)));
+			.where(eq(learners.id, id));
 
-		return ExtendLearner(courseModule.type).parse({
+		return ExtendLearner(courseModule?.type).parse({
 			...learner,
 			data,
 		});
@@ -52,5 +67,29 @@ export const learnersData = {
 		// 	eventType: "learner.update",
 		// 	payload: newLearner,
 		// });
+	},
+	invite: async ({
+		email,
+		learnerId,
+		course,
+	}: {
+		email: string;
+		learnerId: string;
+		course: Course;
+	}) => {
+		const html = await renderAsync(
+			React.createElement(LearnerInvite, {
+				email,
+				course: course.name,
+				organization: "Krak LMS",
+				href: `${env.NEXT_PUBLIC_SITE_URL}/play/${course.id}?learnerId=${learnerId}`,
+			})
+		);
+		await resend.emails.send({
+			html,
+			to: email,
+			subject: course.name,
+			from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+		});
 	},
 };

@@ -36,7 +36,6 @@ const Page = async ({
 			<JoinCourseForm
 				moduleId={courseModule.id}
 				courseId={courseId}
-				teamId={teamId}
 				text={{
 					firstName: t("Form.learner.firstName"),
 					lastName: t("Form.learner.lastName"),

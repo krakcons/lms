@@ -180,8 +180,9 @@ export const learners = pgTable("learners", {
 	id: text("id")
 		.primaryKey()
 		.notNull()
-		.$default(() => generateId(15)),
-	moduleId: text("moduleId").notNull(),
+		.$default(() => generateId(32)),
+	courseId: text("courseId").notNull(),
+	moduleId: text("moduleId"),
 	email: text("email").notNull(),
 	firstName: text("firstName").notNull(),
 	lastName: text("lastName").notNull(),

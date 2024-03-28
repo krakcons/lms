@@ -29,7 +29,7 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 		failed: "Failed",
 	};
 
-	if (info.row.original.status === "not-started" && info.row.original.email) {
+	if (info.row.original.startedAt === null) {
 		return (
 			<div className="flex items-center gap-4">
 				<p className="text-sm">Invited</p>
