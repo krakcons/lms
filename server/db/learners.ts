@@ -43,7 +43,6 @@ export const learnersData = {
 			.update(learners)
 			.set({
 				data,
-				startedAt: learner.startedAt ?? new Date(),
 				completedAt: courseModule
 					? !learner.completedAt && newLearner.status === "passed"
 						? new Date()
@@ -78,8 +77,8 @@ export const learnersData = {
 		const href =
 			team?.customDomain &&
 			env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-				? `${team.customDomain}/courses/${course.id}?learnerId=${learnerId}`
-				: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${course.id}?learnerId=${learnerId}`;
+				? `${team.customDomain}/courses/${course.id}/join?learnerId=${learnerId}`
+				: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${course.id}/join?learnerId=${learnerId}`;
 
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {

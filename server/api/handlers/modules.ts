@@ -62,6 +62,8 @@ export const modulesHandler = new Hono()
 				moduleId: courseModule.id,
 				courseId: courseModule.courseId,
 				data: getInitialScormData(courseModule.type),
+				startedAt: new Date(),
+				completedAt: null,
 			};
 
 			if (learner.sendEmail && learner.email) {

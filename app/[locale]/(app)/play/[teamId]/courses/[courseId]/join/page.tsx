@@ -1,47 +1,85 @@
 import { db } from "@/server/db/db";
-import { modules } from "@/server/db/schema";
+import { courses, learners } from "@/server/db/schema";
+import { BaseLearner } from "@/types/learner";
 import { and, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
-import { notFound } from "next/navigation";
 import { JoinCourseForm } from "./JoinCourseForm";
 
 const Page = async ({
 	params: { courseId, locale, teamId },
+	searchParams: { learnerId },
 }: {
 	params: { courseId: string; locale: string; teamId: string };
+	searchParams: { learnerId: string };
 }) => {
 	unstable_setRequestLocale(locale);
 	unstable_noStore();
 
-	const courseModule = await db.query.modules.findFirst({
-		where: and(
-			eq(modules.courseId, courseId),
-			eq(modules.language, locale)
-		),
+	let initialLearner: BaseLearner | undefined = undefined;
+	if (learnerId) {
+		const learner = await db.query.learners.findFirst({
+			where: and(eq(learners.id, learnerId)),
+			with: {
+				module: true,
+			},
+		});
+
+		if (!learner) {
+			return (
+				<div>
+					<p>No learner found with this id</p>
+				</div>
+			);
+		}
+		initialLearner = learner;
+	}
+
+	const course = await db.query.courses.findFirst({
+		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),
 		with: {
-			course: true,
+			modules: true,
 		},
 	});
 
+	if (!course) {
+		return (
+			<div>
+				<p>Course not found</p>
+			</div>
+		);
+	}
+
+	if (!course.modules || course.modules.length === 0) {
+		return (
+			<div>
+				<p>Course has no modules</p>
+			</div>
+		);
+	}
+
 	const t = await getTranslations({ locale });
 
-	if (!courseModule) {
-		return notFound();
-	}
+	const defaultModule = course.modules.find(
+		(module) => module.language === locale
+	);
 
 	return (
 		<main className="m-auto flex flex-col">
-			<h1 className="mb-8">{t("Public.title")}</h1>
 			<JoinCourseForm
-				moduleId={courseModule.id}
-				courseId={courseId}
+				modules={course.modules}
+				defaultModule={defaultModule ?? course.modules[0]}
+				course={course}
+				initialLearner={initialLearner}
 				text={{
+					title1: t("Join.0.title"),
+					title2: t("Join.1.title"),
 					firstName: t("Form.learner.firstName"),
 					lastName: t("Form.learner.lastName"),
 					email: t("Form.learner.email"),
-					submit: t("Form.submit"),
-					guest: t("Public.guest"),
+					join: t("Join.join"),
+					continue: t("Join.continue"),
+					back: t("Join.back"),
 				}}
 			/>
 		</main>

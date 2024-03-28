@@ -3,9 +3,12 @@
 		"title": { "1": "Apprentissage moderne", "2": "Pour moins" },
 		"description": "Découvrez une gestion de l'apprentissage moderne, abordable et facile pour une expérience éducative enrichissante."
 	},
-	"Public": {
-		"title": "S'inscrire à ce cours",
-		"guest": "Continuer en tant qu'invité"
+	"Join": {
+		"0": { "title": "S'inscrire à ce cours" },
+		"1": { "title": "Créer un apprenant" },
+		"continue": "Continuer",
+		"join": "Rejoindre",
+		"back": "Retour"
 	},
 	"Form": {
 		"learner": {

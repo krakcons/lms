@@ -11,31 +11,55 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { client } from "@/lib/api";
 import { usePathname, useRouter } from "@/lib/navigation";
-import { CreateLearner, CreateLearnerSchema } from "@/types/learner";
+import { Course } from "@/types/course";
+import { BaseLearner, CreateLearnerSchema } from "@/types/learner";
+import { Module } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const JoinCourseSchema = CreateLearnerSchema.extend({
+	moduleId: z.string(),
+});
+type JoinCourse = z.infer<typeof JoinCourseSchema>;
 
 export const JoinCourseForm = ({
-	courseId,
-	moduleId,
+	course,
+	modules,
 	text,
+	defaultModule,
+	initialLearner,
 }: {
-	moduleId: string;
-	courseId: string;
+	modules: Module[];
+	course: Course;
+	defaultModule: Module;
+	initialLearner?: BaseLearner;
 	text: {
+		title1: string;
+		title2: string;
 		firstName: string;
 		lastName: string;
 		email: string;
-		submit: string;
-		guest: string;
+		join: string;
+		continue: string;
+		back: string;
 	};
 }) => {
 	const router = useRouter();
 	const pathname = usePathname();
+	const [page, setPage] = useState(0);
 	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: async (res) => {
@@ -55,77 +79,159 @@ export const JoinCourseForm = ({
 		},
 	});
 
-	const form = useForm<CreateLearner>({
-		resolver: zodResolver(CreateLearnerSchema),
+	const form = useForm<JoinCourse>({
+		resolver: zodResolver(JoinCourseSchema),
 		defaultValues: {
-			email: "",
-			moduleId,
-			courseId,
+			email: initialLearner?.email ?? "",
+			moduleId: defaultModule.id,
+			courseId: course.id,
 			sendEmail: false,
-			firstName: "",
-			lastName: "",
+			firstName: initialLearner?.firstName ?? "",
+			lastName: initialLearner?.lastName ?? "",
 		},
 	});
 
-	const onSubmit = async (input: CreateLearner) => {
-		mutate({ param: { id: moduleId }, json: input });
+	const onSubmit = async (input: JoinCourse) => {
+		mutate({ param: { id: input.moduleId }, json: input });
 	};
 
 	return (
-		<Form {...form}>
-			<form className="space-y-4">
-				{form.formState.errors.root?.message && (
-					<FormError message={form.formState.errors.root.message} />
-				)}
-				<FormField
-					control={form.control}
-					name="firstName"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>{text.firstName}</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
+		<div className="flex flex-col gap-4">
+			<h1>{page === 0 ? text.title1 : text.title2}</h1>
+			<Form {...form}>
+				<form className="space-y-4">
+					{form.formState.errors.root?.message && (
+						<FormError
+							message={form.formState.errors.root.message}
+						/>
 					)}
-				/>
-				<FormField
-					control={form.control}
-					name="lastName"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>{text.lastName}</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
+					{page === 0 && (
+						<div className="flex items-center justify-between gap-8 rounded-xl border p-6">
+							<div className="flex flex-col gap-2">
+								<p className="text-lg font-medium">
+									{course.name}
+								</p>
+								{course.description && (
+									<p className="text-sm text-muted-foreground">
+										{course.description}
+									</p>
+								)}
+							</div>
+							<Select
+								onValueChange={(value) => {
+									router.push(
+										initialLearner?.id
+											? pathname +
+													"?learnerId=" +
+													initialLearner.id
+											: pathname,
+
+										{
+											locale: value,
+										}
+									);
+								}}
+								defaultValue={defaultModule.language}
+							>
+								<SelectTrigger className="w-[180px]">
+									<SelectValue placeholder="Language" />
+								</SelectTrigger>
+								<SelectContent>
+									{modules.map((module) => (
+										<SelectItem
+											key={module.id}
+											value={module.language}
+										>
+											{module.language === "fr"
+												? "Francais"
+												: "English"}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 					)}
-				/>
-				<FormField
-					control={form.control}
-					name="email"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>{text.email}</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
+					{page === 1 && (
+						<>
+							<FormField
+								control={form.control}
+								name="firstName"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{text.firstName}</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												disabled={!!initialLearner}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="lastName"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{text.lastName}</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												disabled={!!initialLearner}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{text.email}</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												disabled={!!initialLearner}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</>
 					)}
-				/>
-				<div className="flex gap-3">
+				</form>
+			</Form>
+			<div className="flex gap-3">
+				{page === 1 && (
 					<Button
-						type="submit"
-						onClick={form.handleSubmit(onSubmit)}
-						isPending={form.formState.isSubmitted && isPending}
+						onClick={() => setPage(0)}
+						variant="secondary"
+						disabled={isPending}
 					>
-						{text.submit}
+						{text.back}
 					</Button>
-				</div>
-			</form>
-		</Form>
+				)}
+				<Button
+					onClick={
+						initialLearner
+							? form.handleSubmit(onSubmit)
+							: page === 1
+								? form.handleSubmit(onSubmit)
+								: () => setPage(1)
+					}
+					isPending={form.formState.isSubmitted && isPending}
+				>
+					{initialLearner
+						? text.join
+						: page === 1
+							? text.join
+							: text.continue}
+				</Button>
+			</div>
+		</div>
 	);
 };
