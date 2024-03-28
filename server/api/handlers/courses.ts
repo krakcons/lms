@@ -126,7 +126,7 @@ export const coursesHandler = new Hono()
 				})
 			);
 
-			for (const result of results) {
+			for (const result of res) {
 				if (result.status === "rejected") {
 					throw result.reason;
 				}
