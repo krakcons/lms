@@ -10,13 +10,18 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 
 const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
+	const router = useRouter();
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$delete,
+		onSuccess: () => {
+			router.refresh();
+		},
 	});
 
 	return (

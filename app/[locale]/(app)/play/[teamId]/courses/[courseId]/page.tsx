@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
-import { learners } from "@/server/db/schema";
+import { learners, modules } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { and, eq } from "drizzle-orm";
@@ -74,18 +74,40 @@ const Page = async ({
 		},
 	});
 
+	let learnerModule = learner?.module;
+
 	if (!learner) {
 		throw new Error("Learner not found");
 	}
 
-	if (learner.module.language !== locale) {
+	if (!learnerModule) {
+		const courseModule = await db.query.modules.findFirst({
+			where: and(
+				eq(modules.courseId, courseId),
+				eq(modules.language, locale)
+			),
+		});
+		if (!courseModule) {
+			throw new Error("Course not found");
+		} else {
+			await db
+				.update(learners)
+				.set({
+					moduleId: courseModule.id,
+				})
+				.where(eq(learners.id, learnerId));
+			learnerModule = courseModule;
+		}
+	}
+
+	if (learnerModule?.language !== locale) {
 		throw new Error("Learner found but language does not match");
 	}
 
-	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
+	const extendedLearner = ExtendLearner(learnerModule.type).parse(learner);
 
 	const { scorm, resources } = await parseCourse(
-		`${env.NEXT_PUBLIC_R2_URL}/${teamId}/courses/${courseId}/${learner.module.language}/imsmanifest.xml`
+		`${env.NEXT_PUBLIC_R2_URL}/${teamId}/courses/${courseId}/${learnerModule.language}/imsmanifest.xml`
 	);
 
 	console.log("URL", resources[0].href);

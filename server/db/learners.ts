@@ -1,7 +1,7 @@
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
-import { learners } from "@/server/db/schema";
+import { learners, teams } from "@/server/db/schema";
 import { Course } from "@/types/course";
 import { ExtendLearner, SelectLearner, UpdateLearner } from "@/types/learner";
 import { renderAsync } from "@react-email/components";
@@ -26,13 +26,7 @@ export const learnersData = {
 			});
 		}
 
-		if (!learner.module) {
-			throw new HTTPException(404, {
-				message: "Module not found.",
-			});
-		}
-
-		return ExtendLearner(learner.module.type).parse(learner);
+		return ExtendLearner(learner.module?.type).parse(learner);
 	}),
 	update: async ({ id, moduleId, data }: UpdateLearner) => {
 		let courseModule;
@@ -77,12 +71,22 @@ export const learnersData = {
 		learnerId: string;
 		course: Course;
 	}) => {
+		const team = await db.query.teams.findFirst({
+			where: and(eq(teams.id, course.teamId)),
+		});
+
+		const href =
+			team?.customDomain &&
+			env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
+				? `${team.customDomain}/courses/${course.id}?learnerId=${learnerId}`
+				: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${course.id}?learnerId=${learnerId}`;
+
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
 				email,
 				course: course.name,
 				organization: "Krak LMS",
-				href: `${env.NEXT_PUBLIC_SITE_URL}/play/${course.id}?learnerId=${learnerId}`,
+				href,
 			})
 		);
 		await resend.emails.send({

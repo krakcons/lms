@@ -42,8 +42,6 @@ export const modulesHandler = new Hono()
 			const { id } = c.req.param();
 			const learner = c.req.valid("json");
 
-			console.log("VALIDATED");
-
 			const courseModule = await db.query.modules.findFirst({
 				where: and(eq(modules.id, id)),
 				with: {
