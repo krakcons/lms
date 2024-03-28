@@ -20,7 +20,6 @@ interface Props {
 
 export const LearnerInvite = ({
 	href = "https://google.com",
-	email = "dave@gmail.com",
 	course = "Golfing Tutorial",
 	organization = "Krak",
 }: Props) => (
@@ -62,9 +61,6 @@ export const LearnerInvite = ({
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
 					<Heading className="mt-0">Course Invitation</Heading>
-					<Text>
-						Hello <strong>{email}</strong>,
-					</Text>
 					<Text className="text-sm">
 						You have been invited to join <strong>{course}</strong>
 						{" by "}

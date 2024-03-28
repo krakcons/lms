@@ -88,11 +88,19 @@ export const learnersData = {
 				href,
 			})
 		);
-		await resend.emails.send({
+
+		const { error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: course.name,
 			from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 		});
+
+		if (error) {
+			throw new HTTPException(500, {
+				message: "Failed to send email",
+				cause: error,
+			});
+		}
 	},
 };
