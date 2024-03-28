@@ -28,7 +28,7 @@ const Page = async () => {
 			userId: user.id,
 			teamId: user.id,
 		});
-		id = "personal";
+		id = user.id;
 	}
 
 	return redirect(`/dashboard/${id}`);

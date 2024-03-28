@@ -31,7 +31,7 @@ export const logout = async () => {
 export const getTeam = cache(async (id: string, userId: string) => {
 	const userToTeam = await db.query.usersToTeams.findFirst({
 		where: and(
-			eq(usersToTeams.teamId, id === "personal" ? userId : id),
+			eq(usersToTeams.teamId, id),
 			eq(usersToTeams.userId, userId)
 		),
 		with: {

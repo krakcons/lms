@@ -31,7 +31,7 @@ export const authedMiddleware: MiddlewareHandler<{
 		}
 
 		// TODO: Identify the current team
-		const team = await getTeam("personal", user.user.id);
+		const team = await getTeam(user.user.id, user.user.id);
 
 		if (!team) {
 			return c.text("Invalid team", 401);
