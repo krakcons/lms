@@ -81,7 +81,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			<h1 className="mb-6 mt-12">Collections</h1>
 			<div className="flex flex-col gap-4">
 				{collections?.map((collection) => (
-					<div key={collection.id}>
+					<div key={collection.id} className="flex flex-col gap-4">
 						<div className="flex items-center justify-between">
 							<div className="flex flex-col gap-1">
 								<p className="text-lg font-semibold text-blue-300">
