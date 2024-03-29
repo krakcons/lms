@@ -1,5 +1,5 @@
 import { redirect } from "@/lib/navigation";
-import { logout } from "@/server/actions/auth";
+import { logout } from "@/server/auth/actions";
 
 export const GET = () => {
 	logout();

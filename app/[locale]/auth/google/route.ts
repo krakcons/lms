@@ -1,4 +1,4 @@
-import { getAuth } from "@/server/actions/auth";
+import { getAuth } from "@/server/auth/actions";
 import { google } from "@/server/auth/providers";
 import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";

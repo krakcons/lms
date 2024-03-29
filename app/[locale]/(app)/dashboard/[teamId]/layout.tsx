@@ -1,6 +1,6 @@
 import UserButton from "@/components/auth/UserButton";
 import { Link, redirect } from "@/lib/navigation";
-import { getAuth, getTeam } from "@/server/actions/auth";
+import { getAuth, getTeam } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { usersToTeams } from "@/server/db/schema";
 import { eq } from "drizzle-orm";

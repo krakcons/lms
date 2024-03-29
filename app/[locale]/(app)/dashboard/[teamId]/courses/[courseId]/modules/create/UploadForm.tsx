@@ -23,7 +23,6 @@ import { formatBytes } from "@/lib/helpers";
 import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { getPresignedUrl } from "@/server/actions/s3";
 import { UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -131,9 +130,13 @@ const UploadForm = ({
 				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
-					const url = await getPresignedUrl(
-						`${teamId}/courses/${courseId}/${input.language}/${path}`
-					);
+					const presignedRes = await client.api.courses[":id"][
+						"presigned-url"
+					].$get({
+						param: { id: courseId },
+						query: { key: `${input.language}/${path}` },
+					});
+					const { url } = await presignedRes.json();
 
 					await fetch(url, {
 						method: "PUT",

@@ -1,8 +1,8 @@
 import { CreateCourse, SelectCourse, UpdateCourse } from "@/types/course";
 import { and, eq } from "drizzle-orm";
 import { cache } from "react";
-import { deleteFolder } from "../actions/s3";
 import { LCDSError } from "../errors";
+import { deleteFolder } from "../r2";
 import { db } from "./db";
 import { courses, learners, modules } from "./schema";
 

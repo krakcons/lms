@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
-import { getAuth } from "@/server/actions/auth";
+import { getAuth } from "@/server/auth/actions";
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";

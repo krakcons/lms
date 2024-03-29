@@ -4,7 +4,7 @@ import { keys } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
-import { getTeam } from "../actions/auth";
+import { getTeam } from "../auth/actions";
 
 export const authedMiddleware: MiddlewareHandler<{
 	Variables: {

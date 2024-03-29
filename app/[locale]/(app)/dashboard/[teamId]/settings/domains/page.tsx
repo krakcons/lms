@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { getAuth, getTeam } from "@/server/actions/auth";
+import { getAuth, getTeam } from "@/server/auth/actions";
 import { DomainResponse, DomainVerificationStatusProps } from "@/types/domain";
 import { Team } from "@/types/team";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";

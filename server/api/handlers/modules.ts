@@ -1,10 +1,10 @@
 import { getInitialScormData } from "@/lib/scorm";
-import { deleteFolder } from "@/server/actions/s3";
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { modulesData } from "@/server/db/modules";
 import { learners, modules } from "@/server/db/schema";
+import { deleteFolder } from "@/server/r2";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { UploadModuleSchema } from "@/types/module";
 import { zValidator } from "@hono/zod-validator";

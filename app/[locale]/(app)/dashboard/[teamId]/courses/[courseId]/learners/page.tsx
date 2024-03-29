@@ -3,7 +3,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { getAuth, getTeam } from "@/server/actions/auth";
+import { getAuth, getTeam } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";

@@ -2,6 +2,7 @@ import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { courses, learners } from "@/server/db/schema";
+import { getPresignedUrl } from "@/server/r2";
 import { CreateCourseSchema, UpdateCourseSchema } from "@/types/course";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
@@ -9,6 +10,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
+import { z } from "zod";
 import { authedMiddleware } from "../middleware";
 
 export const coursesHandler = new Hono()
@@ -131,5 +133,25 @@ export const coursesHandler = new Hono()
 			} else {
 				return c.json(ExtendLearner().array().parse(learnerList));
 			}
+		}
+	)
+	.get(
+		"/:id/presigned-url",
+		zValidator(
+			"query",
+			z.object({
+				key: z.string(),
+			})
+		),
+		authedMiddleware,
+		async (c) => {
+			const { id } = c.req.param();
+			const { key } = c.req.valid("query");
+			const teamId = c.get("teamId");
+			console.log("teamId", teamId);
+
+			const url = await getPresignedUrl(`${teamId}/courses/${id}/${key}`);
+
+			return c.json({ url });
 		}
 	);
