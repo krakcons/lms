@@ -37,7 +37,7 @@ export const CreateCollectionDialog = () => {
 		},
 	});
 
-	const { mutate } = useMutation({
+	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.collections.$post,
 		onSuccess: async () => {
 			router.refresh();
@@ -95,7 +95,9 @@ export const CreateCollectionDialog = () => {
 								</FormItem>
 							)}
 						/>
-						<Button type="submit">Submit</Button>
+						<Button type="submit" isPending={isPending}>
+							Submit
+						</Button>
 					</form>
 				</Form>
 			</DialogContent>

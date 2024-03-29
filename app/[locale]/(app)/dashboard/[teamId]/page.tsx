@@ -115,7 +115,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 											key={course.id}
 										>
 											<Link
-												href={`/dashboard/${teamId}courses/${course.id}`}
+												href={`/dashboard/${teamId}/courses/${course.id}`}
 												className={buttonVariants({
 													variant: "outline",
 													className:
