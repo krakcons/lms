@@ -104,7 +104,7 @@ export const collectionsHandler = new Hono()
 				});
 			}
 
-			const learners = learnersData.create(
+			const learners = await learnersData.create(
 				input,
 				collection.collectionsToCourses.map((c) => c.course)
 			);
