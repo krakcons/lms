@@ -1,4 +1,5 @@
 import { AddCourseDialog } from "@/components/collection/AddCourseDialog";
+import { CollectionDeleteButton } from "@/components/collection/CollectionDeleteButton";
 import { CollectionLearnerInvite } from "@/components/collection/CollectionLearnerInvite";
 import { CreateCollectionDialog } from "@/components/collection/CreateCollectionDialog";
 import RemoveCourseButton from "@/components/collection/RemoveCourseButton";
@@ -79,9 +80,12 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 				</Dialog>
 			</div>
 			<h1 className="mb-6 mt-12">Collections</h1>
-			<div className="flex flex-col gap-4">
+			<div className="flex flex-col gap-8">
 				{collections?.map((collection) => (
-					<div key={collection.id} className="flex flex-col gap-4">
+					<div
+						key={collection.id}
+						className="flex flex-col gap-4 rounded-xl border border-blue-400 p-3"
+					>
 						<div className="flex items-center justify-between">
 							<div className="flex flex-col gap-1">
 								<p className="text-lg font-semibold text-blue-300">
@@ -93,12 +97,17 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 									</p>
 								)}
 							</div>
-							<CollectionLearnerInvite
-								collectionId={collection.id}
-							/>
+							<div className="flex gap-3">
+								<CollectionDeleteButton
+									collectionId={collection.id}
+								/>
+								<CollectionLearnerInvite
+									collectionId={collection.id}
+								/>
+							</div>
 						</div>
-						<div className="flex flex-col rounded-xl border border-blue-400 p-3">
-							<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+						<div className="flex flex-col">
+							<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ">
 								{collection.collectionsToCourses?.map(
 									({ course }) => (
 										<div

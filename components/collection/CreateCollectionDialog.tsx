@@ -41,6 +41,7 @@ export const CreateCollectionDialog = () => {
 		mutationFn: client.api.collections.$post,
 		onSuccess: async () => {
 			router.refresh();
+			setOpen(false);
 		},
 	});
 
@@ -52,7 +53,7 @@ export const CreateCollectionDialog = () => {
 	};
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={(open) => setOpen(open)}>
 			<DialogTrigger asChild>
 				<Button variant="outline" className="flex h-32 flex-col">
 					<div className="flex flex-col items-center justify-center gap-4">

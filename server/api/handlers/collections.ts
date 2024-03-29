@@ -111,4 +111,17 @@ export const collectionsHandler = new Hono()
 
 			return c.json(learners);
 		}
-	);
+	)
+	.delete("/:id", authedMiddleware, async (c) => {
+		const { id } = c.req.param();
+		const teamId = c.get("teamId");
+
+		await db
+			.delete(collections)
+			.where(and(eq(collections.id, id), eq(collections.teamId, teamId)));
+		await db
+			.delete(collectionsToCourses)
+			.where(eq(collectionsToCourses.collectionId, id));
+
+		return c.json(null);
+	});
