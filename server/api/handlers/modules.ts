@@ -76,9 +76,7 @@ export const modulesHandler = new Hono()
 				});
 			}
 
-			console.log(newLearner);
-
-			await db
+			const createdLearner = await db
 				.insert(learners)
 				.values(newLearner)
 				.onConflictDoUpdate({
@@ -88,9 +86,14 @@ export const modulesHandler = new Hono()
 						data: newLearner.data,
 						startedAt: newLearner.startedAt,
 					},
-				});
+				})
+				.returning();
 
-			return c.json(ExtendLearner(courseModule.type).parse(newLearner));
+			console.log("createdLearner", createdLearner);
+
+			return c.json(
+				ExtendLearner(courseModule.type).parse(createdLearner[0])
+			);
 		}
 	)
 	.delete("/:id", authedMiddleware, async (c) => {
