@@ -22,7 +22,6 @@ const CreateCourseForm = ({ teamId }: { teamId: string }) => {
 	const form = useForm<CreateCourse>({
 		resolver: zodResolver(CreateCourseSchema),
 		defaultValues: {
-			id: "",
 			name: "",
 			description: "",
 		},

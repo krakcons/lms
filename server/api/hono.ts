@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
+import { collectionsHandler } from "./handlers/collections";
 import { coursesHandler } from "./handlers/courses";
 import { keysHandler } from "./handlers/keys";
 import { learnersHandler } from "./handlers/learners";
@@ -13,7 +14,8 @@ const app = new Hono()
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)
 	.route("/keys", keysHandler)
-	.route("/teams", teamsHandler);
+	.route("/teams", teamsHandler)
+	.route("/collections", collectionsHandler);
 
 export default app;
 

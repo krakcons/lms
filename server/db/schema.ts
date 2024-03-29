@@ -92,7 +92,10 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 }));
 
 export const collections = pgTable("collections", {
-	id: text("id").primaryKey().notNull(),
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
 	teamId: text("teamId").notNull(),
 	name: text("name").notNull(),
 	description: text("description").notNull(),

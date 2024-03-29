@@ -1,15 +1,14 @@
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
-import { courses, learners } from "@/server/db/schema";
+import { courses } from "@/server/db/schema";
 import { getPresignedUrl } from "@/server/r2";
 import { CreateCourseSchema, UpdateCourseSchema } from "@/types/course";
-import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
+import { CreateLearnerSchema } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { generateId } from "lucia";
 import { z } from "zod";
 import { authedMiddleware } from "../middleware";
 
@@ -101,67 +100,9 @@ export const coursesHandler = new Hono()
 				});
 			}
 
-			const ids = input
-				.map((learner) => learner.id)
-				.filter(Boolean) as string[];
+			const learners = await learnersData.create(input, [course]);
 
-			const existingIdLearnersList = await db.query.learners.findMany({
-				where: inArray(learners.id, ids),
-			});
-
-			if (existingIdLearnersList.length > 0) {
-				throw new HTTPException(400, {
-					message: `Learner with id ${existingIdLearnersList[0].id} already exists. Please try again without that learner or change the id.`,
-				});
-			}
-
-			const existingLearnersList = await db.query.learners.findMany({
-				where: and(
-					eq(learners.courseId, course.id),
-					inArray(
-						learners.email,
-						input.map((learner) => learner.email)
-					)
-				),
-			});
-
-			const learnerList = input.map((learner) => {
-				// Check if the learner already exists
-				const existingLearner = existingLearnersList.find(
-					(l) => l.email === learner.email
-				);
-
-				// Create a new learner
-				return {
-					...learner,
-					id: existingLearner?.id ?? learner.id ?? generateId(32),
-					moduleId: null,
-					courseId: course.id,
-					data: {},
-					completedAt: null,
-					startedAt: null,
-				};
-			});
-
-			await db.insert(learners).values(learnerList).onConflictDoNothing();
-
-			await Promise.allSettled(
-				learnerList.map((learner) => {
-					if (learner.sendEmail && learner.email) {
-						return learnersData.invite({
-							email: learner.email,
-							learnerId: learner.id,
-							course: course,
-						});
-					}
-				})
-			);
-
-			if (learnerList.length === 1) {
-				return c.json(ExtendLearner().parse(learnerList[0]));
-			} else {
-				return c.json(ExtendLearner().array().parse(learnerList));
-			}
+			return c.json(learners);
 		}
 	)
 	.get(

@@ -20,12 +20,16 @@ import { UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
+export const CollectionLearnerInvite = ({
+	collectionId,
+}: {
+	collectionId: string;
+}) => {
 	const [open, setOpen] = useState(false);
 	const router = useRouter();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses[":id"].learners.$post,
+		mutationFn: client.api.collections[":id"].learners.$post,
 		onSuccess: () => {
 			router.refresh();
 			toast("Successfully Invited", {
@@ -41,10 +45,9 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	});
 
 	const onSubmit = async (input: InviteForm) => {
-		console.log(input);
 		mutate({
 			param: {
-				id: courseId,
+				id: collectionId,
 			},
 			json: input.learners,
 		});
@@ -70,5 +73,3 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 		</Dialog>
 	);
 };
-
-export default InviteLearnerDialog;
