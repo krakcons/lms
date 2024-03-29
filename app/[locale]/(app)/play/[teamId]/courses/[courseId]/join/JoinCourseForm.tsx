@@ -25,7 +25,7 @@ import { BaseLearner, CreateLearnerSchema } from "@/types/learner";
 import { Module } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -60,6 +60,15 @@ export const JoinCourseForm = ({
 	const router = useRouter();
 	const pathname = usePathname();
 	const [page, setPage] = useState(0);
+
+	useEffect(() => {
+		if (initialLearner?.moduleId) {
+			router.push(
+				`${pathname.replace("/join", "")}?learnerId=${initialLearner.id}`
+			);
+		}
+	}, [initialLearner, pathname, router]);
+
 	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.modules[":id"].learners.$post,
 		onSuccess: async (res) => {
