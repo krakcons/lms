@@ -6,7 +6,7 @@ import { getPresignedUrl } from "@/server/r2";
 import { CreateCourseSchema, UpdateCourseSchema } from "@/types/course";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
@@ -101,11 +101,40 @@ export const coursesHandler = new Hono()
 				});
 			}
 
+			const ids = input
+				.map((learner) => learner.id)
+				.filter(Boolean) as string[];
+
+			const existingIdLearnersList = await db.query.learners.findMany({
+				where: inArray(learners.id, ids),
+			});
+
+			if (existingIdLearnersList.length > 0) {
+				throw new HTTPException(400, {
+					message: `Learner with id ${existingIdLearnersList[0].id} already exists. Please try again without that learner or change the id.`,
+				});
+			}
+
+			const existingLearnersList = await db.query.learners.findMany({
+				where: and(
+					eq(learners.courseId, course.id),
+					inArray(
+						learners.email,
+						input.map((learner) => learner.email)
+					)
+				),
+			});
+
 			const learnerList = input.map((learner) => {
+				// Check if the learner already exists
+				const existingLearner = existingLearnersList.find(
+					(l) => l.email === learner.email
+				);
+
 				// Create a new learner
 				return {
 					...learner,
-					id: learner.id ?? generateId(32),
+					id: existingLearner?.id ?? learner.id ?? generateId(32),
 					moduleId: null,
 					courseId: course.id,
 					data: {},
