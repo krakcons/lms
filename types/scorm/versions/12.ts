@@ -102,7 +102,6 @@ export const Scorm12DataSchema = z
 		};
 
 		const status = statusMapping[data["cmi.core.lesson_status"]];
-		console.log(data["cmi.core.lesson_status"], status);
 
 		return {
 			status,

@@ -82,6 +82,7 @@ export const JoinCourseForm = ({
 	const form = useForm<JoinCourse>({
 		resolver: zodResolver(JoinCourseSchema),
 		defaultValues: {
+			id: initialLearner?.id ?? "",
 			email: initialLearner?.email ?? "",
 			moduleId: defaultModule.id,
 			courseId: course.id,

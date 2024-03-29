@@ -49,6 +49,8 @@ export const modulesHandler = new Hono()
 				},
 			});
 
+			console.log(learner);
+
 			if (!courseModule) {
 				throw new HTTPException(401, {
 					message: "Module not found",
@@ -74,7 +76,19 @@ export const modulesHandler = new Hono()
 				});
 			}
 
-			await db.insert(learners).values(newLearner).onConflictDoNothing();
+			console.log(newLearner);
+
+			await db
+				.insert(learners)
+				.values(newLearner)
+				.onConflictDoUpdate({
+					target: [learners.email, learners.courseId],
+					set: {
+						moduleId: newLearner.moduleId,
+						data: newLearner.data,
+						startedAt: newLearner.startedAt,
+					},
+				});
 
 			return c.json(ExtendLearner(courseModule.type).parse(newLearner));
 		}
@@ -124,7 +138,6 @@ export const modulesHandler = new Hono()
 
 			const insertId = id ?? generateId(15);
 
-			// Create a new course and svix app
 			await db.insert(modules).values({
 				id: insertId,
 				courseId,

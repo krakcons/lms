@@ -176,28 +176,37 @@ export const modulesRelations = relations(modules, ({ many, one }) => ({
 	learners: many(learners),
 }));
 
-export const learners = pgTable("learners", {
-	id: text("id")
-		.primaryKey()
-		.notNull()
-		.$default(() => generateId(32)),
-	courseId: text("courseId").notNull(),
-	moduleId: text("moduleId"),
-	email: text("email").notNull(),
-	firstName: text("firstName").notNull(),
-	lastName: text("lastName").notNull(),
-	completedAt: timestamp("completedAt", {
-		withTimezone: true,
+export const learners = pgTable(
+	"learners",
+	{
+		id: text("id")
+			.primaryKey()
+			.notNull()
+			.$default(() => generateId(32)),
+		courseId: text("courseId").notNull(),
+		moduleId: text("moduleId"),
+		email: text("email").notNull(),
+		firstName: text("firstName").notNull(),
+		lastName: text("lastName").notNull(),
+		completedAt: timestamp("completedAt", {
+			withTimezone: true,
+		})
+			.default(sql`null`)
+			.$type<Date | null>(),
+		startedAt: timestamp("startedAt", {
+			withTimezone: true,
+		})
+			.default(sql`null`)
+			.$type<Date | null>(),
+		data: json("data")
+			.$type<Record<string, string>>()
+			.notNull()
+			.default({}),
+	},
+	(t) => ({
+		unq_learner: uniqueIndex("unq_learner").on(t.courseId, t.email),
 	})
-		.default(sql`null`)
-		.$type<Date | null>(),
-	startedAt: timestamp("startedAt", {
-		withTimezone: true,
-	})
-		.default(sql`null`)
-		.$type<Date | null>(),
-	data: json("data").$type<Record<string, string>>().notNull().default({}),
-});
+);
 
 export const learnersRelations = relations(learners, ({ one }) => ({
 	module: one(modules, {

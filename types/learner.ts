@@ -25,27 +25,30 @@ export type Learner = z.infer<typeof LearnerSchema>;
 
 export const ExtendLearner = (type?: Module["type"]) => {
 	return BaseLearnerSchema.transform((data) => {
-		if (type === "1.2") {
-			return {
-				...data,
-				...Scorm12DataSchema.parse(data.data),
-			};
-		} else if (type === "2004") {
-			return {
-				...data,
-				...Scorm2004DataSchema.parse(data.data),
-			};
-		} else {
-			return {
-				...data,
-				status: "not-started" as const,
-				score: {
-					raw: 0,
-					max: 100,
-					min: 0,
-				},
-			};
+		let learner =
+			type === "1.2"
+				? {
+						...data,
+						...Scorm12DataSchema.parse(data.data),
+					}
+				: type === "2004"
+					? {
+							...data,
+							...Scorm2004DataSchema.parse(data.data),
+						}
+					: {
+							...data,
+							status: "not-started" as const,
+							score: {
+								raw: 0,
+								max: 100,
+								min: 0,
+							},
+						};
+		if (learner.status === "not-started" && learner.startedAt) {
+			learner.status = "in-progress";
 		}
+		return learner;
 	});
 };
 
