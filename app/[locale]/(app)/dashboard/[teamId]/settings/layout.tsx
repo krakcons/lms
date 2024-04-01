@@ -1,5 +1,5 @@
 import { SidebarNav } from "@/components/ui/sidebar";
-import { Globe, Key } from "lucide-react";
+import { FileBadge2, Globe, Key } from "lucide-react";
 
 const Layout = ({
 	children,
@@ -20,6 +20,11 @@ const Layout = ({
 			href: `/dashboard/${teamId}/settings/domains`,
 			title: "Domains",
 			icon: <Globe size={18} />,
+		},
+		{
+			href: `/dashboard/${teamId}/settings/certificate`,
+			title: "Certificate",
+			icon: <FileBadge2 size={18} />,
 		},
 	];
 

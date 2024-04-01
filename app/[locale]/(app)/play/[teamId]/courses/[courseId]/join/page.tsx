@@ -21,15 +21,7 @@ const Page = async ({
 		const learner = await db.query.learners.findFirst({
 			where: and(eq(learners.id, learnerId)),
 			with: {
-				module: {
-					with: {
-						course: {
-							with: {
-								team: true,
-							},
-						},
-					},
-				},
+				module: true,
 			},
 		});
 
