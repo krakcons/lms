@@ -1,5 +1,14 @@
 "use client";
 
+import { Certificate } from "@/components/Certificate";
+import { buttonVariants } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { client } from "@/lib/api";
 import { Learner } from "@/types/learner";
 import { Module } from "@/types/module";
@@ -11,7 +20,9 @@ import {
 	Scorm2004ErrorCode,
 	Scorm2004ErrorMessage,
 } from "@/types/scorm/versions/2004";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useMutation } from "@tanstack/react-query";
+import { FileBadge2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -20,12 +31,6 @@ declare global {
 		API_1484_11: any;
 	}
 }
-
-type Props = {
-	type: Module["type"];
-	learner: Learner;
-	url: string;
-};
 
 const useSCORM = ({
 	type,
@@ -210,9 +215,31 @@ const useSCORM = ({
 	return { data };
 };
 
-const LMSProvider = ({ type, learner, url }: Props) => {
+const LMSProvider = ({
+	type,
+	learner,
+	url,
+	courseName,
+	teamName,
+}: {
+	type: Module["type"];
+	courseName: string;
+	teamName: string;
+	learner: Learner;
+	url: string;
+}) => {
+	const [open, setOpen] = useState(false);
+	const [completedAt, setCompletedAt] = useState<Date | null>(null);
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$put,
+		onSuccess: async (res) => {
+			const data = await res.json();
+			console.log("Learner updated", data);
+			if (data.completedAt) {
+				setOpen(true);
+				setCompletedAt(new Date(data.completedAt));
+			}
+		},
 	});
 
 	const { data } = useSCORM({
@@ -221,11 +248,47 @@ const LMSProvider = ({ type, learner, url }: Props) => {
 	});
 
 	useEffect(() => {
-		console.log("LMSProvider", data, learner.data);
 		mutate({ param: { id: learner.id }, json: { ...learner, data } });
 	}, [data, learner, mutate]);
 
-	return <iframe src={url} className="flex-1" />;
+	return (
+		<>
+			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Course Completed!</DialogTitle>
+						<DialogDescription>
+							You are now free to close this window. An email
+							containing your certificate will be sent shortly.
+							You can also download it below:
+						</DialogDescription>
+					</DialogHeader>
+					<PDFDownloadLink
+						document={
+							<Certificate
+								name={`${learner.firstName} ${learner.lastName}`}
+								teamName={teamName}
+								completedAt={completedAt || new Date()}
+								course={courseName}
+							/>
+						}
+						fileName="certificate.pdf"
+						className={buttonVariants({})}
+					>
+						{({ loading }) => (
+							<>
+								<FileBadge2 size={20} />
+								{loading
+									? "Loading document..."
+									: "Download certificate"}
+							</>
+						)}
+					</PDFDownloadLink>
+				</DialogContent>
+			</Dialog>
+			<iframe src={url} className="flex-1" />
+		</>
+	);
 };
 
 export default LMSProvider;

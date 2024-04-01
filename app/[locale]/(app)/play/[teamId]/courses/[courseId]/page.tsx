@@ -70,7 +70,15 @@ const Page = async ({
 	const learner = await db.query.learners.findFirst({
 		where: and(eq(learners.id, learnerId)),
 		with: {
-			module: true,
+			module: {
+				with: {
+					course: {
+						with: {
+							team: true,
+						},
+					},
+				},
+			},
 		},
 	});
 
@@ -102,6 +110,8 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
+					courseName={learner.module.course.name}
+					teamName={learner.module.course.team.name}
 					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}/${resources[0].href}`}
 				/>
 			</div>

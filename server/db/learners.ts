@@ -45,25 +45,21 @@ export const learnersData = {
 			data,
 		});
 
+		const completedAt = courseModule
+			? !learner.completedAt && newLearner.status === "passed"
+				? new Date()
+				: null
+			: null;
+
 		await db
 			.update(learners)
 			.set({
 				data,
-				completedAt: courseModule
-					? !learner.completedAt &&
-						(newLearner.status === "passed" ||
-							newLearner.status === "completed" ||
-							newLearner.status === "failed")
-						? new Date()
-						: null
-					: null,
+				completedAt,
 			})
 			.where(eq(learners.id, id));
 
-		return ExtendLearner(courseModule?.type).parse({
-			...learner,
-			data,
-		});
+		return { ...newLearner, completedAt };
 
 		// await svix.message.create(`app_${moduleId}`, {
 		// 	eventType: "learner.update",
