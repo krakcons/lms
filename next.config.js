@@ -1,4 +1,5 @@
 const withNextIntl = require("next-intl/plugin")();
+const { withAxiom } = require("next-axiom");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -45,4 +46,4 @@ const nextConfig = {
 	},
 };
 
-module.exports = withNextIntl(nextConfig);
+module.exports = withAxiom(withNextIntl(nextConfig));
