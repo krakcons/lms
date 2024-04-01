@@ -68,7 +68,7 @@ export const modulesHandler = new Hono()
 				completedAt: null,
 			};
 
-			if (learner.sendEmail && learner.email) {
+			if (learner.sendEmail !== false && learner.email) {
 				await learnersData.invite({
 					email: newLearner.email,
 					learnerId: newLearner.id,

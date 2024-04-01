@@ -88,7 +88,7 @@ export const learnersData = {
 		await db.insert(learners).values(learnerList).onConflictDoNothing();
 
 		const emailList = learnerList
-			.filter((learner) => learner.sendEmail && learner.email)
+			.filter((learner) => learner.sendEmail !== false && learner.email)
 			.map((learner) => {
 				return {
 					email: learner.email,
