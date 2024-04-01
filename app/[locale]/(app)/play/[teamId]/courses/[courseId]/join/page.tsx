@@ -1,4 +1,3 @@
-import { redirect } from "@/lib/navigation";
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
@@ -22,7 +21,15 @@ const Page = async ({
 		const learner = await db.query.learners.findFirst({
 			where: and(eq(learners.id, learnerId)),
 			with: {
-				module: true,
+				module: {
+					with: {
+						course: {
+							with: {
+								team: true,
+							},
+						},
+					},
+				},
 			},
 		});
 
@@ -31,11 +38,6 @@ const Page = async ({
 				<div>
 					<p>No learner found with this id</p>
 				</div>
-			);
-		}
-		if (learner.module) {
-			redirect(
-				`/play/${teamId}/courses/${courseId}?learnerId=${learnerId}`
 			);
 		}
 		initialLearner = learner;
