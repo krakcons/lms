@@ -21,8 +21,10 @@ const columnHelper = createColumnHelper<Learner>();
 
 const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 	const status = info.row.original.status;
+	console.log("status", status);
 
 	const labels = {
+		completed: "Completed",
 		"not-started": "Not Started",
 		"in-progress": "In Progress",
 		passed: "Passed",

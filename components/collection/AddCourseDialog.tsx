@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -62,9 +61,6 @@ export const AddCourseDialog = ({
 							<p className="truncate text-center">
 								{course.name}
 							</p>
-							<Badge variant="outline" className="absolute top-2">
-								Free
-							</Badge>
 						</Button>
 					))}
 				</div>

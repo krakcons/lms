@@ -50,7 +50,10 @@ export const learnersData = {
 			.set({
 				data,
 				completedAt: courseModule
-					? !learner.completedAt && newLearner.status === "passed"
+					? !learner.completedAt &&
+						(newLearner.status === "passed" ||
+							newLearner.status === "completed" ||
+							newLearner.status === "failed")
 						? new Date()
 						: null
 					: null,

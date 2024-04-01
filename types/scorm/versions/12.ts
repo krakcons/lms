@@ -93,7 +93,7 @@ export const Scorm12DataSchema = z
 	})
 	.transform((data) => {
 		const statusMapping: Record<string, Learner["status"]> = {
-			completed: "passed",
+			completed: "completed",
 			incomplete: "in-progress",
 			"not attempted": "not-started",
 			browsed: "in-progress",

@@ -12,7 +12,13 @@ export const BaseLearnerSchema = createSelectSchema(learners, {
 export type BaseLearner = z.infer<typeof BaseLearnerSchema>;
 
 export const LearnerSchema = BaseLearnerSchema.extend({
-	status: z.enum(["passed", "failed", "in-progress", "not-started"]),
+	status: z.enum([
+		"completed",
+		"passed",
+		"failed",
+		"in-progress",
+		"not-started",
+	]),
 	score: z
 		.object({
 			raw: z.number().optional(),
@@ -25,26 +31,26 @@ export type Learner = z.infer<typeof LearnerSchema>;
 
 export const ExtendLearner = (type?: Module["type"]) => {
 	return BaseLearnerSchema.transform((data) => {
-		let learner =
-			type === "1.2"
+		return type === "1.2"
+			? {
+					...data,
+					...Scorm12DataSchema.parse(data.data),
+				}
+			: type === "2004"
 				? {
 						...data,
-						...Scorm12DataSchema.parse(data.data),
+						...Scorm2004DataSchema.parse(data.data),
 					}
-				: type === "2004"
-					? {
-							...data,
-							...Scorm2004DataSchema.parse(data.data),
-						}
-					: {
-							...data,
-							status: "not-started" as const,
-							score: {
-								raw: 0,
-								max: 100,
-								min: 0,
-							},
-						};
+				: {
+						...data,
+						status: "not-started" as const,
+						score: {
+							raw: 0,
+							max: 100,
+							min: 0,
+						},
+					};
+	}).refine((learner) => {
 		if (learner.status === "not-started" && learner.startedAt) {
 			learner.status = "in-progress";
 		}

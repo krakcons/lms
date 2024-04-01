@@ -41,7 +41,7 @@ export const AddKeyDialog = () => {
 			name: "",
 		},
 	});
-	const { mutate } = useMutation({
+	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.keys.$post,
 		onSuccess: () => {
 			setOpen(false);
@@ -91,7 +91,9 @@ export const AddKeyDialog = () => {
 								</FormItem>
 							)}
 						/>
-						<Button type="submit">Create Key</Button>
+						<Button type="submit" isPending={isPending}>
+							Create Key
+						</Button>
 					</form>
 				</Form>
 			</DialogContent>

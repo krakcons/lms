@@ -27,7 +27,7 @@ const CreateCourseForm = ({ teamId }: { teamId: string }) => {
 		},
 	});
 
-	const { mutate } = useMutation({
+	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.courses.$post,
 		onSuccess: async (res) => {
 			const data = await res.json();
@@ -71,7 +71,7 @@ const CreateCourseForm = ({ teamId }: { teamId: string }) => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Submit</Button>
+				<Button type="submit" isPending={isPending}>Submit</Button>
 			</form>
 		</Form>
 	);

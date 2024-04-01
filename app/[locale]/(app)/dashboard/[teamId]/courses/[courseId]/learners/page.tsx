@@ -37,8 +37,15 @@ const Table = async ({ courseId }: { courseId: string }) => {
 
 	const learnerList = await db.query.learners.findMany({
 		where: eq(learners.courseId, courseId),
+		with: {
+			module: true,
+		},
 	});
-	const extenededLearnerList = ExtendLearner().array().parse(learnerList);
+
+	const extenededLearnerList = learnerList.map((learner) => {
+		return ExtendLearner(learner.module?.type).parse(learner);
+	});
+	console.log(extenededLearnerList);
 
 	return <LearnersTable learners={extenededLearnerList} />;
 };

@@ -221,6 +221,7 @@ const LMSProvider = ({ type, learner, url }: Props) => {
 	});
 
 	useEffect(() => {
+		console.log("LMSProvider", data, learner.data);
 		mutate({ param: { id: learner.id }, json: { ...learner, data } });
 	}, [data, learner, mutate]);
 
