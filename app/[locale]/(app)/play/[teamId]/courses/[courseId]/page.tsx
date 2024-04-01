@@ -82,10 +82,10 @@ const Page = async ({
 		);
 	}
 
-	if (learner.module?.language !== locale) {
+	if (!learner.module) {
 		return (
 			<div>
-				<p>Learner is in different language</p>
+				<p>Learner has no module</p>
 			</div>
 		);
 	}
@@ -102,7 +102,7 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-					url={`/${locale}/r2/${teamId}/courses/${courseId}/${locale}/${resources[0].href}`}
+					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}/${resources[0].href}`}
 				/>
 			</div>
 		</main>
