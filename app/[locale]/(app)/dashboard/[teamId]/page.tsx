@@ -93,7 +93,8 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 								</p>
 								{collection.description && (
 									<p className="text-sm text-muted-foreground opacity-90">
-										{collection.description}
+										{collection.description} •{" "}
+										{collection.id}
 									</p>
 								)}
 							</div>
