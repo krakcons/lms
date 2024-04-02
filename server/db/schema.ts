@@ -216,4 +216,8 @@ export const learnersRelations = relations(learners, ({ one }) => ({
 		fields: [learners.moduleId],
 		references: [modules.id],
 	}),
+	course: one(courses, {
+		fields: [learners.courseId],
+		references: [courses.id],
+	}),
 }));

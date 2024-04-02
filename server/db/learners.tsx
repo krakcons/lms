@@ -1,3 +1,5 @@
+import { Certificate } from "@/components/Certificate";
+import CourseCompletion from "@/emails/CourseCompletion";
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
@@ -10,12 +12,19 @@ import {
 	UpdateLearner,
 } from "@/types/learner";
 import { renderAsync } from "@react-email/components";
+import { pdf } from "@react-pdf/renderer";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
 import React, { cache } from "react";
 import { resend } from "../resend";
 import { modulesData } from "./modules";
+
+const generatePdfBuffer = async (element: React.ReactElement) => {
+	const blob = await pdf(element).toBlob();
+	const arrayBuffer = await blob.arrayBuffer();
+	return Buffer.from(arrayBuffer);
+};
 
 export const learnersData = {
 	get: cache(async ({ id }: SelectLearner) => {
@@ -39,17 +48,26 @@ export const learnersData = {
 		if (moduleId) {
 			courseModule = await modulesData.get({ id: moduleId });
 		}
-		const learner = await learnersData.get({ id });
+		const learner = await db.query.learners.findFirst({
+			where: and(eq(learners.id, id)),
+		});
+
+		if (!learner) {
+			throw new HTTPException(404, {
+				message: "Learner not found.",
+			});
+		}
+
 		const newLearner = ExtendLearner(courseModule?.type).parse({
 			...learner,
 			data,
 		});
 
-		const completedAt = courseModule
-			? !learner.completedAt && newLearner.status === "passed"
-				? new Date()
-				: null
-			: null;
+		const justCompleted =
+			!learner.completedAt && newLearner.status === "passed";
+
+		const completedAt =
+			courseModule && justCompleted ? new Date() : learner.completedAt;
 
 		await db
 			.update(learners)
@@ -58,6 +76,55 @@ export const learnersData = {
 				completedAt,
 			})
 			.where(eq(learners.id, id));
+
+		if (justCompleted) {
+			const learner = await db.query.learners.findFirst({
+				where: eq(learners.id, id),
+				with: {
+					course: {
+						with: {
+							team: true,
+						},
+					},
+				},
+			});
+
+			const html = await renderAsync(
+				React.createElement(CourseCompletion, {
+					course: learner!.course.name,
+					organization: "Krak LMS",
+				})
+			);
+
+			const pdfBuffer = await generatePdfBuffer(
+				<Certificate
+					name={`${learner!.firstName} ${learner!.lastName}`}
+					course={learner!.course.name}
+					completedAt={completedAt || new Date()}
+					teamName={learner!.course.team.name}
+				/>
+			);
+
+			const { error } = await resend.emails.send({
+				html,
+				to: learner!.email,
+				subject: learner!.course.name,
+				from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+				attachments: [
+					{
+						filename: "certificate.pdf",
+						content: pdfBuffer,
+					},
+				],
+			});
+
+			if (error) {
+				throw new HTTPException(500, {
+					message: "Failed to send email",
+					cause: error,
+				});
+			}
+		}
 
 		return { ...newLearner, completedAt };
 
@@ -132,14 +199,13 @@ export const learnersData = {
 
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
-				email,
 				course: course.name,
 				organization: "Krak LMS",
 				href,
 			})
 		);
 
-		const { data, error } = await resend.emails.send({
+		const { error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: course.name,
