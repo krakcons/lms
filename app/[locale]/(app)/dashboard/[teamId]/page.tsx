@@ -91,12 +91,12 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 								<p className="text-lg font-semibold text-blue-300">
 									{collection.name}
 								</p>
-								{collection.description && (
-									<p className="text-sm text-muted-foreground opacity-90">
-										{collection.description} •{" "}
-										{collection.id}
-									</p>
-								)}
+								<p className="text-sm text-muted-foreground opacity-90">
+									{collection.description
+										? collection.description + " • "
+										: null}
+									{collection.id}
+								</p>
 							</div>
 							<div className="flex gap-3">
 								<CollectionDeleteButton
