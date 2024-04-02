@@ -82,16 +82,18 @@ export const coursesHandler = new Hono()
 					})
 				)
 		),
+		authedMiddleware,
 		async (c) => {
 			const { id } = c.req.param();
 			let input = c.req.valid("json");
+			const teamId = c.get("teamId");
 
 			if (!Array.isArray(input)) {
 				input = [input];
 			}
 
 			const course = await db.query.courses.findFirst({
-				where: and(eq(courses.id, id)),
+				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
 			});
 
 			if (!course) {
