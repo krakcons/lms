@@ -18,20 +18,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
-import { CreateCollection, CreateCollectionSchema } from "@/types/collections";
+import {
+	CreateCollectionTranslation,
+	CreateCollectionTranslationSchema,
+} from "@/types/collections";
 import { CreateCourse } from "@/types/course";
+import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-export const CreateCollectionDialog = () => {
+export const CreateCollectionDialog = ({
+	language,
+}: {
+	language: Language;
+}) => {
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
-	const form = useForm<CreateCollection>({
-		resolver: zodResolver(CreateCollectionSchema),
+	const form = useForm<CreateCollectionTranslation>({
+		resolver: zodResolver(CreateCollectionTranslationSchema),
 		defaultValues: {
+			language,
+			default: true,
 			name: "",
 			description: "",
 		},

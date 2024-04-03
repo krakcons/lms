@@ -56,9 +56,8 @@ export const CollectionLearnerInvite = ({
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>
+				<Button size="icon">
 					<UserPlus size={18} />
-					Invite Learners
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-2xl">

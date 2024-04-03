@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
-import { translateCourse } from "@/lib/translation";
+import { translate } from "@/lib/translation";
 import { getAuth } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
@@ -39,9 +39,9 @@ const Page = async ({
 
 	return (
 		<main>
-			<h2>{translateCourse(course.translations, locale).name}</h2>
+			<h2>{translate(course.translations, locale).name}</h2>
 			<p className="text-muted-foreground">
-				{translateCourse(course.translations, locale).description}
+				{translate(course.translations, locale).description}
 			</p>
 			<Separator className="my-8" />
 			<div className="flex justify-between gap-4">

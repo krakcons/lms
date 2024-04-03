@@ -1,7 +1,7 @@
 import CourseCompletion from "@/emails/CourseCompletion";
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
-import { translateCourse } from "@/lib/translation";
+import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners, teams } from "@/server/db/schema";
 import { Course, CourseTranslation } from "@/types/course";
@@ -104,7 +104,7 @@ export const learnersData = {
 
 			const html = await renderAsync(
 				React.createElement(CourseCompletion, {
-					course: translateCourse(
+					course: translate(
 						learner.course.translations,
 						courseModule?.language
 					).name,
@@ -116,7 +116,7 @@ export const learnersData = {
 			const { error } = await resend.emails.send({
 				html,
 				to: learner.email,
-				subject: translateCourse(
+				subject: translate(
 					learner.course.translations,
 					courseModule?.language
 				).name,
@@ -204,7 +204,7 @@ export const learnersData = {
 
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
-				course: translateCourse(course.translations).name,
+				course: translate(course.translations).name,
 				organization: "Krak LMS",
 				href,
 			})
@@ -213,7 +213,7 @@ export const learnersData = {
 		const { error } = await resend.emails.send({
 			html,
 			to: email,
-			subject: translateCourse(course.translations).name,
+			subject: translate(course.translations).name,
 			from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 		});
 

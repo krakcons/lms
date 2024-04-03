@@ -20,13 +20,12 @@ import {
 } from "@/components/ui/select";
 import { locales } from "@/i18n";
 import { client } from "@/lib/api";
-import { useRouter } from "@/lib/navigation";
 import { translate } from "@/lib/translation";
 import {
-	CourseTranslation,
-	CreateCourse,
-	CreateCourseSchema,
-} from "@/types/course";
+	TeamTranslation,
+	UpdateTeamTranslation,
+	UpdateTeamTranslationSchema,
+} from "@/types/team";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -35,24 +34,22 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 
-export const EditCourseForm = ({
+export const EditTeamForm = ({
 	translations,
 	language,
-	courseId,
+	teamId,
 }: {
-	translations: CourseTranslation[];
+	translations: TeamTranslation[];
 	language: Language;
-	courseId: string;
+	teamId: string;
 }) => {
-	const router = useRouter();
-	const defaultCourse = translate(translations, language);
-	const form = useForm<CreateCourse>({
-		resolver: zodResolver(CreateCourseSchema),
+	const defaultTeam = translate(translations, language);
+	const form = useForm<UpdateTeamTranslation>({
+		resolver: zodResolver(UpdateTeamTranslationSchema),
 		defaultValues: {
-			default: defaultCourse.default,
+			default: defaultTeam.default,
 			language,
-			name: defaultCourse.name,
-			description: defaultCourse.description,
+			name: defaultTeam.name,
 		},
 	});
 
@@ -64,25 +61,19 @@ export const EditCourseForm = ({
 			translations.find((translation) => translation.language === lang)
 				?.name || ""
 		);
-		form.setValue(
-			"description",
-			translations.find((translation) => translation.language === lang)
-				?.description || ""
-		);
 	}, [lang, form, translations]);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses[":id"].$put,
+		mutationFn: client.api.teams[":id"].$put,
 		onSuccess: () => {
-			router.refresh();
-			toast("Course updated successfully");
+			toast("Team updated successfully");
 		},
 	});
 
 	// 2. Define a submit handler.
-	const onSubmit = (values: CreateCourse) => {
+	const onSubmit = (values: UpdateTeamTranslation) => {
 		mutate({
-			param: { id: courseId },
+			param: { id: teamId },
 			json: values,
 		});
 	};
@@ -96,9 +87,9 @@ export const EditCourseForm = ({
 				>
 					<div className="flex items-center justify-between">
 						<div>
-							<h2>Edit Course</h2>
+							<h2>Edit Team</h2>
 							<p className="text-muted-foreground">
-								Edit course in multiple languages
+								Edit team in multiple languages
 							</p>
 						</div>
 						<FormField
@@ -134,26 +125,12 @@ export const EditCourseForm = ({
 						/>
 					</div>
 					<Separator className="my-8" />
-
 					<FormField
 						control={form.control}
 						name="name"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Name</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="description"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Description</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>

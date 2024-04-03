@@ -27,9 +27,9 @@ export const CollectionDeleteButton = ({
 					param: { id: collectionId },
 				});
 			}}
+			size="icon"
 		>
 			<Trash size={18} />
-			Delete
 		</Button>
 	);
 };

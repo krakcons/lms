@@ -1,7 +1,11 @@
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
-import { collections, collectionsToCourses } from "@/server/db/schema";
-import { CreateCollectionSchema } from "@/types/collections";
+import {
+	collectionTranslations,
+	collections,
+	collectionsToCourses,
+} from "@/server/db/schema";
+import { CreateCollectionTranslationSchema } from "@/types/collections";
 import { CreateLearnerSchema } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
@@ -14,16 +18,62 @@ export const collectionsHandler = new Hono()
 	.post(
 		"/",
 		authedMiddleware,
-		zValidator("json", CreateCollectionSchema),
+		zValidator("json", CreateCollectionTranslationSchema),
 		async (c) => {
 			const teamId = c.get("teamId");
-
 			const input = c.req.valid("json");
 
-			await db.insert(collections).values({
+			const collection = await db
+				.insert(collections)
+				.values({
+					...input,
+					teamId,
+				})
+				.returning();
+
+			await db.insert(collectionTranslations).values({
 				...input,
-				teamId,
+				collectionId: collection[0].id,
 			});
+
+			return c.json(null);
+		}
+	)
+	.put(
+		"/:id",
+		authedMiddleware,
+		zValidator("json", CreateCollectionTranslationSchema),
+		async (c) => {
+			const { id } = c.req.param();
+			const teamId = c.get("teamId");
+			const input = c.req.valid("json");
+
+			const collection = await db.query.collections.findFirst({
+				where: and(
+					eq(collections.id, id),
+					eq(collections.teamId, teamId)
+				),
+			});
+
+			if (!collection) {
+				throw new HTTPException(404, {
+					message: "Collection not found.",
+				});
+			}
+
+			await db
+				.insert(collectionTranslations)
+				.values({
+					...input,
+					collectionId: id,
+				})
+				.onConflictDoUpdate({
+					set: input,
+					target: [
+						collectionTranslations.collectionId,
+						collectionTranslations.language,
+					],
+				});
 
 			return c.json(null);
 		}

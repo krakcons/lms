@@ -1,17 +1,23 @@
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
-import { teams } from "@/server/db/schema";
-import { TeamSchema } from "@/types/team";
+import { teamTranslations, teams } from "@/server/db/schema";
+import { UpdateTeamTranslationSchema } from "@/types/team";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 import { authedMiddleware } from "../middleware";
 
 export const teamsHandler = new Hono()
 	.put(
 		"/:id",
-		zValidator("json", TeamSchema.omit({ id: true })),
+		zValidator(
+			"json",
+			UpdateTeamTranslationSchema.extend({
+				customDomain: z.string().optional(),
+			})
+		),
 		authedMiddleware,
 		async (c) => {
 			const id = c.req.param("id");
@@ -23,7 +29,7 @@ export const teamsHandler = new Hono()
 				});
 			}
 
-			const { name, customDomain } = c.req.valid("json");
+			const { customDomain, ...input } = c.req.valid("json");
 
 			const team = await db.query.teams.findFirst({
 				where: eq(teams.id, teamId),
@@ -63,12 +69,18 @@ export const teamsHandler = new Hono()
 			}
 
 			await db
-				.update(teams)
-				.set({
-					name,
-					customDomain,
+				.insert(teamTranslations)
+				.values({
+					...input,
+					teamId,
 				})
-				.where(eq(teams.id, teamId));
+				.onConflictDoUpdate({
+					set: input,
+					target: [
+						teamTranslations.teamId,
+						teamTranslations.language,
+					],
+				});
 
 			return c.json(null);
 		}

@@ -29,6 +29,7 @@ export const CreateCourseForm = ({
 	const form = useForm<CreateCourse>({
 		resolver: zodResolver(CreateCourseSchema),
 		defaultValues: {
+			default: true,
 			language,
 			name: "",
 			description: "",

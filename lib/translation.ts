@@ -1,9 +1,12 @@
-import { CourseTranslation } from "@/types/course";
+interface Translation {
+	language: string;
+	default: boolean;
+}
 
-export const translateCourse = (
-	translations: CourseTranslation[],
+export const translate = <T extends Translation>(
+	translations: T[],
 	locale?: string
-) => {
+): T => {
 	return (
 		translations.find((t) => t.language === locale) ||
 		translations.find((t) => t.default) ||
