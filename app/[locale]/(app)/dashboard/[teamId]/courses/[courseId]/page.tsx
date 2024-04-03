@@ -1,18 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "@/lib/navigation";
+import { translateCourse } from "@/lib/translation";
 import { getAuth } from "@/server/auth/actions";
-import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
-import { learners } from "@/server/db/schema";
+import { courses, learners } from "@/server/db/schema";
+import { Language } from "@/types/translations";
 import { eq } from "drizzle-orm";
 
 import { Users } from "lucide-react";
+import { notFound } from "next/navigation";
 
 const Page = async ({
-	params: { courseId },
+	params: { courseId, locale },
 }: {
-	params: { courseId: string };
+	params: { courseId: string; locale: Language };
 }) => {
 	const { user } = await getAuth();
 
@@ -20,7 +22,16 @@ const Page = async ({
 		return redirect("/auth/google");
 	}
 
-	const course = await coursesData.get({ id: courseId }, user.id);
+	const course = await db.query.courses.findFirst({
+		where: eq(courses.id, courseId),
+		with: {
+			translations: true,
+		},
+	});
+
+	if (!course) {
+		return notFound();
+	}
 
 	const learnerList = await db.query.learners.findMany({
 		where: eq(learners.courseId, courseId),
@@ -28,8 +39,10 @@ const Page = async ({
 
 	return (
 		<main>
-			<h2>{course.name}</h2>
-			<p className="text-muted-foreground">{course.description}</p>
+			<h2>{translateCourse(course.translations, locale).name}</h2>
+			<p className="text-muted-foreground">
+				{translateCourse(course.translations, locale).description}
+			</p>
 			<Separator className="my-8" />
 			<div className="flex justify-between gap-4">
 				<Card className="flex-1">

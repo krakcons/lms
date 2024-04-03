@@ -1,9 +1,10 @@
 import CourseCompletion from "@/emails/CourseCompletion";
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
+import { translateCourse } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners, teams } from "@/server/db/schema";
-import { Course } from "@/types/course";
+import { Course, CourseTranslation } from "@/types/course";
 import {
 	CreateLearner,
 	ExtendLearner,
@@ -83,6 +84,7 @@ export const learnersData = {
 					course: {
 						with: {
 							team: true,
+							translations: true,
 						},
 					},
 				},
@@ -102,7 +104,10 @@ export const learnersData = {
 
 			const html = await renderAsync(
 				React.createElement(CourseCompletion, {
-					course: learner!.course.name,
+					course: translateCourse(
+						learner.course.translations,
+						courseModule?.language
+					).name,
 					organization: "Krak LMS",
 					href,
 				})
@@ -110,8 +115,11 @@ export const learnersData = {
 
 			const { error } = await resend.emails.send({
 				html,
-				to: learner!.email,
-				subject: learner!.course.name,
+				to: learner.email,
+				subject: translateCourse(
+					learner.course.translations,
+					courseModule?.language
+				).name,
 				from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 			});
 
@@ -132,7 +140,7 @@ export const learnersData = {
 	},
 	create: async (
 		input: Omit<CreateLearner, "moduleId" | "courseId">[],
-		courses: Course[]
+		courses: (Course & { translations: CourseTranslation[] })[]
 	) => {
 		const learnerList = courses.flatMap(({ id }) =>
 			input.map((learner) => {
@@ -182,7 +190,7 @@ export const learnersData = {
 	}: {
 		email: string;
 		learnerId: string;
-		course: Course;
+		course: Course & { translations: CourseTranslation[] };
 	}) => {
 		const team = await db.query.teams.findFirst({
 			where: and(eq(teams.id, course.teamId)),
@@ -196,7 +204,7 @@ export const learnersData = {
 
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
-				course: course.name,
+				course: translateCourse(course.translations).name,
 				organization: "Krak LMS",
 				href,
 			})
@@ -205,7 +213,7 @@ export const learnersData = {
 		const { error } = await resend.emails.send({
 			html,
 			to: email,
-			subject: course.name,
+			subject: translateCourse(course.translations).name,
 			from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
 		});
 

@@ -3,7 +3,7 @@ import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/auth/actions";
 import { coursesData } from "@/server/db/courses";
 import { LCDSError } from "@/server/errors";
-import { File, Home, Settings, Users, Webhook } from "lucide-react";
+import { File, Home, Languages, Settings, Users, Webhook } from "lucide-react";
 import { notFound } from "next/navigation";
 
 const Layout = async ({
@@ -33,6 +33,11 @@ const Layout = async ({
 			href: `/dashboard/${teamId}/courses/${courseId}/webhooks`,
 			title: "Webhooks",
 			icon: <Webhook size={18} />,
+		},
+		{
+			href: `/dashboard/${teamId}/courses/${courseId}/edit`,
+			title: "Edit",
+			icon: <Languages size={18} />,
 		},
 		{
 			href: `/dashboard/${teamId}/courses/${courseId}/settings`,

@@ -1,9 +1,9 @@
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
-import { courses } from "@/server/db/schema";
+import { courseTranslations, courses } from "@/server/db/schema";
 import { getPresignedUrl } from "@/server/r2";
-import { CreateCourseSchema, UpdateCourseSchema } from "@/types/course";
+import { CreateCourseSchema } from "@/types/course";
 import { CreateLearnerSchema } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
@@ -31,7 +31,7 @@ export const coursesHandler = new Hono()
 	.post(
 		"/",
 		authedMiddleware,
-		zValidator("json", CreateCourseSchema.omit({ id: true, teamId: true })),
+		zValidator("json", CreateCourseSchema),
 		async (c) => {
 			const teamId = c.get("teamId");
 			const input = c.req.valid("json");
@@ -44,18 +44,37 @@ export const coursesHandler = new Hono()
 	.put(
 		"/:id",
 		authedMiddleware,
-		zValidator("json", UpdateCourseSchema.omit({ id: true })),
+		zValidator("json", CreateCourseSchema),
 		async (c) => {
 			const { id } = c.req.param();
 			const teamId = c.get("teamId");
 			const input = c.req.valid("json");
 
-			const newCourse = await coursesData.update(
-				{ id, ...input },
-				teamId
-			);
+			const course = await db.query.courses.findFirst({
+				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+			});
 
-			return c.json(newCourse);
+			if (!course) {
+				throw new HTTPException(404, {
+					message: "Course not found.",
+				});
+			}
+
+			await db
+				.insert(courseTranslations)
+				.values({
+					courseId: id,
+					...input,
+				})
+				.onConflictDoUpdate({
+					set: input,
+					target: [
+						courseTranslations.courseId,
+						courseTranslations.language,
+					],
+				});
+
+			return c.json(input);
 		}
 	)
 	.delete("/:id", authedMiddleware, async (c) => {
@@ -94,6 +113,9 @@ export const coursesHandler = new Hono()
 
 			const course = await db.query.courses.findFirst({
 				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+				with: {
+					translations: true,
+				},
 			});
 
 			if (!course) {

@@ -3,6 +3,7 @@ import { CollectionDeleteButton } from "@/components/collection/CollectionDelete
 import { CollectionLearnerInvite } from "@/components/collection/CollectionLearnerInvite";
 import { CreateCollectionDialog } from "@/components/collection/CreateCollectionDialog";
 import RemoveCourseButton from "@/components/collection/RemoveCourseButton";
+import { CreateCourseForm } from "@/components/course/CreateCourseForm";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Dialog,
@@ -11,14 +12,19 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Link, redirect } from "@/lib/navigation";
+import { translateCourse } from "@/lib/translation";
 import { getAuth, getTeam } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { courses } from "@/server/db/schema";
+import { Language } from "@/types/translations";
 import { eq } from "drizzle-orm";
 import { Plus } from "lucide-react";
-import CreateCourseForm from "./CreateCourseForm";
 
-const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
+const Page = async ({
+	params: { teamId, locale },
+}: {
+	params: { teamId: string; locale: string };
+}) => {
 	const { user } = await getAuth();
 	if (!user) {
 		return redirect("/auth/google");
@@ -32,6 +38,9 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 
 	const courseList = await db.query.courses.findMany({
 		where: eq(courses.teamId, team.id),
+		with: {
+			translations: true,
+		},
 	});
 
 	const collections = await db.query.collections.findMany({
@@ -39,7 +48,11 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 		with: {
 			collectionsToCourses: {
 				with: {
-					course: true,
+					course: {
+						with: {
+							translations: true,
+						},
+					},
 				},
 			},
 		},
@@ -58,7 +71,9 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 							className: "relative h-32 w-full gap-4 p-4",
 						})}
 					>
-						<p className="truncate text-center">{course.name}</p>
+						<p className="truncate text-center">
+							{translateCourse(course.translations, locale).name}
+						</p>
 					</Link>
 				))}
 				<Dialog>
@@ -75,7 +90,10 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 					</DialogTrigger>
 					<DialogContent>
 						<DialogTitle>Create Course</DialogTitle>
-						<CreateCourseForm teamId={teamId} />
+						<CreateCourseForm
+							teamId={teamId}
+							language={locale as Language}
+						/>
 					</DialogContent>
 				</Dialog>
 			</div>
@@ -123,7 +141,12 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 												})}
 											>
 												<p className="truncate text-center">
-													{course.name}
+													{
+														translateCourse(
+															course.translations,
+															locale
+														).name
+													}
 												</p>
 											</Link>
 											<RemoveCourseButton

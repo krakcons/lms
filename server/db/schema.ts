@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+	boolean,
 	json,
 	pgEnum,
 	pgTable,
@@ -142,8 +143,6 @@ export const courses = pgTable("courses", {
 		.notNull()
 		.$default(() => generateId(15)),
 	teamId: text("teamId").notNull(),
-	name: text("name").notNull(),
-	description: text("description").notNull(),
 });
 
 export const coursesRelations = relations(courses, ({ one, many }) => ({
@@ -153,6 +152,7 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	}),
 	collectionsToCourses: many(collectionsToCourses),
 	modules: many(modules),
+	translations: many(courseTranslations),
 }));
 
 export const modules = pgTable(
@@ -221,3 +221,31 @@ export const learnersRelations = relations(learners, ({ one }) => ({
 		references: [courses.id],
 	}),
 }));
+
+export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
+
+export const courseTranslations = pgTable(
+	"translations",
+	{
+		courseId: text("courseId").notNull(),
+		language: languageEnum("language").notNull(),
+		default: boolean("default").notNull(),
+		name: text("name").notNull(),
+		description: text("description").notNull(),
+	},
+	(t) => ({
+		pk: primaryKey({
+			columns: [t.courseId, t.language],
+		}),
+	})
+);
+
+export const courseTranslationsRelations = relations(
+	courseTranslations,
+	({ one }) => ({
+		course: one(courses, {
+			fields: [courseTranslations.courseId],
+			references: [courses.id],
+		}),
+	})
+);

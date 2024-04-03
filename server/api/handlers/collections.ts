@@ -92,7 +92,11 @@ export const collectionsHandler = new Hono()
 				with: {
 					collectionsToCourses: {
 						with: {
-							course: true,
+							course: {
+								with: {
+									translations: true,
+								},
+							},
 						},
 					},
 				},

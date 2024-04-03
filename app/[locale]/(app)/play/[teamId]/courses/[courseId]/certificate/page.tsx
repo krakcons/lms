@@ -25,6 +25,7 @@ const Page = async ({
 			course: {
 				with: {
 					team: true,
+					translations: true,
 				},
 			},
 		},
@@ -36,7 +37,7 @@ const Page = async ({
 
 	const certificate: CertificateProps = {
 		name: `${learner.firstName} ${learner.lastName}`,
-		course: learner.course.name,
+		course: learner.course.translations[0].name,
 		completedAt: learner.completedAt,
 		teamName: learner.course.team.name,
 	};

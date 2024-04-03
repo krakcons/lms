@@ -1,10 +1,10 @@
-import { CreateCourse, SelectCourse, UpdateCourse } from "@/types/course";
+import { CreateCourse, SelectCourse } from "@/types/course";
 import { and, eq } from "drizzle-orm";
 import { cache } from "react";
 import { LCDSError } from "../errors";
 import { deleteFolder } from "../r2";
 import { db } from "./db";
-import { courses, learners, modules } from "./schema";
+import { courseTranslations, courses, learners, modules } from "./schema";
 
 export const coursesData = {
 	create: async (course: CreateCourse, teamId: string) => {
@@ -12,6 +12,10 @@ export const coursesData = {
 			.insert(courses)
 			.values({ ...course, teamId })
 			.returning();
+		await db.insert(courseTranslations).values({
+			courseId: c[0].id,
+			...course,
+		});
 		return c[0];
 	},
 	get: cache(async ({ id }: SelectCourse, teamId: string) => {
@@ -28,21 +32,6 @@ export const coursesData = {
 
 		return course;
 	}),
-	update: async (newCourse: UpdateCourse, teamId: string) => {
-		const course = await coursesData.get({ id: newCourse.id }, teamId);
-
-		await db
-			.update(courses)
-			.set(newCourse)
-			.where(
-				and(eq(courses.id, newCourse.id), eq(courses.teamId, teamId))
-			);
-
-		return {
-			...course,
-			...newCourse,
-		};
-	},
 	delete: async ({ id }: SelectCourse, teamId: string) => {
 		const course = await coursesData.get({ id }, teamId);
 

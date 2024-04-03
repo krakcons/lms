@@ -13,15 +13,23 @@ import { Input } from "@/components/ui/input";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { CreateCourse, CreateCourseSchema } from "@/types/course";
+import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
-const CreateCourseForm = ({ teamId }: { teamId: string }) => {
+export const CreateCourseForm = ({
+	teamId,
+	language,
+}: {
+	teamId: string;
+	language: Language;
+}) => {
 	const router = useRouter();
 	const form = useForm<CreateCourse>({
 		resolver: zodResolver(CreateCourseSchema),
 		defaultValues: {
+			language,
 			name: "",
 			description: "",
 		},
@@ -71,10 +79,10 @@ const CreateCourseForm = ({ teamId }: { teamId: string }) => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" isPending={isPending}>Submit</Button>
+				<Button type="submit" isPending={isPending}>
+					Submit
+				</Button>
 			</form>
 		</Form>
 	);
 };
-
-export default CreateCourseForm;
