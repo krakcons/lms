@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { client } from "@/lib/api";
 import { usePathname, useRouter } from "@/lib/navigation";
-import { Course } from "@/types/course";
+import { translate } from "@/lib/translation";
+import { Course, CourseTranslation } from "@/types/course";
 import { BaseLearner, CreateLearnerSchema } from "@/types/learner";
 import { Module } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,7 +44,7 @@ export const JoinCourseForm = ({
 	initialLearner,
 }: {
 	modules: Module[];
-	course: Course;
+	course: Course & { translations: CourseTranslation[] };
 	defaultModule: Module;
 	initialLearner?: BaseLearner;
 	text: {
@@ -119,11 +120,14 @@ export const JoinCourseForm = ({
 						<div className="flex items-center justify-between gap-8 rounded-xl border p-6">
 							<div className="flex flex-col gap-2">
 								<p className="text-lg font-medium">
-									{course.name}
+									{translate(course.translations).name}
 								</p>
-								{course.description && (
+								{translate(course.translations).description && (
 									<p className="text-sm text-muted-foreground">
-										{course.description}
+										{
+											translate(course.translations)
+												.description
+										}
 									</p>
 								)}
 							</div>

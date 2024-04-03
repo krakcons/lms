@@ -83,7 +83,11 @@ export const learnersData = {
 				with: {
 					course: {
 						with: {
-							team: true,
+							team: {
+								with: {
+									translations: true,
+								},
+							},
 							translations: true,
 						},
 					},
@@ -108,7 +112,8 @@ export const learnersData = {
 						learner.course.translations,
 						courseModule?.language
 					).name,
-					organization: "Krak LMS",
+					organization: translate(learner.course.team.translations)
+						.name,
 					href,
 				})
 			);
@@ -194,7 +199,16 @@ export const learnersData = {
 	}) => {
 		const team = await db.query.teams.findFirst({
 			where: and(eq(teams.id, course.teamId)),
+			with: {
+				translations: true,
+			},
 		});
+
+		if (!team) {
+			throw new HTTPException(404, {
+				message: "Team not found.",
+			});
+		}
 
 		const href =
 			team?.customDomain &&
@@ -205,7 +219,7 @@ export const learnersData = {
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
 				course: translate(course.translations).name,
-				organization: "Krak LMS",
+				organization: translate(team.translations).name,
 				href,
 			})
 		);
@@ -214,7 +228,7 @@ export const learnersData = {
 			html,
 			to: email,
 			subject: translate(course.translations).name,
-			from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+			from: translate(team.translations).name,
 		});
 
 		if (error) {
