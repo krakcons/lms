@@ -13,11 +13,12 @@ import {
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
+import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-const columnHelper = createColumnHelper<Learner>();
+const columnHelper = createColumnHelper<Learner & { language?: Language }>();
 
 const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 	const status = info.row.original.status;
@@ -113,6 +114,16 @@ const columns = [
 		header: "Status",
 		cell: (info) => <StatusCell info={info} />,
 	}),
+	columnHelper.accessor<
+		(
+			row: Learner & {
+				language?: Language;
+			}
+		) => string,
+		string
+	>((row) => row.language ?? "", {
+		header: "Language",
+	}),
 	columnHelper.display({
 		header: "Score",
 		cell: (info) => {
@@ -136,7 +147,11 @@ const columns = [
 	}),
 ];
 
-const LearnersTable = ({ learners }: { learners: Learner[] }) => {
+const LearnersTable = ({
+	learners,
+}: {
+	learners: (Learner & { language?: Language })[];
+}) => {
 	return (
 		<DataTable
 			data={learners}

@@ -12,6 +12,7 @@ import {
 import { generateId } from "lucia";
 
 export const moduleTypeEnum = pgEnum("module_type", ["1.2", "2004"]);
+export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -162,7 +163,7 @@ export const modules = pgTable(
 			.notNull()
 			.$default(() => generateId(15)),
 		courseId: text("courseId").notNull(),
-		language: text("language").notNull(),
+		language: languageEnum("language").notNull(),
 		type: moduleTypeEnum("type").notNull(),
 	},
 	(t) => ({
@@ -220,8 +221,6 @@ export const learnersRelations = relations(learners, ({ one }) => ({
 		references: [courses.id],
 	}),
 }));
-
-export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
 
 export const courseTranslations = pgTable(
 	"course_translations",
