@@ -1,4 +1,3 @@
-import { Certificate } from "@/components/Certificate";
 import CourseCompletion from "@/emails/CourseCompletion";
 import LearnerInvite from "@/emails/LearnerInvite";
 import { env } from "@/env.mjs";
@@ -89,20 +88,24 @@ export const learnersData = {
 				},
 			});
 
+			if (!learner) {
+				throw new HTTPException(404, {
+					message: "Learner not found.",
+				});
+			}
+
+			const href =
+				learner.course.team?.customDomain &&
+				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
+					? `${learner.course.team.customDomain}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`
+					: `${env.NEXT_PUBLIC_SITE_URL}/play/${learner.course.team?.id}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`;
+
 			const html = await renderAsync(
 				React.createElement(CourseCompletion, {
 					course: learner!.course.name,
 					organization: "Krak LMS",
+					href,
 				})
-			);
-
-			const pdfBuffer = await generatePdfBuffer(
-				<Certificate
-					name={`${learner!.firstName} ${learner!.lastName}`}
-					course={learner!.course.name}
-					completedAt={completedAt || new Date()}
-					teamName={learner!.course.team.name}
-				/>
 			);
 
 			const { error } = await resend.emails.send({
@@ -110,12 +113,6 @@ export const learnersData = {
 				to: learner!.email,
 				subject: learner!.course.name,
 				from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
-				attachments: [
-					{
-						filename: "certificate.pdf",
-						content: pdfBuffer,
-					},
-				],
 			});
 
 			if (error) {

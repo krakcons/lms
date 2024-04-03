@@ -71,17 +71,19 @@ const styles = StyleSheet.create({
 	},
 });
 
+export type CertificateProps = {
+	name: string;
+	course: string;
+	completedAt: Date;
+	teamName: string;
+};
+
 export const Certificate = ({
 	name,
 	course,
 	completedAt,
 	teamName,
-}: {
-	name: string;
-	course: string;
-	completedAt: Date;
-	teamName: string;
-}) => {
+}: CertificateProps) => {
 	return (
 		<Document>
 			<PDFPage size="A4" orientation="landscape" style={styles.page}>
