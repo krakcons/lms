@@ -88,13 +88,23 @@ const columns = [
 		header: "Email",
 	}),
 	columnHelper.accessor<(row: Learner) => string, string>(
-		(row) => row.startedAt?.toString() || "N/A",
+		(row) =>
+			row.startedAt?.toLocaleDateString("en-GB", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			}) || "N/A",
 		{
 			header: "Started At",
 		}
 	),
 	columnHelper.accessor<(row: Learner) => string, string>(
-		(row) => row.completedAt?.toString() || "N/A",
+		(row) =>
+			row.completedAt?.toLocaleDateString("en-GB", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			}) || "N/A",
 		{
 			header: "Completed At",
 		}
