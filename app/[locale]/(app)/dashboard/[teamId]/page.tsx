@@ -125,6 +125,7 @@ const Page = async ({
 												locale
 											).description
 										}
+										{` (id: ${collection.id})`}
 									</p>
 								)}
 							</div>
