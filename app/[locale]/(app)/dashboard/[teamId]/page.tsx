@@ -116,18 +116,17 @@ const Page = async ({
 										).name
 									}
 								</p>
-								{translate(collection.translations, locale)
-									.description && (
-									<p className="text-sm text-muted-foreground opacity-90">
-										{
-											translate(
-												collection.translations,
-												locale
-											).description
-										}
-										{` (id: ${collection.id})`}
-									</p>
-								)}
+								<p className="text-sm text-muted-foreground opacity-90">
+									{
+										translate(
+											collection.translations,
+											locale
+										).description
+									}
+									{translate(collection.translations, locale)
+										.description && " "}
+									{`(id: ${collection.id})`}
+								</p>
 							</div>
 							<div className="flex gap-3">
 								<CollectionDeleteButton
