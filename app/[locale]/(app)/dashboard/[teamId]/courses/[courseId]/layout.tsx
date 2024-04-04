@@ -3,7 +3,7 @@ import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/auth/actions";
 import { coursesData } from "@/server/db/courses";
 import { LCDSError } from "@/server/errors";
-import { File, Home, Settings, Users, Webhook } from "lucide-react";
+import { File, Home, Languages, Settings, Users, Webhook } from "lucide-react";
 import { notFound } from "next/navigation";
 
 const Layout = async ({
@@ -35,6 +35,11 @@ const Layout = async ({
 			icon: <Webhook size={18} />,
 		},
 		{
+			href: `/dashboard/${teamId}/courses/${courseId}/edit`,
+			title: "Edit",
+			icon: <Languages size={18} />,
+		},
+		{
 			href: `/dashboard/${teamId}/courses/${courseId}/settings`,
 			title: "Settings",
 			icon: <Settings size={18} />,
@@ -60,7 +65,7 @@ const Layout = async ({
 	return (
 		<>
 			<div className="flex flex-col lg:flex-row">
-				<aside className="lg:w-1/5">
+				<aside className="lg:w-1/6">
 					<SidebarNav items={items} />
 				</aside>
 				<div className="flex-1 px-0 py-8 lg:px-8 lg:py-0">

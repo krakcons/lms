@@ -42,12 +42,14 @@ const Table = async ({ courseId }: { courseId: string }) => {
 		},
 	});
 
-	const extenededLearnerList = learnerList.map((learner) => {
-		return ExtendLearner(learner.module?.type).parse(learner);
+	const extendedLearnerList = learnerList.map((learner) => {
+		return {
+			...ExtendLearner(learner.module?.type).parse(learner),
+			language: learner.module?.language,
+		};
 	});
-	console.log(extenededLearnerList);
 
-	return <LearnersTable learners={extenededLearnerList} />;
+	return <LearnersTable learners={extendedLearnerList} />;
 };
 
 const Page = async ({

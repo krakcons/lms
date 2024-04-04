@@ -11,26 +11,28 @@ import {
 	Text,
 } from "@react-email/components";
 
-export const LearnerInvite = ({
-	href = "https://google.com",
+export const CourseCompletion = ({
 	course = "Golfing Tutorial",
 	organization = "Krak",
+	href = "https://google.com",
 }: {
-	href: string;
 	course?: string;
 	organization?: string;
+	href?: string;
 }) => (
 	<Html lang="en">
 		<Head />
-		<Preview>Con</Preview>
+		<Preview>Course Completed</Preview>
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
-				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">Course Invitation</Heading>
-					<Text className="text-sm">
-						You have been invited to join <strong>{course}</strong>
+				<Container className="mx-auto mt-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
+					<Heading className="mt-0">Course Completed!</Heading>
+					<Text>
+						Congratulations! You have completed the course{" "}
+						<strong>{course}</strong>
 						{" by "}
-						<strong>{organization}</strong>.
+						<strong>{organization}</strong>. Attached is your
+						completion certificate.
 					</Text>
 					<Button
 						className={buttonVariants({
@@ -38,7 +40,7 @@ export const LearnerInvite = ({
 						})}
 						href={href}
 					>
-						Start Course
+						Get Certificate
 					</Button>
 				</Container>
 			</Body>
@@ -46,4 +48,4 @@ export const LearnerInvite = ({
 	</Html>
 );
 
-export default LearnerInvite;
+export default CourseCompletion;

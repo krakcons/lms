@@ -1,10 +1,8 @@
-import { courses } from "@/server/db/schema";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { courseTranslations, courses } from "@/server/db/schema";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const CourseSchema = createSelectSchema(courses, {
-	name: z.string().min(1, "Course name must be at least 1 character"),
-});
+export const CourseSchema = createSelectSchema(courses);
 export type Course = z.infer<typeof CourseSchema>;
 
 export const DeleteCourseSchema = CourseSchema.pick({
@@ -17,16 +15,29 @@ export const SelectCourseSchema = CourseSchema.pick({
 });
 export type SelectCourse = z.infer<typeof SelectCourseSchema>;
 
-export const CreateCourseSchema = createInsertSchema(courses, {
-	name: z.string().min(1, "Course name must be at least 1 character"),
-}).omit({
-	teamId: true,
-});
-export type CreateCourse = z.infer<typeof CreateCourseSchema>;
-
 export const UpdateCourseSchema = CourseSchema.pick({
 	id: true,
 	name: true,
 	description: true,
 });
 export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;
+
+export const CourseTranslationSchema = createSelectSchema(courseTranslations);
+export type CourseTranslation = z.infer<typeof CourseTranslationSchema>;
+
+export const CreateCourseSchema = CourseTranslationSchema.pick({
+	language: true,
+	name: true,
+	description: true,
+	default: true,
+}).extend({
+	name: z.string().min(1),
+	description: z.string().min(1),
+});
+export type CreateCourse = z.infer<typeof CreateCourseSchema>;
+
+export const UpdateCourseTranslationSchema = CourseTranslationSchema.pick({
+	name: true,
+	description: true,
+	language: true,
+});

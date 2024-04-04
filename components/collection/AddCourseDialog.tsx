@@ -9,16 +9,20 @@ import {
 } from "@/components/ui/dialog";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
-import { Course } from "@/types/course";
+import { translate } from "@/lib/translation";
+import { Course, CourseTranslation } from "@/types/course";
+import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 
 export const AddCourseDialog = ({
 	collectionId,
 	courses,
+	language,
 }: {
 	collectionId: string;
-	courses: Course[];
+	courses: (Course & { translations: CourseTranslation[] })[];
+	language: Language;
 }) => {
 	const router = useRouter();
 	const { mutate } = useMutation({
@@ -59,7 +63,7 @@ export const AddCourseDialog = ({
 							}}
 						>
 							<p className="truncate text-center">
-								{course.name}
+								{translate(course.translations, language).name}
 							</p>
 						</Button>
 					))}

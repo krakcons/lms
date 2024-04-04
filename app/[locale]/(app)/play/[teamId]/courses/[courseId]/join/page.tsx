@@ -39,6 +39,7 @@ const Page = async ({
 		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),
 		with: {
 			modules: true,
+			translations: true,
 		},
 	});
 

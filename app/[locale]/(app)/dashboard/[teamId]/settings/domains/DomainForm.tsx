@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export const DomainFormSchema = z.object({
-	customDomain: validDomainSchema.optional(),
+	customDomain: validDomainSchema,
 });
 export type DomainForm = z.infer<typeof DomainFormSchema>;
 
@@ -34,7 +34,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 	});
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.teams[":id"].$put,
+		mutationFn: client.api.teams[":id"].domain.$put,
 		onSettled: (res) => {
 			if (res && !res.ok) {
 				form.setError("customDomain", {
@@ -48,10 +48,10 @@ const DomainForm = ({ team }: { team: Team }) => {
 		},
 	});
 
-	const onSubmit = async (input: DomainForm) => {
+	const onSubmit = async ({ customDomain }: DomainForm) => {
 		mutate({
 			param: { id: team.id },
-			json: { ...team, ...input },
+			json: { customDomain },
 		});
 	};
 

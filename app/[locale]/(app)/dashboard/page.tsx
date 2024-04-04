@@ -1,7 +1,7 @@
 import { redirect } from "@/lib/navigation";
 import { getAuth } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
-import { teams, usersToTeams } from "@/server/db/schema";
+import { teamTranslations, teams, usersToTeams } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 const Page = async () => {
@@ -22,7 +22,12 @@ const Page = async () => {
 	if (!id) {
 		await db.insert(teams).values({
 			id: user.id,
+		});
+		await db.insert(teamTranslations).values({
+			teamId: user.id,
 			name: "Personal",
+			language: "en",
+			default: true,
 		});
 		await db.insert(usersToTeams).values({
 			userId: user.id,

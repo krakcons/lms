@@ -13,11 +13,12 @@ import {
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
+import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-const columnHelper = createColumnHelper<Learner>();
+const columnHelper = createColumnHelper<Learner & { language?: Language }>();
 
 const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 	const status = info.row.original.status;
@@ -88,13 +89,23 @@ const columns = [
 		header: "Email",
 	}),
 	columnHelper.accessor<(row: Learner) => string, string>(
-		(row) => row.startedAt?.toString() || "N/A",
+		(row) =>
+			row.startedAt?.toLocaleDateString("en-GB", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			}) || "N/A",
 		{
 			header: "Started At",
 		}
 	),
 	columnHelper.accessor<(row: Learner) => string, string>(
-		(row) => row.completedAt?.toString() || "N/A",
+		(row) =>
+			row.completedAt?.toLocaleDateString("en-GB", {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			}) || "N/A",
 		{
 			header: "Completed At",
 		}
@@ -102,6 +113,16 @@ const columns = [
 	columnHelper.accessor("status", {
 		header: "Status",
 		cell: (info) => <StatusCell info={info} />,
+	}),
+	columnHelper.accessor<
+		(
+			row: Learner & {
+				language?: Language;
+			}
+		) => string,
+		string
+	>((row) => row.language ?? "", {
+		header: "Language",
 	}),
 	columnHelper.display({
 		header: "Score",
@@ -126,11 +147,15 @@ const columns = [
 	}),
 ];
 
-const LearnersTable = ({ learners }: { learners: Learner[] }) => {
+const LearnersTable = ({
+	learners,
+}: {
+	learners: (Learner & { language?: Language })[];
+}) => {
 	return (
 		<DataTable
 			data={learners}
-			columns={columns}
+			columns={columns as any}
 			name={"Learners"}
 			filter={{
 				column: "email",

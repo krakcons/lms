@@ -1,17 +1,18 @@
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
-import { teams } from "@/server/db/schema";
-import { TeamSchema } from "@/types/team";
+import { teamTranslations, teams } from "@/server/db/schema";
+import { UpdateTeamTranslationSchema } from "@/types/team";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 import { authedMiddleware } from "../middleware";
 
 export const teamsHandler = new Hono()
 	.put(
 		"/:id",
-		zValidator("json", TeamSchema.omit({ id: true })),
+		zValidator("json", UpdateTeamTranslationSchema),
 		authedMiddleware,
 		async (c) => {
 			const id = c.req.param("id");
@@ -23,15 +24,51 @@ export const teamsHandler = new Hono()
 				});
 			}
 
-			const { name, customDomain } = c.req.valid("json");
+			const input = c.req.valid("json");
+
+			await db
+				.insert(teamTranslations)
+				.values({
+					...input,
+					teamId,
+				})
+				.onConflictDoUpdate({
+					set: input,
+					target: [
+						teamTranslations.teamId,
+						teamTranslations.language,
+					],
+				});
+
+			return c.json(null);
+		}
+	)
+	.put(
+		"/:id/domain",
+		zValidator(
+			"json",
+			z.object({
+				customDomain: z.string(),
+			})
+		),
+		authedMiddleware,
+		async (c) => {
+			const { id } = c.req.param();
+			const { customDomain } = c.req.valid("json");
 
 			const team = await db.query.teams.findFirst({
-				where: eq(teams.id, teamId),
+				where: eq(teams.id, id),
 			});
 
-			if (customDomain && team?.customDomain !== customDomain) {
+			if (!team) {
+				throw new HTTPException(404, {
+					message: "Team not found.",
+				});
+			}
+
+			if (team?.customDomain !== customDomain) {
 				if (team?.customDomain) {
-					const res = await fetch(
+					await fetch(
 						`https://api.vercel.com/v9/projects/${env.PROJECT_ID_VERCEL}/domains/${team.customDomain}?teamId=${env.TEAM_ID_VERCEL}`,
 						{
 							headers: {
@@ -60,15 +97,11 @@ export const teamsHandler = new Hono()
 						message: "Failed to add domain to Vercel.",
 					});
 				}
+			} else {
+				throw new HTTPException(400, {
+					message: "That domain is already set.",
+				});
 			}
-
-			await db
-				.update(teams)
-				.set({
-					name,
-					customDomain,
-				})
-				.where(eq(teams.id, teamId));
 
 			return c.json(null);
 		}
