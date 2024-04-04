@@ -224,12 +224,15 @@ export const learnersData = {
 			})
 		);
 
-		const { error } = await resend.emails.send({
+		const { data, error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: translate(course.translations).name,
-			from: translate(team.translations).name,
+			from: `${translate(team.translations).name} <noreply@lcds.krakconsultants.com>`,
 		});
+
+		console.log("error", error);
+		console.log("data", data);
 
 		if (error) {
 			throw new HTTPException(500, {
