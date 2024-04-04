@@ -1,7 +1,8 @@
 import app from "@/server/api/hono";
 import { handle } from "hono/vercel";
 
-export const runtime = "edge";
+// Over 1mb
+// export const runtime = "edge";
 export const preferredRegion = "cle1";
 
 export const GET = handle(app);
