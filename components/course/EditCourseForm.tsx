@@ -34,6 +34,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
+import { Textarea } from "../ui/textarea";
 
 export const EditCourseForm = ({
 	translations,
@@ -155,7 +156,7 @@ export const EditCourseForm = ({
 							<FormItem>
 								<FormLabel>Description</FormLabel>
 								<FormControl>
-									<Input {...field} />
+									<Textarea {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

@@ -16,6 +16,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import {
@@ -99,7 +100,7 @@ export const CreateCollectionDialog = ({
 								<FormItem>
 									<FormLabel>Description</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<Textarea {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

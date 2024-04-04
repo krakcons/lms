@@ -43,6 +43,7 @@ import {
 	DialogTrigger,
 } from "../ui/dialog";
 import { Separator } from "../ui/separator";
+import { Textarea } from "../ui/textarea";
 
 export const EditCollectionForm = ({
 	translations,
@@ -174,7 +175,7 @@ export const EditCollectionForm = ({
 									<FormItem>
 										<FormLabel>Description</FormLabel>
 										<FormControl>
-											<Input {...field} />
+											<Textarea {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

@@ -17,6 +17,7 @@ import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { Textarea } from "../ui/textarea";
 
 export const CreateCourseForm = ({
 	teamId,
@@ -74,7 +75,7 @@ export const CreateCourseForm = ({
 						<FormItem>
 							<FormLabel>Description</FormLabel>
 							<FormControl>
-								<Input {...field} />
+								<Textarea {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>

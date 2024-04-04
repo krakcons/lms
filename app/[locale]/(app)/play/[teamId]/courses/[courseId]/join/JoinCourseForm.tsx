@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -117,20 +118,16 @@ export const JoinCourseForm = ({
 						/>
 					)}
 					{page === 0 && (
-						<div className="flex items-center justify-between gap-8 rounded-xl border p-6">
-							<div className="flex flex-col gap-2">
-								<p className="text-lg font-medium">
-									{translate(course.translations).name}
+						<div className="flex flex-col gap-2 rounded-xl border p-4">
+							<p className="text-lg font-medium">
+								{translate(course.translations).name}
+							</p>
+							{translate(course.translations).description && (
+								<p className="text-sm text-muted-foreground">
+									{translate(course.translations).description}
 								</p>
-								{translate(course.translations).description && (
-									<p className="text-sm text-muted-foreground">
-										{
-											translate(course.translations)
-												.description
-										}
-									</p>
-								)}
-							</div>
+							)}
+							<Label className="mt-4">Course Language</Label>
 							<Select
 								onValueChange={(value) => {
 									router.push(

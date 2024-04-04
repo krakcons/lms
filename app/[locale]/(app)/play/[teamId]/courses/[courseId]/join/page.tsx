@@ -66,7 +66,7 @@ const Page = async ({
 	);
 
 	return (
-		<main className="m-auto flex flex-col">
+		<main className="m-auto flex max-w-3xl flex-col p-8">
 			<JoinCourseForm
 				modules={course.modules}
 				defaultModule={defaultModule ?? course.modules[0]}
