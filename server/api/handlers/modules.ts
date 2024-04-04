@@ -45,7 +45,11 @@ export const modulesHandler = new Hono()
 			const courseModule = await db.query.modules.findFirst({
 				where: and(eq(modules.id, id)),
 				with: {
-					course: true,
+					course: {
+						with: {
+							translations: true,
+						},
+					},
 				},
 			});
 

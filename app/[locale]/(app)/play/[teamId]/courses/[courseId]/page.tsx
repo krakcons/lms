@@ -1,4 +1,5 @@
 import { env } from "@/env.mjs";
+import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
@@ -74,7 +75,12 @@ const Page = async ({
 				with: {
 					course: {
 						with: {
-							team: true,
+							translations: true,
+							team: {
+								with: {
+									translations: true,
+								},
+							},
 						},
 					},
 				},
@@ -110,8 +116,16 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-					courseName={learner.module.course.name}
-					teamName={learner.module.course.team.name}
+					courseName={
+						translate(learner.module.course.translations, locale)
+							.name
+					}
+					teamName={
+						translate(
+							learner.module.course.team.translations,
+							locale
+						).name
+					}
 					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}/${resources[0].href}`}
 				/>
 			</div>

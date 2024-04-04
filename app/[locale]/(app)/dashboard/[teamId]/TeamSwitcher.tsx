@@ -45,13 +45,13 @@ const TeamSwitcher = ({ user, teams }: { user: User; teams: Team[] }) => {
 						<CommandInput placeholder="Search team..." />
 						<CommandEmpty>No team found.</CommandEmpty>
 						<CommandGroup heading="Teams">
-							{teams.map(({ id, name }) => (
+							{teams.map(({ id }) => (
 								<CommandItem
 									key={id}
 									onSelect={() => {}}
 									className="text-sm"
 								>
-									{name}
+									{id}
 								</CommandItem>
 							))}
 						</CommandGroup>

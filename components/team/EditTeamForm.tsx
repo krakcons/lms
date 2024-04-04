@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { locales } from "@/i18n";
 import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { translate } from "@/lib/translation";
 import {
 	TeamTranslation,
@@ -31,7 +32,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 
 export const EditTeamForm = ({
@@ -43,6 +43,7 @@ export const EditTeamForm = ({
 	language: Language;
 	teamId: string;
 }) => {
+	const router = useRouter();
 	const defaultTeam = translate(translations, language);
 	const form = useForm<UpdateTeamTranslation>({
 		resolver: zodResolver(UpdateTeamTranslationSchema),
@@ -66,7 +67,8 @@ export const EditTeamForm = ({
 	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.teams[":id"].$put,
 		onSuccess: () => {
-			toast("Team updated successfully");
+			router.refresh();
+			// toast("Team updated successfully");
 		},
 	});
 

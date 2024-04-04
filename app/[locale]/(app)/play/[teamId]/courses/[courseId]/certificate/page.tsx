@@ -1,5 +1,6 @@
 import { CertificateProps } from "@/components/Certificate";
 import { Separator } from "@/components/ui/separator";
+import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -24,7 +25,11 @@ const Page = async ({
 		with: {
 			course: {
 				with: {
-					team: true,
+					team: {
+						with: {
+							translations: true,
+						},
+					},
 					translations: true,
 				},
 			},
@@ -39,7 +44,7 @@ const Page = async ({
 		name: `${learner.firstName} ${learner.lastName}`,
 		course: learner.course.translations[0].name,
 		completedAt: learner.completedAt,
-		teamName: learner.course.team.name,
+		teamName: translate(learner.course.team.translations, locale).name,
 	};
 
 	return (

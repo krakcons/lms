@@ -3,6 +3,7 @@ import { db } from "@/server/db/db";
 import { courses } from "@/server/db/schema";
 import { Language } from "@/types/translations";
 import { and, eq } from "drizzle-orm";
+import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
 const Page = async ({
@@ -14,6 +15,7 @@ const Page = async ({
 		courseId: string;
 	};
 }) => {
+	unstable_noStore();
 	const course = await db.query.courses.findFirst({
 		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),
 		with: {

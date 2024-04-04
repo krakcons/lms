@@ -155,7 +155,7 @@ const LearnersTable = ({
 	return (
 		<DataTable
 			data={learners}
-			columns={columns}
+			columns={columns as any}
 			name={"Learners"}
 			filter={{
 				column: "email",
