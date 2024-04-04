@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { locales } from "@/i18n";
 import { client } from "@/lib/api";
+import { useRouter } from "@/lib/navigation";
 import { translate } from "@/lib/translation";
 import {
 	CollectionTranslation,
@@ -52,6 +53,7 @@ export const EditCollectionForm = ({
 	language: Language;
 	collectionId: string;
 }) => {
+	const router = useRouter();
 	const defaultCollection = translate(translations, language);
 	const form = useForm<CreateCollectionTranslation>({
 		resolver: zodResolver(CreateCollectionTranslationSchema),
@@ -81,7 +83,8 @@ export const EditCollectionForm = ({
 	const { mutate, isPending } = useMutation({
 		mutationFn: client.api.collections[":id"].$put,
 		onSuccess: () => {
-			toast("Team updated successfully");
+			router.refresh();
+			toast("Collection updated successfully");
 		},
 	});
 
