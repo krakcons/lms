@@ -128,6 +128,7 @@ export const learnersData = {
 				from: `${
 					translate(learner.course.team.translations).name
 				} <noreply@lcds.krakconsultants.com>`,
+				reply_to: `${translate(learner.course.team.translations).name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
 			if (error) {
@@ -231,6 +232,7 @@ export const learnersData = {
 			to: email,
 			subject: translate(course.translations).name,
 			from: `${translate(team.translations).name} <noreply@lcds.krakconsultants.com>`,
+			reply_to: `${translate(team.translations).name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		console.log("error", error);
