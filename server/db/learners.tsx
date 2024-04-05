@@ -125,7 +125,9 @@ export const learnersData = {
 					learner.course.translations,
 					courseModule?.language
 				).name,
-				from: "Krak LCDS <noreply@lcds.krakconsultants.com>",
+				from: `${
+					translate(learner.course.team.translations).name
+				} <noreply@lcds.krakconsultants.com>`,
 			});
 
 			if (error) {
