@@ -103,6 +103,13 @@ export const teamsHandler = new Hono()
 				});
 			}
 
+			await db
+				.update(teams)
+				.set({
+					customDomain,
+				})
+				.where(eq(teams.id, id));
+
 			return c.json(null);
 		}
 	)
