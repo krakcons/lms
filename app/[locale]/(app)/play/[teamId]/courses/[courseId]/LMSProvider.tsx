@@ -1,6 +1,5 @@
 "use client";
 
-import { Certificate } from "@/components/Certificate";
 import { buttonVariants } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,6 +9,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { client } from "@/lib/api";
+import { Link, usePathname } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { Module } from "@/types/module";
 import {
@@ -20,9 +20,7 @@ import {
 	Scorm2004ErrorCode,
 	Scorm2004ErrorMessage,
 } from "@/types/scorm/versions/2004";
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useMutation } from "@tanstack/react-query";
-import { FileBadge2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -219,17 +217,18 @@ const LMSProvider = ({
 	type,
 	learner,
 	url,
-	courseName,
-	teamName,
+	text,
 }: {
 	type: Module["type"];
-	courseName: string;
-	teamName: string;
 	learner: Learner;
 	url: string;
+	text: {
+		download: string;
+		title: string;
+		description: string;
+	};
 }) => {
 	const [open, setOpen] = useState(false);
-	const [completedAt, setCompletedAt] = useState<Date | null>(null);
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$put,
 		onSuccess: async (res) => {
@@ -237,7 +236,6 @@ const LMSProvider = ({
 			console.log("Learner updated", data);
 			if (data.completedAt) {
 				setOpen(true);
-				setCompletedAt(new Date(data.completedAt));
 			}
 		},
 	});
@@ -251,39 +249,24 @@ const LMSProvider = ({
 		mutate({ param: { id: learner.id }, json: { ...learner, data } });
 	}, [data, learner, mutate]);
 
+	const pathname = usePathname();
+
 	return (
 		<>
 			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Course Completed!</DialogTitle>
+						<DialogTitle>{text.title}</DialogTitle>
 						<DialogDescription>
-							You are now free to close this window. An email
-							containing your certificate will be sent shortly.
-							You can also download it below:
+							{text.description}
 						</DialogDescription>
 					</DialogHeader>
-					<PDFDownloadLink
-						document={
-							<Certificate
-								name={`${learner.firstName} ${learner.lastName}`}
-								teamName={teamName}
-								completedAt={completedAt || new Date()}
-								course={courseName}
-							/>
-						}
-						fileName="certificate.pdf"
-						className={buttonVariants({})}
+					<Link
+						href={`${pathname}/certificate?learnerId=${learner.id}`}
+						className={buttonVariants()}
 					>
-						{({ loading }) => (
-							<>
-								<FileBadge2 size={20} />
-								{loading
-									? "Loading document..."
-									: "Download certificate"}
-							</>
-						)}
-					</PDFDownloadLink>
+						{text.download}
+					</Link>
 				</DialogContent>
 			</Dialog>
 			<iframe src={url} className="flex-1" />

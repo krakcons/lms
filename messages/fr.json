@@ -17,5 +17,23 @@
 			"email": "Adresse e-mail"
 		},
 		"submit": "Soumettre"
+	},
+	"Certificate": {
+		"title": "Certificat de fin d'études",
+		"message": "Il s'agit de certifier que vous avez suivi le cours avec succès.",
+		"download": "Télécharger le certificat",
+		"pdf": {
+			"title": "Certificat de fin d'études",
+			"message": "Nouse sommes fiers de remettre ce certificat à",
+			"congratulations": {
+				"1": "Félicitations ! Vous avez terminé avec succès le module",
+				"2": "sur la plateforme"
+			},
+			"date": "DATE D'ACHÈVEMENT"
+		},
+		"dialog": {
+			"title": "Cours terminé !",
+			"description": "Vous pouvez maintenant fermer cette fenêtre. Un courriel contenant votre certificat vous sera envoyé dans les plus brefs délais. Vous pouvez également le télécharger ci-dessous :"
+		}
 	}
 }

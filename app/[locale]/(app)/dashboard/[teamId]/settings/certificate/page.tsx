@@ -5,6 +5,7 @@ import { db } from "@/server/db/db";
 import { teams } from "@/server/db/schema";
 import { Language } from "@/types/translations";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
@@ -25,6 +26,8 @@ const Page = async ({
 		return notFound();
 	}
 
+	const t = await getTranslations({ locale });
+
 	return (
 		<>
 			<div className="flex items-center justify-between">
@@ -42,6 +45,15 @@ const Page = async ({
 					name: "John Doe",
 					course: "Volunteer Training",
 					completedAt: new Date(),
+					text: {
+						title: t("Certificate.pdf.title"),
+						message: t("Certificate.pdf.message"),
+						congratulations: {
+							1: t("Certificate.pdf.congratulations.1"),
+							2: t("Certificate.pdf.congratulations.2"),
+						},
+						date: t("Certificate.pdf.date"),
+					},
 				}}
 			/>
 		</>

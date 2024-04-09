@@ -76,6 +76,15 @@ export type CertificateProps = {
 	course: string;
 	completedAt: Date;
 	teamName: string;
+	text: {
+		title: string;
+		message: string;
+		congratulations: {
+			1: string;
+			2: string;
+		};
+		date: string;
+	};
 };
 
 export const Certificate = ({
@@ -83,6 +92,7 @@ export const Certificate = ({
 	course,
 	completedAt,
 	teamName,
+	text,
 }: CertificateProps) => {
 	return (
 		<Document>
@@ -98,8 +108,8 @@ export const Certificate = ({
 						bottom: 0,
 					}}
 				/>
-				<Text style={styles.h1}>Certificate of Completion</Text>
-				<Text>This certificate is proudly awarded to</Text>
+				<Text style={styles.h1}>{text.title}</Text>
+				<Text>{text.message}</Text>
 				<Text
 					style={[
 						styles.h1,
@@ -116,8 +126,8 @@ export const Certificate = ({
 						textAlign: "center",
 					}}
 				>
-					Congratulations! You have successfully completed {course}{" "}
-					with {teamName}.
+					{text.congratulations[1]} {course} {text.congratulations[2]}{" "}
+					{teamName}.
 				</Text>
 				<View
 					style={{
@@ -135,7 +145,7 @@ export const Certificate = ({
 							marginVertical: 10,
 						}}
 					/>
-					<Text>DATE OF COMPLETION</Text>
+					<Text>{text.date}</Text>
 				</View>
 			</PDFPage>
 		</Document>

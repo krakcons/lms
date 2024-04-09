@@ -4,7 +4,20 @@ import { BaseLearner } from "@/types/learner";
 import { and, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
+import { playMetadata } from "../metadata";
 import { JoinCourseForm } from "./JoinCourseForm";
+
+export const generateMetadata = async ({
+	params,
+}: {
+	params: { courseId: string; locale: string; teamId: string };
+}) => {
+	const t = await getTranslations({ locale: params.locale });
+	return playMetadata({
+		prefix: `${t("Join.join")} `,
+		params,
+	});
+};
 
 const Page = async ({
 	params: { courseId, locale, teamId },

@@ -4,9 +4,23 @@ import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { and, eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { playMetadata } from "../metadata";
 import DownloadLink from "./DownloadLink";
 import PDFView from "./PDFView";
+
+export const generateMetadata = async ({
+	params,
+}: {
+	params: { courseId: string; locale: string; teamId: string };
+}) => {
+	const t = await getTranslations({ locale: params.locale });
+	return playMetadata({
+		prefix: `${t("Certificate.title")} `,
+		params,
+	});
+};
 
 const Page = async ({
 	params: { locale },
@@ -19,7 +33,6 @@ const Page = async ({
 		learnerId: string;
 	};
 }) => {
-	console;
 	const learner = await db.query.learners.findFirst({
 		where: and(eq(learners.id, learnerId)),
 		with: {
@@ -40,23 +53,37 @@ const Page = async ({
 		return notFound();
 	}
 
+	const t = await getTranslations({ locale });
+
 	const certificate: CertificateProps = {
 		name: `${learner.firstName} ${learner.lastName}`,
 		course: learner.course.translations[0].name,
 		completedAt: learner.completedAt,
 		teamName: translate(learner.course.team.translations, locale).name,
+		text: {
+			title: t("Certificate.pdf.title"),
+			message: t("Certificate.pdf.message"),
+			congratulations: {
+				1: t("Certificate.pdf.congratulations.1"),
+				2: t("Certificate.pdf.congratulations.2"),
+			},
+			date: t("Certificate.pdf.date"),
+		},
 	};
 
 	return (
 		<div className="p-20">
 			<div className="flex items-center justify-between">
 				<div>
-					<h2>View Certificate</h2>
+					<h2>{t("Certificate.title")}</h2>
 					<p className="text-muted-foreground">
-						Download and view your certificate here!
+						{t("Certificate.message")}
 					</p>
 				</div>
-				<DownloadLink certificate={certificate} />
+				<DownloadLink
+					certificate={certificate}
+					text={t("Certificate.download")}
+				/>
 			</div>
 			<Separator className="my-8" />
 			<PDFView certificate={certificate} />

@@ -17,5 +17,23 @@
 			"email": "Email"
 		},
 		"submit": "Submit"
+	},
+	"Certificate": {
+		"title": "Certificate of Completion",
+		"message": "This is to certify that you have successfully completed the course",
+		"download": "Download certificate",
+		"pdf": {
+			"title": "Certificate of Completion",
+			"message": "This certificate is proudly awarded to",
+			"congratulations": {
+				"1": "Congratulations! you have successfully completed",
+				"2": "with"
+			},
+			"date": "DATE OF COMPLETION"
+		},
+		"dialog": {
+			"title": "Course Completed!",
+			"description": "You are now free to close this window. An email containing your certificate will be sent shortly. You can also download it below:"
+		}
 	}
 }

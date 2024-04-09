@@ -1,13 +1,25 @@
 import { env } from "@/env.mjs";
-import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
 import { IMSManifestSchema, Resource } from "@/types/scorm/content";
 import { and, eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
+import { getTranslations } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
 import LMSProvider from "./LMSProvider";
+import { playMetadata } from "./metadata";
+
+export const generateMetadata = async ({
+	params,
+}: {
+	params: { courseId: string; locale: string; teamId: string };
+}) => {
+	return playMetadata({
+		prefix: "",
+		params,
+	});
+};
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -104,6 +116,8 @@ const Page = async ({
 		);
 	}
 
+	const t = await getTranslations({ locale });
+
 	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
 
 	const { scorm, resources } = await parseCourse(
@@ -116,17 +130,12 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-					courseName={
-						translate(learner.module.course.translations, locale)
-							.name
-					}
-					teamName={
-						translate(
-							learner.module.course.team.translations,
-							locale
-						).name
-					}
 					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}/${resources[0].href}`}
+					text={{
+						title: t("Certificate.dialog.title"),
+						description: t("Certificate.dialog.description"),
+						download: t("Certificate.download"),
+					}}
 				/>
 			</div>
 		</main>
