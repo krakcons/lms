@@ -68,6 +68,7 @@ const Page = async ({
 	return (
 		<main className="m-auto flex max-w-3xl flex-col p-8">
 			<JoinCourseForm
+				locale={locale}
 				modules={course.modules}
 				defaultModule={defaultModule ?? course.modules[0]}
 				course={course}

@@ -43,11 +43,13 @@ export const JoinCourseForm = ({
 	text,
 	defaultModule,
 	initialLearner,
+	locale,
 }: {
 	modules: Module[];
 	course: Course & { translations: CourseTranslation[] };
 	defaultModule: Module;
 	initialLearner?: BaseLearner;
+	locale: string;
 	text: {
 		title1: string;
 		title2: string;
@@ -120,11 +122,15 @@ export const JoinCourseForm = ({
 					{page === 0 && (
 						<div className="flex flex-col gap-2 rounded-xl border p-4">
 							<p className="text-lg font-medium">
-								{translate(course.translations).name}
+								{translate(course.translations, locale).name}
 							</p>
-							{translate(course.translations).description && (
+							{translate(course.translations, locale)
+								.description && (
 								<p className="text-sm text-muted-foreground">
-									{translate(course.translations).description}
+									{
+										translate(course.translations, locale)
+											.description
+									}
 								</p>
 							)}
 							<Label className="mt-4">Course Language</Label>
