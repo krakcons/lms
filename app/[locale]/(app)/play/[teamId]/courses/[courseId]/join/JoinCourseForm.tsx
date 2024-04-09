@@ -63,13 +63,15 @@ export const JoinCourseForm = ({
 }) => {
 	const router = useRouter();
 	const pathname = usePathname();
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState(-1);
 
 	useEffect(() => {
 		if (initialLearner?.moduleId) {
 			router.push(
 				`${pathname.replace("/join", "")}?learnerId=${initialLearner.id}`
 			);
+		} else {
+			setPage(0);
 		}
 	}, [initialLearner, pathname, router]);
 
@@ -108,6 +110,10 @@ export const JoinCourseForm = ({
 	const onSubmit = async (input: JoinCourse) => {
 		mutate({ param: { id: input.moduleId }, json: input });
 	};
+
+	if (page === -1) {
+		return null;
+	}
 
 	return (
 		<div className="flex flex-col gap-4">
