@@ -106,16 +106,19 @@ export const learnersData = {
 				namespace: "Email",
 			});
 
+			const teamTranslation = translate(
+				learner.course.team.translations,
+				courseModule?.language
+			);
+			const courseTranslation = translate(
+				learner.course.translations,
+				courseModule?.language
+			);
+
 			const html = await renderAsync(
 				React.createElement(CourseCompletion, {
-					course: translate(
-						learner.course.translations,
-						courseModule?.language
-					).name,
-					organization: translate(
-						learner.course.team.translations,
-						courseModule?.language
-					).name,
+					course: courseTranslation.name,
+					organization: teamTranslation.name,
 					href,
 					text: {
 						title: t("Completion.title"),
@@ -130,17 +133,9 @@ export const learnersData = {
 			const { error } = await resend.emails.send({
 				html,
 				to: learner.email,
-				subject: translate(
-					learner.course.translations,
-					courseModule?.language
-				).name,
-				from: `${
-					translate(
-						learner.course.team.translations,
-						courseModule?.language
-					).name
-				} <noreply@lcds.krakconsultants.com>`,
-				reply_to: `${translate(learner.course.team.translations, courseModule?.language).name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+				subject: courseTranslation.name,
+				from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+				reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
 			if (error) {
@@ -259,10 +254,16 @@ export const learnersData = {
 			namespace: "Email",
 		});
 
+		const courseTranslation = translate(
+			course.translations,
+			inviteLanguage
+		);
+		const teamTranslation = translate(team.translations, inviteLanguage);
+
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
-				course: translate(course.translations, inviteLanguage).name,
-				organization: translate(team.translations, inviteLanguage).name,
+				course: courseTranslation.name,
+				organization: teamTranslation.name,
 				href,
 				text: {
 					title: t("Invite.title"),
@@ -276,9 +277,9 @@ export const learnersData = {
 		const { data, error } = await resend.emails.send({
 			html,
 			to: email,
-			subject: translate(course.translations).name,
-			from: `${translate(team.translations).name} <noreply@lcds.krakconsultants.com>`,
-			reply_to: `${translate(team.translations).name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			subject: courseTranslation.name,
+			from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		console.log("error", error);
