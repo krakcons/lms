@@ -1,4 +1,5 @@
 import { CertificateProps } from "@/components/Certificate";
+import LanguageToggle from "@/components/LanguageToggle";
 import { Separator } from "@/components/ui/separator";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
@@ -80,10 +81,13 @@ const Page = async ({
 						{t("Certificate.message")}
 					</p>
 				</div>
-				<DownloadLink
-					certificate={certificate}
-					text={t("Certificate.download")}
-				/>
+				<div className="flex gap-2">
+					<LanguageToggle />
+					<DownloadLink
+						certificate={certificate}
+						text={t("Certificate.download")}
+					/>
+				</div>
 			</div>
 			<Separator className="my-8" />
 			<PDFView certificate={certificate} />

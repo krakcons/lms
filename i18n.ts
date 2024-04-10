@@ -12,3 +12,14 @@ export default getRequestConfig(async ({ locale }) => {
 		messages: (await import(`./messages/${locale}.json`)).default,
 	};
 });
+
+export const getLocaleLabel = (locale: string) => {
+	switch (locale) {
+		case "en":
+			return "English";
+		case "fr":
+			return "Français";
+		default:
+			return locale;
+	}
+};

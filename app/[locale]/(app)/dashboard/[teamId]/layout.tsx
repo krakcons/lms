@@ -1,3 +1,4 @@
+import LanguageToggle from "@/components/LanguageToggle";
 import UserButton from "@/components/auth/UserButton";
 import { Link, redirect } from "@/lib/navigation";
 import { getAuth, getTeam } from "@/server/auth/actions";
@@ -68,6 +69,7 @@ const Layout = async ({
 						</Link>
 					</div>
 					<div className="flex items-center justify-center gap-3">
+						<LanguageToggle />
 						<ThemeButton />
 						<Suspense fallback={null}>
 							<UserButton />

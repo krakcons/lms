@@ -15,10 +15,12 @@ import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { getLocaleLabel } from "@/i18n";
 import { client } from "@/lib/api";
 import { usePathname, useRouter } from "@/lib/navigation";
 import { translate } from "@/lib/translation";
@@ -143,38 +145,39 @@ export const JoinCourseForm = ({
 								</p>
 							)}
 							<Label className="mt-4">{text.languageLabel}</Label>
-							<Select
-								onValueChange={(value) => {
-									router.push(
-										initialLearner?.id
-											? pathname +
-													"?learnerId=" +
-													initialLearner.id
-											: pathname,
-
-										{
-											locale: value,
-										}
-									);
-								}}
-								defaultValue={defaultModule.language}
-							>
-								<SelectTrigger className="w-[180px]">
-									<SelectValue placeholder="Language" />
-								</SelectTrigger>
-								<SelectContent>
-									{modules.map((module) => (
-										<SelectItem
-											key={module.id}
-											value={module.language}
+							<FormField
+								control={form.control}
+								name="moduleId"
+								render={({ field }) => (
+									<FormItem>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value}
 										>
-											{module.language === "fr"
-												? "Francais"
-												: "English"}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+											<FormControl>
+												<SelectTrigger className="w-[150px]">
+													<SelectValue placeholder="Select language" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectGroup>
+													{modules.map((module) => (
+														<SelectItem
+															key={module.id}
+															value={module.id}
+														>
+															{getLocaleLabel(
+																module.language
+															)}
+														</SelectItem>
+													))}
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
 					)}
 					{page === 1 && (

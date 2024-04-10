@@ -1,3 +1,4 @@
+import LanguageToggle from "@/components/LanguageToggle";
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
@@ -80,26 +81,31 @@ const Page = async ({
 	);
 
 	return (
-		<main className="m-auto flex max-w-3xl flex-col p-8">
-			<JoinCourseForm
-				locale={locale}
-				modules={course.modules}
-				defaultModule={defaultModule ?? course.modules[0]}
-				course={course}
-				initialLearner={initialLearner}
-				text={{
-					title1: t("Join.0.title"),
-					title2: t("Join.1.title"),
-					firstName: t("Form.learner.firstName"),
-					lastName: t("Form.learner.lastName"),
-					email: t("Form.learner.email"),
-					join: t("Join.join"),
-					continue: t("Join.continue"),
-					back: t("Join.back"),
-					languageLabel: t("Join.language"),
-				}}
-			/>
-		</main>
+		<>
+			<div className="absolute right-4 top-4">
+				<LanguageToggle />
+			</div>
+			<main className="m-auto flex max-w-3xl flex-col p-8">
+				<JoinCourseForm
+					locale={locale}
+					modules={course.modules}
+					defaultModule={defaultModule ?? course.modules[0]}
+					course={course}
+					initialLearner={initialLearner}
+					text={{
+						title1: t("Join.0.title"),
+						title2: t("Join.1.title"),
+						firstName: t("Form.learner.firstName"),
+						lastName: t("Form.learner.lastName"),
+						email: t("Form.learner.email"),
+						join: t("Join.join"),
+						continue: t("Join.continue"),
+						back: t("Join.back"),
+						languageLabel: t("Join.language"),
+					}}
+				/>
+			</main>
+		</>
 	);
 };
 
