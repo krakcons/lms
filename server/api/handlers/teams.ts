@@ -1,7 +1,9 @@
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
 import { teamTranslations, teams } from "@/server/db/schema";
+import { getPresignedUrl } from "@/server/r2";
 import { UpdateTeamTranslationSchema } from "@/types/team";
+import { LanguageSchema } from "@/types/translations";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -138,4 +140,23 @@ export const teamsHandler = new Hono()
 		);
 		const data = await res.json();
 		return c.json(data);
-	});
+	})
+	.post(
+		"/logo",
+		zValidator(
+			"json",
+			z.object({
+				language: LanguageSchema,
+			})
+		),
+		authedMiddleware,
+		async (c) => {
+			const language = c.req.valid("json").language;
+			const teamId = c.get("teamId");
+
+			const imageUrl = `${teamId}/${language}/logo`;
+			const url = await getPresignedUrl(imageUrl);
+
+			return c.json({ url, imageUrl });
+		}
+	);

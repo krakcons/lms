@@ -255,6 +255,7 @@ export const teamTranslations = pgTable(
 		language: languageEnum("language").notNull(),
 		default: boolean("default").notNull(),
 		name: text("name").notNull(),
+		logo: text("logo"),
 	},
 	(t) => ({
 		pk: primaryKey({

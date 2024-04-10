@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
@@ -18,21 +18,27 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { env } from "@/env.mjs";
 import { locales } from "@/i18n";
 import { client } from "@/lib/api";
+import { FileSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { translate } from "@/lib/translation";
-import {
-	TeamTranslation,
-	UpdateTeamTranslation,
-	UpdateTeamTranslationSchema,
-} from "@/types/team";
+import { TeamTranslation, UpdateTeamTranslationSchema } from "@/types/team";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Separator } from "../ui/separator";
+
+const EditTeamFormSchema = UpdateTeamTranslationSchema.extend({
+	logo: FileSchema.optional(),
+});
+type EditTeamForm = z.infer<typeof EditTeamFormSchema>;
 
 export const EditTeamForm = ({
 	translations,
@@ -43,10 +49,16 @@ export const EditTeamForm = ({
 	language: Language;
 	teamId: string;
 }) => {
+	console.log(translations);
 	const router = useRouter();
 	const defaultTeam = translate(translations, language);
-	const form = useForm<UpdateTeamTranslation>({
-		resolver: zodResolver(UpdateTeamTranslationSchema),
+	const [imageUrl, setImageUrl] = useState<string | null>(
+		defaultTeam.logo
+			? `${env.NEXT_PUBLIC_R2_URL}/${defaultTeam.logo}`
+			: null
+	);
+	const form = useForm<EditTeamForm>({
+		resolver: zodResolver(EditTeamFormSchema),
 		defaultValues: {
 			default: defaultTeam.default,
 			language,
@@ -62,22 +74,50 @@ export const EditTeamForm = ({
 			translations.find((translation) => translation.language === lang)
 				?.name || ""
 		);
-	}, [lang, form, translations]);
+		const logo = translate(translations, lang).logo
+			? `${env.NEXT_PUBLIC_R2_URL}/${translate(translations, lang).logo}`
+			: null;
+		setImageUrl(logo);
+	}, [lang, form, translations, defaultTeam.logo]);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.teams[":id"].$put,
+		mutationFn: async (values: EditTeamForm) => {
+			let logoUrl: TeamTranslation["logo"] = null;
+			if (values.logo) {
+				const presignedRes = await client.api.teams.logo.$post({
+					json: {
+						language: values.language,
+					},
+				});
+				const { url, imageUrl } = await presignedRes.json();
+				const contentType = values.logo.type;
+
+				await fetch(url, {
+					method: "PUT",
+					headers: contentType
+						? new Headers({
+								"Content-Type": contentType,
+							})
+						: undefined,
+					body: values.logo,
+				});
+				logoUrl = imageUrl;
+			}
+
+			return client.api.teams[":id"].$put({
+				param: { id: teamId },
+				json: { ...values, logo: logoUrl },
+			});
+		},
 		onSuccess: () => {
 			router.refresh();
-			// toast("Team updated successfully");
+			toast("Team updated successfully");
 		},
 	});
 
 	// 2. Define a submit handler.
-	const onSubmit = (values: UpdateTeamTranslation) => {
-		mutate({
-			param: { id: teamId },
-			json: values,
-		});
+	const onSubmit = async (values: EditTeamForm) => {
+		mutate(values);
 	};
 
 	return (
@@ -135,6 +175,60 @@ export const EditTeamForm = ({
 								<FormLabel>Name</FormLabel>
 								<FormControl>
 									<Input {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="logo"
+						render={({
+							field: { value, onChange, ...fieldProps },
+						}) => (
+							<FormItem className="flex justify-start">
+								<FormLabel className="flex items-center gap-4">
+									{imageUrl ? (
+										<Image
+											src={imageUrl}
+											width={100}
+											height={100}
+											alt="Team Logo"
+											className="rounded"
+										/>
+									) : (
+										<div className="h-[100px] w-[100px] rounded bg-muted" />
+									)}
+									<div
+										className={buttonVariants({
+											variant: "secondary",
+											className: "cursor-pointer",
+										})}
+									>
+										Change Logo
+									</div>
+								</FormLabel>
+								<FormControl>
+									<Input
+										{...fieldProps}
+										placeholder="Logo"
+										type="file"
+										className="hidden"
+										accept="image/*"
+										onChange={(event) => {
+											onChange(
+												event.target.files &&
+													event.target.files[0]
+											);
+											if (event.target.files) {
+												setImageUrl(
+													URL.createObjectURL(
+														event.target.files[0]!
+													).toString()
+												);
+											}
+										}}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

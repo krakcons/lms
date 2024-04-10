@@ -41,6 +41,15 @@ const nextConfig = {
 			},
 		];
 	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev",
+				port: "",
+			},
+		],
+	},
 	experimental: {
 		ppr: true,
 	},
