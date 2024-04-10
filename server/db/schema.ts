@@ -256,6 +256,7 @@ export const teamTranslations = pgTable(
 		default: boolean("default").notNull(),
 		name: text("name").notNull(),
 		logo: text("logo"),
+		favicon: text("favicon"),
 	},
 	(t) => ({
 		pk: primaryKey({

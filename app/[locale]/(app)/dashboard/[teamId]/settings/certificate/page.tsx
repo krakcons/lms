@@ -1,5 +1,6 @@
 import PDFView from "@/app/[locale]/(app)/play/[teamId]/courses/[courseId]/certificate/PDFView";
 import { Separator } from "@/components/ui/separator";
+import { env } from "@/env.mjs";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { teams } from "@/server/db/schema";
@@ -27,6 +28,7 @@ const Page = async ({
 	}
 
 	const t = await getTranslations({ locale });
+	const teamTranslation = translate(team.translations, locale);
 
 	return (
 		<>
@@ -41,7 +43,7 @@ const Page = async ({
 			<Separator className="my-8" />
 			<PDFView
 				certificate={{
-					teamName: translate(team.translations, locale).name,
+					teamName: teamTranslation.name,
 					name: "John Doe",
 					course: "Volunteer Training",
 					completedAt: new Date(),
@@ -54,6 +56,9 @@ const Page = async ({
 						},
 						date: t("Certificate.pdf.date"),
 					},
+					logo: teamTranslation.logo
+						? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
+						: undefined,
 				}}
 			/>
 		</>

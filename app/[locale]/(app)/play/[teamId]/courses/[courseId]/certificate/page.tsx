@@ -1,6 +1,7 @@
 import { CertificateProps } from "@/components/Certificate";
 import LanguageToggle from "@/components/LanguageToggle";
 import { Separator } from "@/components/ui/separator";
+import { env } from "@/env.mjs";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
@@ -55,12 +56,13 @@ const Page = async ({
 	}
 
 	const t = await getTranslations({ locale });
+	const teamTranslation = translate(learner.course.team.translations, locale);
 
 	const certificate: CertificateProps = {
 		name: `${learner.firstName} ${learner.lastName}`,
 		course: learner.course.translations[0].name,
 		completedAt: learner.completedAt,
-		teamName: translate(learner.course.team.translations, locale).name,
+		teamName: teamTranslation.name,
 		text: {
 			title: t("Certificate.pdf.title"),
 			message: t("Certificate.pdf.message"),
@@ -70,6 +72,9 @@ const Page = async ({
 			},
 			date: t("Certificate.pdf.date"),
 		},
+		logo: teamTranslation.logo
+			? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
+			: undefined,
 	};
 
 	return (

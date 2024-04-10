@@ -76,6 +76,7 @@ export type CertificateProps = {
 	course: string;
 	completedAt: Date;
 	teamName: string;
+	logo?: string;
 	text: {
 		title: string;
 		message: string;
@@ -93,6 +94,7 @@ export const Certificate = ({
 	completedAt,
 	teamName,
 	text,
+	logo,
 }: CertificateProps) => {
 	return (
 		<Document>
@@ -108,7 +110,7 @@ export const Certificate = ({
 						bottom: 0,
 					}}
 				/>
-				<Text style={styles.h1}>{text.title}</Text>
+				<Text style={[styles.h1, { marginTop: 15 }]}>{text.title}</Text>
 				<Text>{text.message}</Text>
 				<Text
 					style={[
@@ -147,6 +149,16 @@ export const Certificate = ({
 					/>
 					<Text>{text.date}</Text>
 				</View>
+				{logo && (
+					/* eslint-disable-next-line jsx-a11y/alt-text */
+					<Image
+						src={logo}
+						style={{
+							height: 50,
+							objectFit: "contain",
+						}}
+					/>
+				)}
 			</PDFPage>
 		</Document>
 	);

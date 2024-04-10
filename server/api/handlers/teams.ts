@@ -159,4 +159,23 @@ export const teamsHandler = new Hono()
 
 			return c.json({ url, imageUrl });
 		}
+	)
+	.post(
+		"/favicon",
+		zValidator(
+			"json",
+			z.object({
+				language: LanguageSchema,
+			})
+		),
+		authedMiddleware,
+		async (c) => {
+			const language = c.req.valid("json").language;
+			const teamId = c.get("teamId");
+
+			const imageUrl = `${teamId}/${language}/favicon`;
+			const url = await getPresignedUrl(imageUrl);
+
+			return c.json({ url, imageUrl });
+		}
 	);

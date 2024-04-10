@@ -40,7 +40,7 @@ export const playMetadata = async ({
 			images: [`${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`],
 		},
 		icons: {
-			icon: `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`,
+			icon: `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.favicon}`,
 		},
 	};
 };

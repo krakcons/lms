@@ -33,10 +33,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 
 const EditTeamFormSchema = UpdateTeamTranslationSchema.extend({
 	logo: FileSchema.optional(),
+	favicon: FileSchema.optional(),
 });
 type EditTeamForm = z.infer<typeof EditTeamFormSchema>;
 
@@ -49,12 +51,16 @@ export const EditTeamForm = ({
 	language: Language;
 	teamId: string;
 }) => {
-	console.log(translations);
 	const router = useRouter();
 	const defaultTeam = translate(translations, language);
-	const [imageUrl, setImageUrl] = useState<string | null>(
+	const [logoImageUrl, setLogoImageUrl] = useState<string | null>(
 		defaultTeam.logo
 			? `${env.NEXT_PUBLIC_R2_URL}/${defaultTeam.logo}`
+			: null
+	);
+	const [faviconImageUrl, setFaviconImageUrl] = useState<string | null>(
+		defaultTeam.favicon
+			? `${env.NEXT_PUBLIC_R2_URL}/${defaultTeam.favicon}`
 			: null
 	);
 	const form = useForm<EditTeamForm>({
@@ -77,8 +83,12 @@ export const EditTeamForm = ({
 		const logo = translate(translations, lang).logo
 			? `${env.NEXT_PUBLIC_R2_URL}/${translate(translations, lang).logo}`
 			: null;
-		setImageUrl(logo);
-	}, [lang, form, translations, defaultTeam.logo]);
+		setLogoImageUrl(logo);
+		const favicon = translate(translations, lang).favicon
+			? `${env.NEXT_PUBLIC_R2_URL}/${translate(translations, lang).favicon}`
+			: null;
+		setFaviconImageUrl(favicon);
+	}, [lang, form, translations, defaultTeam.logo, defaultTeam.favicon]);
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (values: EditTeamForm) => {
@@ -101,12 +111,43 @@ export const EditTeamForm = ({
 						: undefined,
 					body: values.logo,
 				});
-				logoUrl = imageUrl;
+				logoUrl = imageUrl + "?" + Date.now();
 			}
 
+			let faviconUrl: TeamTranslation["favicon"] = null;
+			if (values.favicon) {
+				const presignedRes = await client.api.teams.favicon.$post({
+					json: {
+						language: values.language,
+					},
+				});
+				const { url, imageUrl } = await presignedRes.json();
+				const contentType = values.favicon.type;
+
+				await fetch(url, {
+					method: "PUT",
+					headers: contentType
+						? new Headers({
+								"Content-Type": contentType,
+							})
+						: undefined,
+					body: values.favicon,
+				});
+				faviconUrl = imageUrl + "?" + Date.now();
+			}
+
+			const currentLogo = translate(translations, values.language).logo;
+			const currentFavicon = translate(
+				translations,
+				values.language
+			).favicon;
 			return client.api.teams[":id"].$put({
 				param: { id: teamId },
-				json: { ...values, logo: logoUrl },
+				json: {
+					...values,
+					logo: logoUrl ?? currentLogo,
+					favicon: faviconUrl ?? currentFavicon,
+				},
 			});
 		},
 		onSuccess: () => {
@@ -117,16 +158,14 @@ export const EditTeamForm = ({
 
 	// 2. Define a submit handler.
 	const onSubmit = async (values: EditTeamForm) => {
+		console.log(values);
 		mutate(values);
 	};
 
 	return (
 		<main>
 			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-8"
-				>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<div className="flex items-center justify-between">
 						<div>
 							<h2>Edit Team</h2>
@@ -167,76 +206,146 @@ export const EditTeamForm = ({
 						/>
 					</div>
 					<Separator className="my-8" />
-					<FormField
-						control={form.control}
-						name="name"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Name</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="logo"
-						render={({
-							field: { value, onChange, ...fieldProps },
-						}) => (
-							<FormItem className="flex justify-start">
-								<FormLabel className="flex items-center gap-4">
-									{imageUrl ? (
-										<Image
-											src={imageUrl}
-											width={100}
-											height={100}
-											alt="Team Logo"
-											className="rounded"
-										/>
-									) : (
-										<div className="h-[100px] w-[100px] rounded bg-muted" />
-									)}
-									<div
-										className={buttonVariants({
-											variant: "secondary",
-											className: "cursor-pointer",
-										})}
-									>
-										Change Logo
-									</div>
-								</FormLabel>
-								<FormControl>
-									<Input
-										{...fieldProps}
-										placeholder="Logo"
-										type="file"
-										className="hidden"
-										accept="image/*"
-										onChange={(event) => {
-											onChange(
-												event.target.files &&
-													event.target.files[0]
-											);
-											if (event.target.files) {
-												setImageUrl(
-													URL.createObjectURL(
-														event.target.files[0]!
-													).toString()
+					<div className="flex flex-col items-start gap-8">
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="logo"
+							render={({
+								field: { value, onChange, ...fieldProps },
+							}) => (
+								<FormItem className="flex justify-start">
+									<FormLabel className="flex flex-col items-start">
+										<Label className="mb-4">Logo</Label>
+										{logoImageUrl ? (
+											<Image
+												src={logoImageUrl}
+												width={350}
+												height={100}
+												objectFit="contain"
+												alt="Team Logo"
+												className="rounded"
+											/>
+										) : (
+											<div className="h-[100px] w-[350px] rounded bg-muted" />
+										)}
+										<div
+											className={buttonVariants({
+												variant: "secondary",
+												className:
+													"mt-4 cursor-pointer",
+											})}
+										>
+											Change Logo
+										</div>
+										<p className="mt-2 text-xs text-muted-foreground">
+											Suggested image size: 350px x 100px
+										</p>
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...fieldProps}
+											placeholder="Logo"
+											type="file"
+											className="hidden"
+											accept="image/*"
+											onChange={(event) => {
+												onChange(
+													event.target.files &&
+														event.target.files[0]
 												);
-											}
-										}}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<Button type="submit" isPending={isPending}>
-						Submit
-					</Button>
+												if (event.target.files) {
+													setLogoImageUrl(
+														URL.createObjectURL(
+															event.target
+																.files[0]!
+														).toString()
+													);
+												}
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="favicon"
+							render={({
+								field: { value, onChange, ...fieldProps },
+							}) => (
+								<FormItem className="flex justify-start">
+									<FormLabel className="flex flex-col items-start">
+										<Label className="mb-4">Favicon</Label>
+										{faviconImageUrl ? (
+											<Image
+												src={faviconImageUrl}
+												width={100}
+												height={100}
+												objectFit="contain"
+												alt="Team Favicon"
+												className="rounded"
+											/>
+										) : (
+											<div className="h-[100px] w-[100px] rounded bg-muted" />
+										)}
+										<div
+											className={buttonVariants({
+												variant: "secondary",
+												className:
+													"mt-4 cursor-pointer",
+											})}
+										>
+											Change Favicon
+										</div>
+										<p className="mt-2 text-xs text-muted-foreground">
+											Suggested image size: 512px x 512px
+										</p>
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...fieldProps}
+											placeholder="Favicon"
+											type="file"
+											className="hidden"
+											accept="image/*"
+											onChange={(event) => {
+												onChange(
+													event.target.files &&
+														event.target.files[0]
+												);
+												if (event.target.files) {
+													setFaviconImageUrl(
+														URL.createObjectURL(
+															event.target
+																.files[0]!
+														).toString()
+													);
+												}
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit" isPending={isPending}>
+							Submit
+						</Button>
+					</div>
 				</form>
 			</Form>
 		</main>
