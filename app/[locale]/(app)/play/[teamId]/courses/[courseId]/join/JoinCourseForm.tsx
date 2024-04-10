@@ -105,7 +105,7 @@ export const JoinCourseForm = ({
 			email: initialLearner?.email ?? "",
 			moduleId: defaultModule.id,
 			courseId: course.id,
-			sendEmail: true,
+			sendEmail: initialLearner ? false : true,
 			firstName: initialLearner?.firstName ?? "",
 			lastName: initialLearner?.lastName ?? "",
 			inviteLanguage: locale,

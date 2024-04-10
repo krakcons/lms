@@ -70,15 +70,6 @@ export const modulesHandler = new Hono()
 				completedAt: null,
 			};
 
-			if (learner.sendEmail !== false && learner.email) {
-				await learnersData.invite({
-					email: newLearner.email,
-					learnerId: newLearner.id,
-					course: courseModule.course,
-					inviteLanguage: newLearner.inviteLanguage,
-				});
-			}
-
 			const createdLearner = await db
 				.insert(learners)
 				.values(newLearner)
@@ -92,7 +83,14 @@ export const modulesHandler = new Hono()
 				})
 				.returning();
 
-			console.log("createdLearner", createdLearner);
+			if (learner.sendEmail !== false && learner.email) {
+				await learnersData.invite({
+					email: newLearner.email,
+					learnerId: newLearner.id,
+					course: courseModule.course,
+					inviteLanguage: newLearner.inviteLanguage,
+				});
+			}
 
 			return c.json(
 				ExtendLearner(courseModule.type).parse(createdLearner[0])
