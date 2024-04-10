@@ -11,11 +11,20 @@ import {
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { labelVariants } from "@/components/ui/label";
+import { locales } from "@/i18n";
 import { CreateLearnerSchema } from "@/types/learner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
 
 export const InviteFormSchema = z.object({
 	learners: z.array(CreateLearnerSchema.omit({ courseId: true })),
@@ -39,6 +48,7 @@ export const LearnersInviteForm = ({
 					lastName: "",
 					sendEmail: true,
 					id: undefined,
+					inviteLanguage: "en",
 				},
 			],
 		},
@@ -77,6 +87,13 @@ export const LearnersInviteForm = ({
 					>
 						Email
 					</p>
+					<p
+						className={labelVariants({
+							className: "w-[80px]",
+						})}
+					>
+						Language
+					</p>
 					<div className="w-10"></div>
 				</div>
 				<hr />
@@ -114,6 +131,37 @@ export const LearnersInviteForm = ({
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name={`learners.${index}.inviteLanguage`}
+							render={({ field }) => (
+								<FormItem>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<FormControl>
+											<SelectTrigger className="w-[80px]">
+												<SelectValue placeholder="Select language" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectGroup>
+												{locales.map((locale) => (
+													<SelectItem
+														key={locale}
+														value={locale}
+													>
+														{locale}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
 									<FormMessage />
 								</FormItem>
 							)}

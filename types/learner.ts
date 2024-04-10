@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Module } from "./module";
 import { Scorm12DataSchema } from "./scorm/versions/12";
 import { Scorm2004DataSchema } from "./scorm/versions/2004";
+import { LanguageSchema } from "./translations";
 
 export const BaseLearnerSchema = createSelectSchema(learners, {
 	data: z.record(z.string()),
@@ -68,6 +69,7 @@ export const CreateLearnerSchema = InsertLearnerSchema.extend({
 	sendEmail: z.boolean().optional(),
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),
+	inviteLanguage: LanguageSchema.optional(),
 }).omit({
 	completedAt: true,
 	startedAt: true,

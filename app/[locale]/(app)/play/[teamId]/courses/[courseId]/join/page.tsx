@@ -95,6 +95,7 @@ const Page = async ({
 					join: t("Join.join"),
 					continue: t("Join.continue"),
 					back: t("Join.back"),
+					languageLabel: t("Join.language"),
 				}}
 			/>
 		</main>

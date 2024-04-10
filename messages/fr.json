@@ -8,7 +8,8 @@
 		"1": { "title": "Créer un apprenant" },
 		"continue": "Continuer",
 		"join": "Rejoindre",
-		"back": "Retour"
+		"back": "Retour",
+		"language": "Langue du cours"
 	},
 	"Form": {
 		"learner": {
@@ -34,6 +35,20 @@
 		"dialog": {
 			"title": "Cours terminé !",
 			"description": "Vous pouvez maintenant fermer cette fenêtre. Un courriel contenant votre certificat vous sera envoyé dans les plus brefs délais. Vous pouvez également le télécharger ci-dessous :"
+		}
+	},
+	"Email": {
+		"by": "par",
+		"Completion": {
+			"title": "Cours terminé",
+			"congratulations": "Félicitations ! Vous avez terminé le cours",
+			"certificate": "Téléchargez votre certificat d'achèvement au lien ci-dessous.",
+			"get": "Obtenir un certificat"
+		},
+		"Invite": {
+			"title": "Invitation au cours",
+			"invite": "Vous avez été invité à vous inscrire",
+			"start": "Commencer le cours"
 		}
 	}
 }

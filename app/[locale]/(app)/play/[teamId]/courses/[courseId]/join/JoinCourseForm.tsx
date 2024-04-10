@@ -59,6 +59,7 @@ export const JoinCourseForm = ({
 		join: string;
 		continue: string;
 		back: string;
+		languageLabel: string;
 	};
 }) => {
 	const router = useRouter();
@@ -139,7 +140,7 @@ export const JoinCourseForm = ({
 									}
 								</p>
 							)}
-							<Label className="mt-4">Course Language</Label>
+							<Label className="mt-4">{text.languageLabel}</Label>
 							<Select
 								onValueChange={(value) => {
 									router.push(

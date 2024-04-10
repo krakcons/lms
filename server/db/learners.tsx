@@ -11,20 +11,15 @@ import {
 	SelectLearner,
 	UpdateLearner,
 } from "@/types/learner";
+import { Language } from "@/types/translations";
 import { renderAsync } from "@react-email/components";
-import { pdf } from "@react-pdf/renderer";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
+import { getTranslations } from "next-intl/server";
 import React, { cache } from "react";
 import { resend } from "../resend";
 import { modulesData } from "./modules";
-
-const generatePdfBuffer = async (element: React.ReactElement) => {
-	const blob = await pdf(element).toBlob();
-	const arrayBuffer = await blob.arrayBuffer();
-	return Buffer.from(arrayBuffer);
-};
 
 export const learnersData = {
 	get: cache(async ({ id }: SelectLearner) => {
@@ -103,8 +98,13 @@ export const learnersData = {
 			const href =
 				learner.course.team?.customDomain &&
 				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-					? `${learner.course.team.customDomain}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`
-					: `${env.NEXT_PUBLIC_SITE_URL}/play/${learner.course.team?.id}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`;
+					? `${learner.course.team.customDomain}${courseModule ? `/${courseModule.language}` : ""}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`
+					: `${env.NEXT_PUBLIC_SITE_URL}${courseModule ? `/${courseModule.language}` : ""}/play/${learner.course.team?.id}/courses/${learner.course.id}/certificate?learnerId=${learner.id}`;
+
+			const t = await getTranslations({
+				locale: courseModule?.language!,
+				namespace: "Email",
+			});
 
 			const html = await renderAsync(
 				React.createElement(CourseCompletion, {
@@ -112,9 +112,18 @@ export const learnersData = {
 						learner.course.translations,
 						courseModule?.language
 					).name,
-					organization: translate(learner.course.team.translations)
-						.name,
+					organization: translate(
+						learner.course.team.translations,
+						courseModule?.language
+					).name,
 					href,
+					text: {
+						title: t("Completion.title"),
+						congratulations: t("Completion.congratulations"),
+						by: t("by"),
+						certificate: t("Completion.certificate"),
+						get: t("Completion.get"),
+					},
 				})
 			);
 
@@ -126,9 +135,12 @@ export const learnersData = {
 					courseModule?.language
 				).name,
 				from: `${
-					translate(learner.course.team.translations).name
+					translate(
+						learner.course.team.translations,
+						courseModule?.language
+					).name
 				} <noreply@lcds.krakconsultants.com>`,
-				reply_to: `${translate(learner.course.team.translations).name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+				reply_to: `${translate(learner.course.team.translations, courseModule?.language).name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
 			if (error) {
@@ -176,6 +188,7 @@ export const learnersData = {
 					course: courses.find(
 						(course) => course.id === learner.courseId
 					)!,
+					inviteLanguage: learner.inviteLanguage,
 				};
 			});
 
@@ -195,10 +208,12 @@ export const learnersData = {
 		email,
 		learnerId,
 		course,
+		inviteLanguage,
 	}: {
 		email: string;
 		learnerId: string;
 		course: Course & { translations: CourseTranslation[] };
+		inviteLanguage?: Language;
 	}) => {
 		const team = await db.query.teams.findFirst({
 			where: and(eq(teams.id, course.teamId)),
@@ -216,14 +231,25 @@ export const learnersData = {
 		const href =
 			team?.customDomain &&
 			env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-				? `${team.customDomain}/courses/${course.id}/join?learnerId=${learnerId}`
-				: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${course.id}/join?learnerId=${learnerId}`;
+				? `${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${learnerId}`
+				: `${env.NEXT_PUBLIC_SITE_URL}${inviteLanguage ? `/${inviteLanguage}` : ""}/play/${team?.id}/courses/${course.id}/join?learnerId=${learnerId}`;
+
+		const t = await getTranslations({
+			locale: inviteLanguage ?? "en",
+			namespace: "Email",
+		});
 
 		const html = await renderAsync(
 			React.createElement(LearnerInvite, {
-				course: translate(course.translations).name,
-				organization: translate(team.translations).name,
+				course: translate(course.translations, inviteLanguage).name,
+				organization: translate(team.translations, inviteLanguage).name,
 				href,
+				text: {
+					title: t("Invite.title"),
+					invite: t("Invite.invite"),
+					by: t("by"),
+					start: t("Invite.start"),
+				},
 			})
 		);
 

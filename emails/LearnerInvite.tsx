@@ -15,23 +15,28 @@ export const LearnerInvite = ({
 	href = "https://google.com",
 	course = "Golfing Tutorial",
 	organization = "Krak",
+	text,
 }: {
 	href: string;
 	course?: string;
 	organization?: string;
+	text: {
+		title: string;
+		invite: string;
+		by: string;
+		start: string;
+	};
 }) => (
 	<Html lang="en">
 		<Head />
-		<Preview>
-			{`You have been invited to join ${course} by ${organization}.`}
-		</Preview>
+		<Preview>{`${text.invite} ${course} by ${organization}.`}</Preview>
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">Course Invitation</Heading>
+					<Heading className="mt-0">{text.title}</Heading>
 					<Text className="text-sm">
-						You have been invited to join <strong>{course}</strong>
-						{" by "}
+						{text.invite} <strong>{course}</strong>
+						{` ${text.by} `}
 						<strong>{organization}</strong>.
 					</Text>
 					<Button
@@ -40,7 +45,7 @@ export const LearnerInvite = ({
 						})}
 						href={href}
 					>
-						Start Course
+						{text.start}
 					</Button>
 				</Container>
 			</Body>

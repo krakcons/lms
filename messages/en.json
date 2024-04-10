@@ -8,7 +8,8 @@
 		"1": { "title": "Create learner" },
 		"continue": "Continue",
 		"join": "Join",
-		"back": "Back"
+		"back": "Back",
+		"language": "Course Language"
 	},
 	"Form": {
 		"learner": {
@@ -34,6 +35,20 @@
 		"dialog": {
 			"title": "Course Completed!",
 			"description": "You are now free to close this window. An email containing your certificate will be sent shortly. You can also download it below:"
+		}
+	},
+	"Email": {
+		"by": "by",
+		"Completion": {
+			"title": "Course Completed",
+			"congratulations": "Congratulations! You have completed the course",
+			"certificate": "Download your completion certificate at the link below.",
+			"get": "Get Certificate"
+		},
+		"Invite": {
+			"title": "Course Invitation",
+			"invite": "You have been invited to join",
+			"start": "Start Course"
 		}
 	}
 }

@@ -15,24 +15,31 @@ export const CourseCompletion = ({
 	course = "Golfing Tutorial",
 	organization = "Krak",
 	href = "https://google.com",
+	text,
 }: {
 	course?: string;
 	organization?: string;
 	href?: string;
+	text: {
+		title: string;
+		congratulations: string;
+		by: string;
+		certificate: string;
+		get: string;
+	};
 }) => (
 	<Html lang="en">
 		<Head />
-		<Preview>Course Completed</Preview>
+		<Preview>{text.title}</Preview>
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto mt-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">Course Completed!</Heading>
+					<Heading className="mt-0">{text.title}</Heading>
 					<Text>
-						Congratulations! You have completed the course{" "}
+						{`${text.congratulations} `}
 						<strong>{course}</strong>
-						{" by "}
-						<strong>{organization}</strong>. Attached is your
-						completion certificate.
+						{` ${text.by} `}
+						<strong>{organization}</strong>.{text.certificate}
 					</Text>
 					<Button
 						className={buttonVariants({
@@ -40,7 +47,7 @@ export const CourseCompletion = ({
 						})}
 						href={href}
 					>
-						Get Certificate
+						{text.get}
 					</Button>
 				</Container>
 			</Body>
