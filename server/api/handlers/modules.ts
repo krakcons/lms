@@ -8,7 +8,7 @@ import { deleteFolder } from "@/server/r2";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { UploadModuleSchema } from "@/types/module";
 import { zValidator } from "@hono/zod-validator";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
@@ -132,15 +132,20 @@ export const modulesHandler = new Hono()
 
 			await coursesData.get({ id: courseId }, teamId);
 
-			if (id) {
-				const courseModule = await db.query.modules.findFirst({
-					where: and(eq(modules.id, id)),
+			const languageWhere = and(
+				eq(modules.courseId, courseId),
+				eq(modules.language, language)
+			);
+			const where = id
+				? or(eq(modules.id, id), languageWhere)
+				: languageWhere;
+			const courseModule = await db.query.modules.findFirst({
+				where,
+			});
+			if (courseModule) {
+				throw new HTTPException(409, {
+					message: "Module already exists with that id or language",
 				});
-				if (courseModule) {
-					throw new Error(
-						"Module already exists with that identifier"
-					);
-				}
 			}
 
 			const insertId = id ?? generateId(15);

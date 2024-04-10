@@ -124,6 +124,9 @@ const UploadForm = ({
 			const res = await client.api.modules.$post({
 				json: { ...input },
 			});
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
 			const moduleId = (await res.json()).id;
 
 			const results = await Promise.allSettled(
