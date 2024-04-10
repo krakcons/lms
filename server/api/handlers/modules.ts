@@ -53,8 +53,6 @@ export const modulesHandler = new Hono()
 				},
 			});
 
-			console.log(learner);
-
 			if (!courseModule) {
 				throw new HTTPException(401, {
 					message: "Module not found",
@@ -77,6 +75,7 @@ export const modulesHandler = new Hono()
 					email: newLearner.email,
 					learnerId: newLearner.id,
 					course: courseModule.course,
+					inviteLanguage: newLearner.inviteLanguage,
 				});
 			}
 

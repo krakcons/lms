@@ -25,6 +25,7 @@ import { translate } from "@/lib/translation";
 import { Course, CourseTranslation } from "@/types/course";
 import { BaseLearner, CreateLearnerSchema } from "@/types/learner";
 import { Module } from "@/types/module";
+import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -49,7 +50,7 @@ export const JoinCourseForm = ({
 	course: Course & { translations: CourseTranslation[] };
 	defaultModule: Module;
 	initialLearner?: BaseLearner;
-	locale: string;
+	locale: Language;
 	text: {
 		title1: string;
 		title2: string;
@@ -102,9 +103,10 @@ export const JoinCourseForm = ({
 			email: initialLearner?.email ?? "",
 			moduleId: defaultModule.id,
 			courseId: course.id,
-			sendEmail: false,
+			sendEmail: true,
 			firstName: initialLearner?.firstName ?? "",
 			lastName: initialLearner?.lastName ?? "",
+			inviteLanguage: locale,
 		},
 	});
 

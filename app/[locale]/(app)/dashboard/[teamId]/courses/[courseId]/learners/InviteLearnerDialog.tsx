@@ -25,7 +25,18 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	const router = useRouter();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses[":id"].learners.$post,
+		mutationFn: async (input: InviteForm) => {
+			const res = await client.api.courses[":id"].learners.$post({
+				param: {
+					id: courseId,
+				},
+				json: input.learners,
+			});
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+			return res;
+		},
 		onSuccess: () => {
 			router.refresh();
 			toast("Successfully Invited", {
@@ -41,13 +52,7 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 	});
 
 	const onSubmit = async (input: InviteForm) => {
-		console.log(input);
-		mutate({
-			param: {
-				id: courseId,
-			},
-			json: input.learners,
-		});
+		mutate(input);
 	};
 
 	return (

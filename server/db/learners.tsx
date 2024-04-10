@@ -13,7 +13,7 @@ import {
 } from "@/types/learner";
 import { Language } from "@/types/translations";
 import { renderAsync } from "@react-email/components";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
 import { getTranslations } from "next-intl/server";
@@ -177,17 +177,37 @@ export const learnersData = {
 			})
 		);
 
+		const existingLearners = await db.query.learners.findMany({
+			where: and(
+				inArray(
+					learners.courseId,
+					courses.map((course) => course.id)
+				),
+				inArray(
+					learners.email,
+					learnerList.map((learner) => learner.email)
+				)
+			),
+		});
+
 		await db.insert(learners).values(learnerList).onConflictDoNothing();
 
 		const emailList = learnerList
 			.filter((learner) => learner.sendEmail !== false && learner.email)
 			.map((learner) => {
+				const course = courses.find(
+					(course) => course.id === learner.courseId
+				)!;
 				return {
 					email: learner.email,
-					learnerId: learner.id,
-					course: courses.find(
-						(course) => course.id === learner.courseId
-					)!,
+					// If the learner already exists, use the existing learner id
+					learnerId:
+						existingLearners.find(
+							(l) =>
+								l.email === learner.email &&
+								l.courseId === learner.courseId
+						)?.id ?? learner.id,
+					course,
 					inviteLanguage: learner.inviteLanguage,
 				};
 			});

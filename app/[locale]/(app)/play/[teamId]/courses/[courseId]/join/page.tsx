@@ -1,6 +1,7 @@
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
+import { Language } from "@/types/translations";
 import { and, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
@@ -10,7 +11,7 @@ import { JoinCourseForm } from "./JoinCourseForm";
 export const generateMetadata = async ({
 	params,
 }: {
-	params: { courseId: string; locale: string; teamId: string };
+	params: { courseId: string; locale: Language; teamId: string };
 }) => {
 	const t = await getTranslations({ locale: params.locale });
 	return playMetadata({
@@ -23,7 +24,7 @@ const Page = async ({
 	params: { courseId, locale, teamId },
 	searchParams: { learnerId },
 }: {
-	params: { courseId: string; locale: string; teamId: string };
+	params: { courseId: string; locale: Language; teamId: string };
 	searchParams: { learnerId: string };
 }) => {
 	unstable_setRequestLocale(locale);
