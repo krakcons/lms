@@ -140,6 +140,7 @@ export const collectionsHandler = new Hono()
 			const collection = await db.query.collections.findFirst({
 				where: and(eq(collections.id, id)),
 				with: {
+					translations: true,
 					collectionsToCourses: {
 						with: {
 							course: {
@@ -160,7 +161,8 @@ export const collectionsHandler = new Hono()
 
 			const learners = await learnersData.create(
 				input,
-				collection.collectionsToCourses.map((c) => c.course)
+				collection.collectionsToCourses.map((c) => c.course),
+				collection
 			);
 
 			return c.json(learners);

@@ -84,7 +84,7 @@ export const modulesHandler = new Hono()
 				.returning();
 
 			if (learner.sendEmail !== false && learner.email) {
-				await learnersData.invite({
+				await learnersData.courseInvite({
 					email: newLearner.email,
 					learnerId: newLearner.id,
 					course: courseModule.course,

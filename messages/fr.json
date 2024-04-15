@@ -45,10 +45,15 @@
 			"certificate": "Téléchargez votre certificat d'achèvement au lien ci-dessous.",
 			"get": "Obtenir un certificat"
 		},
-		"Invite": {
+		"CourseInvite": {
 			"title": "Invitation au cours",
 			"invite": "Vous avez été invité à vous inscrire",
 			"start": "Commencer le cours"
+		},
+		"CollectionInvite": {
+			"title": "Invitation à la collecte",
+			"invite": "Vous avez été invité à la collection",
+			"start": "Début du cours"
 		}
 	}
 }

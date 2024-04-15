@@ -1,9 +1,11 @@
+import CollectionInvite from "@/emails/CollectionInvite";
 import CourseCompletion from "@/emails/CourseCompletion";
-import LearnerInvite from "@/emails/LearnerInvite";
+import { CourseInvite } from "@/emails/CourseInvite";
 import { env } from "@/env.mjs";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners, teams } from "@/server/db/schema";
+import { Collection, CollectionTranslation } from "@/types/collections";
 import { Course, CourseTranslation } from "@/types/course";
 import {
 	CreateLearner,
@@ -155,7 +157,8 @@ export const learnersData = {
 	},
 	create: async (
 		input: Omit<CreateLearner, "moduleId" | "courseId">[],
-		courses: (Course & { translations: CourseTranslation[] })[]
+		courses: (Course & { translations: CourseTranslation[] })[],
+		collection?: Collection & { translations: CollectionTranslation[] }
 	) => {
 		const learnerList = courses.flatMap(({ id }) =>
 			input.map((learner) => {
@@ -187,31 +190,70 @@ export const learnersData = {
 
 		await db.insert(learners).values(learnerList).onConflictDoNothing();
 
-		const emailList = learnerList
-			.filter((learner) => learner.sendEmail !== false && learner.email)
-			.map((learner) => {
-				const course = courses.find(
-					(course) => course.id === learner.courseId
-				)!;
-				return {
-					email: learner.email,
-					// If the learner already exists, use the existing learner id
-					learnerId:
-						existingLearners.find(
-							(l) =>
-								l.email === learner.email &&
-								l.courseId === learner.courseId
-						)?.id ?? learner.id,
-					course,
-					inviteLanguage: learner.inviteLanguage,
-				};
-			});
+		if (collection) {
+			const emailList = input
+				.filter(
+					(learner) => learner.sendEmail !== false && learner.email
+				)
+				.map((learner) => {
+					const courseInvites = learnerList
+						.filter((l) => l.email === learner.email)
+						.map((l) => {
+							const learnerId =
+								existingLearners.find(
+									(l) =>
+										l.email === learner.email &&
+										l.courseId === l.courseId
+								)?.id ?? l.id;
+							const course = courses.find(
+								(c) => c.id === l.courseId
+							)!;
+							return {
+								...course,
+								learnerId,
+							};
+						});
+					return {
+						email: learner.email,
+						collection,
+						inviteLanguage: learner.inviteLanguage,
+						courses: courseInvites,
+					};
+				});
+			await Promise.allSettled(
+				emailList.map((learner) => {
+					return learnersData.collectionInvite(learner);
+				})
+			);
+		} else {
+			const emailList = learnerList
+				.filter(
+					(learner) => learner.sendEmail !== false && learner.email
+				)
+				.map((learner) => {
+					const course = courses.find(
+						(course) => course.id === learner.courseId
+					)!;
+					return {
+						email: learner.email,
+						// If the learner already exists, use the existing learner id
+						learnerId:
+							existingLearners.find(
+								(l) =>
+									l.email === learner.email &&
+									l.courseId === learner.courseId
+							)?.id ?? learner.id,
+						course,
+						inviteLanguage: learner.inviteLanguage,
+					};
+				});
 
-		await Promise.allSettled(
-			emailList.map((learner) => {
-				return learnersData.invite(learner);
-			})
-		);
+			await Promise.allSettled(
+				emailList.map((learner) => {
+					return learnersData.courseInvite(learner);
+				})
+			);
+		}
 
 		if (learnerList.length === 1) {
 			return ExtendLearner().parse(learnerList[0]);
@@ -219,7 +261,93 @@ export const learnersData = {
 			return ExtendLearner().array().parse(learnerList);
 		}
 	},
-	invite: async ({
+	collectionInvite: async ({
+		email,
+		collection,
+		courses,
+		inviteLanguage,
+	}: {
+		email: string;
+		collection: Collection & { translations: CollectionTranslation[] };
+		courses: (Course & {
+			translations: CourseTranslation[];
+			learnerId: string;
+		})[];
+		inviteLanguage?: Language;
+	}) => {
+		const team = await db.query.teams.findFirst({
+			where: and(eq(teams.id, collection.teamId)),
+			with: {
+				translations: true,
+			},
+		});
+
+		if (!team) {
+			throw new HTTPException(404, {
+				message: "Team not found.",
+			});
+		}
+
+		const t = await getTranslations({
+			locale: inviteLanguage ?? "en",
+			namespace: "Email",
+		});
+
+		const teamTranslation = translate(team.translations, inviteLanguage);
+
+		const courseInvites = courses.map((course) => {
+			const href =
+				team?.customDomain &&
+				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
+					? `${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${course.learnerId}`
+					: `${env.NEXT_PUBLIC_SITE_URL}${inviteLanguage ? `/${inviteLanguage}` : ""}/play/${team?.id}/courses/${course.id}/join?learnerId=${course.learnerId}`;
+
+			const courseTranslation = translate(
+				course.translations,
+				inviteLanguage
+			);
+
+			return {
+				title: courseTranslation.name,
+				href,
+			};
+		});
+
+		const collectionTranslation = translate(
+			collection.translations,
+			inviteLanguage
+		);
+
+		const html = await renderAsync(
+			React.createElement(CollectionInvite, {
+				collection: collectionTranslation.name,
+				organization: teamTranslation.name,
+				courses: courseInvites,
+				text: {
+					title: t("CollectionInvite.title"),
+					invite: t("CollectionInvite.invite"),
+					by: t("by"),
+					start: t("CollectionInvite.start"),
+				},
+			})
+		);
+
+		const { data, error } = await resend.emails.send({
+			html,
+			to: email,
+			subject: collectionTranslation.name,
+			from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
+		});
+
+		if (error) {
+			throw new HTTPException(500, {
+				message: "Failed to send email",
+				cause: error,
+			});
+		}
+	},
+	courseInvite: async ({
 		email,
 		learnerId,
 		course,
@@ -261,15 +389,15 @@ export const learnersData = {
 		const teamTranslation = translate(team.translations, inviteLanguage);
 
 		const html = await renderAsync(
-			React.createElement(LearnerInvite, {
+			React.createElement(CourseInvite, {
 				course: courseTranslation.name,
 				organization: teamTranslation.name,
 				href,
 				text: {
-					title: t("Invite.title"),
-					invite: t("Invite.invite"),
+					title: t("CourseInvite.title"),
+					invite: t("CourseInvite.invite"),
 					by: t("by"),
-					start: t("Invite.start"),
+					start: t("CourseInvite.start"),
 				},
 			})
 		);

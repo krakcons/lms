@@ -11,7 +11,7 @@ import {
 	Text,
 } from "@react-email/components";
 
-export const LearnerInvite = ({
+export const CourseInvite = ({
 	href = "https://google.com",
 	course = "Golfing Tutorial",
 	organization = "Krak",
@@ -53,4 +53,4 @@ export const LearnerInvite = ({
 	</Html>
 );
 
-export default LearnerInvite;
+export default CourseInvite;

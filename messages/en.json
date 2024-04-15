@@ -45,9 +45,14 @@
 			"certificate": "Download your completion certificate at the link below.",
 			"get": "Get Certificate"
 		},
-		"Invite": {
+		"CourseInvite": {
 			"title": "Course Invitation",
 			"invite": "You have been invited to join",
+			"start": "Start Course"
+		},
+		"CollectionInvite": {
+			"title": "Collection Invitation",
+			"invite": "You have been invited to the collection",
 			"start": "Start Course"
 		}
 	}
