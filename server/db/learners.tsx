@@ -125,6 +125,7 @@ export const learnersData = {
 					text: {
 						title: t("Completion.title"),
 						congratulations: t("Completion.congratulations"),
+						completed: t("Completion.completed"),
 						by: t("by"),
 						certificate: t("Completion.certificate"),
 						get: t("Completion.get"),

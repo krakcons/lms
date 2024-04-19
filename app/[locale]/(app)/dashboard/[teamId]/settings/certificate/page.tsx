@@ -1,6 +1,7 @@
 import PDFView from "@/app/[locale]/(app)/play/[teamId]/courses/[courseId]/certificate/PDFView";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
+import { formatDate } from "@/lib/date";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { teams } from "@/server/db/schema";
@@ -46,7 +47,7 @@ const Page = async ({
 					teamName: teamTranslation.name,
 					name: "John Doe",
 					course: "Volunteer Training",
-					completedAt: new Date(),
+					completedAt: formatDate(new Date(), locale),
 					text: {
 						title: t("Certificate.pdf.title"),
 						message: t("Certificate.pdf.message"),

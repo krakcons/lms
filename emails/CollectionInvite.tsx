@@ -15,10 +15,10 @@ export const CollectionInvite = ({
 	collection = "Volunteer Training",
 	organization = "Krak",
 	text = {
-		title: "Collection Invite",
-		invite: "You have been invited to the collection",
-		by: "by",
-		start: "Start learning",
+		title: "Invitation:",
+		invite: "You have been invited to join the following:",
+		start: "Join",
+		by: "offered by",
 	},
 	courses = [
 		{
@@ -50,7 +50,9 @@ export const CollectionInvite = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">{text.title}</Heading>
+					<Heading className="mt-0">
+						{text.title} {collection}
+					</Heading>
 					<Text>
 						{text.invite} <strong>{collection}</strong>
 						{` ${text.by} `}

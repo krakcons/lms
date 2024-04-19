@@ -2,9 +2,11 @@ import { CertificateProps } from "@/components/Certificate";
 import LanguageToggle from "@/components/LanguageToggle";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
+import { formatDate } from "@/lib/date";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
+import { Language } from "@/types/translations";
 import { and, eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -15,7 +17,7 @@ import PDFView from "./PDFView";
 export const generateMetadata = async ({
 	params,
 }: {
-	params: { courseId: string; locale: string; teamId: string };
+	params: { courseId: string; locale: Language; teamId: string };
 }) => {
 	const t = await getTranslations({ locale: params.locale });
 	return playMetadata({
@@ -29,7 +31,7 @@ const Page = async ({
 	searchParams: { learnerId },
 }: {
 	params: {
-		locale: string;
+		locale: Language;
 	};
 	searchParams: {
 		learnerId: string;
@@ -61,7 +63,7 @@ const Page = async ({
 	const certificate: CertificateProps = {
 		name: `${learner.firstName} ${learner.lastName}`,
 		course: learner.course.translations[0].name,
-		completedAt: learner.completedAt,
+		completedAt: formatDate(learner.completedAt, locale),
 		teamName: teamTranslation.name,
 		text: {
 			title: t("Certificate.pdf.title"),

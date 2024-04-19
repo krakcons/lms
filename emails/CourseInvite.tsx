@@ -15,7 +15,12 @@ export const CourseInvite = ({
 	href = "https://google.com",
 	course = "Golfing Tutorial",
 	organization = "Krak",
-	text,
+	text = {
+		title: "Invitation:",
+		invite: "You have been invited to join",
+		start: "Join",
+		by: "offered by",
+	},
 }: {
 	href: string;
 	course?: string;
@@ -33,7 +38,9 @@ export const CourseInvite = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">{text.title}</Heading>
+					<Heading className="mt-0">
+						{text.title} {course}
+					</Heading>
 					<Text className="text-sm">
 						{text.invite} <strong>{course}</strong>
 						{` ${text.by} `}

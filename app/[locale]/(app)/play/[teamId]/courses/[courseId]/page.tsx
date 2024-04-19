@@ -1,4 +1,5 @@
 import { env } from "@/env.mjs";
+import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
@@ -131,6 +132,10 @@ const Page = async ({
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
 					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}/${resources[0].href}`}
+					course={
+						translate(learner.module.course.translations, locale)
+							.name
+					}
 					text={{
 						title: t("Certificate.dialog.title"),
 						description: t("Certificate.dialog.description"),

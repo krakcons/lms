@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
 export type CertificateProps = {
 	name: string;
 	course: string;
-	completedAt: Date;
+	completedAt: string;
 	teamName: string;
 	logo?: string;
 	text: {
@@ -122,15 +122,33 @@ export const Certificate = ({
 				>
 					{" " + name + " "}
 				</Text>
-				<Text
+				<View
 					style={{
+						justifyContent: "center",
+						alignItems: "center",
+						flexDirection: "row",
+						flexWrap: "wrap",
+						width: "100%",
 						maxWidth: 550,
-						textAlign: "center",
 					}}
 				>
-					{text.congratulations[1]} {course} {text.congratulations[2]}{" "}
-					{teamName}.
-				</Text>
+					<Text>{text.congratulations[1]}</Text>
+					<Text
+						style={{
+							fontWeight: "bold",
+						}}
+					>
+						{" " + course}
+					</Text>
+					<Text>{" " + text.congratulations[2]}</Text>
+					<Text
+						style={{
+							fontWeight: "bold",
+						}}
+					>
+						{" " + teamName}.
+					</Text>
+				</View>
 				<View
 					style={{
 						justifyContent: "center",
@@ -138,7 +156,7 @@ export const Certificate = ({
 						width: 200,
 					}}
 				>
-					<Text>{completedAt.toDateString()}</Text>
+					<Text>{completedAt}</Text>
 					<View
 						style={{
 							width: "100%",

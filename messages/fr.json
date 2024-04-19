@@ -41,6 +41,7 @@
 		"by": "par",
 		"Completion": {
 			"title": "Cours terminé",
+			"completed": "Terminé",
 			"congratulations": "Félicitations ! Vous avez terminé le cours",
 			"certificate": "Téléchargez votre certificat d'achèvement au lien ci-dessous.",
 			"get": "Obtenir un certificat"

@@ -216,12 +216,14 @@ const useSCORM = ({
 const LMSProvider = ({
 	type,
 	learner,
+	course,
 	url,
 	text,
 }: {
 	type: Module["type"];
 	learner: Learner;
 	url: string;
+	course: string;
 	text: {
 		download: string;
 		title: string;
@@ -256,7 +258,9 @@ const LMSProvider = ({
 			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{text.title}</DialogTitle>
+						<DialogTitle>
+							{course} {text.title}
+						</DialogTitle>
 						<DialogDescription>
 							{text.description}
 						</DialogDescription>

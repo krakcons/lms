@@ -4,8 +4,8 @@
 		"description": "Discover modern, affordable, and easy learning management for an empowering educational experience."
 	},
 	"Join": {
-		"0": { "title": "Join this course" },
-		"1": { "title": "Create learner" },
+		"0": { "title": "Join" },
+		"1": { "title": "Your Info" },
 		"continue": "Continue",
 		"join": "Join",
 		"back": "Back",
@@ -21,39 +21,40 @@
 	},
 	"Certificate": {
 		"title": "Certificate of Completion",
-		"message": "This is to certify that you have successfully completed the course",
-		"download": "Download certificate",
+		"message": "This is to certify that you have successfully completed",
+		"download": "Download",
 		"pdf": {
 			"title": "Certificate of Completion",
 			"message": "This certificate is proudly awarded to",
 			"congratulations": {
 				"1": "Congratulations! you have successfully completed",
-				"2": "with"
+				"2": "offered by"
 			},
-			"date": "DATE OF COMPLETION"
+			"date": "Date of Completion"
 		},
 		"dialog": {
-			"title": "Course Completed!",
-			"description": "You are now free to close this window. An email containing your certificate will be sent shortly. You can also download it below:"
+			"title": "Completed!",
+			"description": "You can close this window. An email containing your certificate will be sent shortly. Go to the certificate download page:"
 		}
 	},
 	"Email": {
-		"by": "by",
+		"by": "offered by",
 		"Completion": {
-			"title": "Course Completed",
-			"congratulations": "Congratulations! You have completed the course",
-			"certificate": "Download your completion certificate at the link below.",
-			"get": "Get Certificate"
+			"title": "Congratulations!",
+			"completed": "Completed",
+			"congratulations": "Congratulations! You have completed",
+			"certificate": "Download your certificate of completion:",
+			"get": "Download"
 		},
 		"CourseInvite": {
-			"title": "Course Invitation",
+			"title": "Invitation:",
 			"invite": "You have been invited to join",
-			"start": "Start Course"
+			"start": "Join"
 		},
 		"CollectionInvite": {
-			"title": "Collection Invitation",
-			"invite": "You have been invited to the collection",
-			"start": "Start Course"
+			"title": "Invitation:",
+			"invite": "You have been invited to join the following:",
+			"start": "Join"
 		}
 	}
 }

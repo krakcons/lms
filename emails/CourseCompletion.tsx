@@ -15,13 +15,21 @@ export const CourseCompletion = ({
 	course = "Golfing Tutorial",
 	organization = "Krak",
 	href = "https://google.com",
-	text,
+	text = {
+		title: "Congratulations!",
+		completed: "Completed",
+		congratulations: "Congratulations! You have completed",
+		certificate: "Download your certificate of completion:",
+		get: "Download",
+		by: "offered by",
+	},
 }: {
 	course?: string;
 	organization?: string;
 	href?: string;
 	text: {
 		title: string;
+		completed: string;
 		congratulations: string;
 		by: string;
 		certificate: string;
@@ -34,12 +42,14 @@ export const CourseCompletion = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto mt-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">{text.title}</Heading>
+					<Heading className="mt-0">
+						{text.title} {course} {text.completed}
+					</Heading>
 					<Text>
 						{`${text.congratulations} `}
 						<strong>{course}</strong>
 						{` ${text.by} `}
-						<strong>{organization}</strong>.{text.certificate}
+						<strong>{organization}</strong>. {text.certificate}
 					</Text>
 					<Button
 						className={buttonVariants({
