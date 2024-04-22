@@ -14,40 +14,22 @@ Font.register({
 	family: "Inter",
 	fonts: [
 		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf",
-			fontWeight: 100,
-		},
-		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyfMZhrib2Bg-4.ttf",
-			fontWeight: 200,
-		},
-		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuOKfMZhrib2Bg-4.ttf",
-			fontWeight: 300,
-		},
-		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfMZhrib2Bg-4.ttf",
+			src: "/fonts/Inter-Regular.ttf",
 			fontWeight: 400,
 		},
 		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fMZhrib2Bg-4.ttf",
-			fontWeight: 500,
+			src: "/fonts/Inter-Italic.ttf",
+			fontWeight: 400,
+			fontStyle: "italic",
 		},
 		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZhrib2Bg-4.ttf",
+			src: "/fonts/Inter-Bold.ttf",
 			fontWeight: 600,
 		},
 		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYMZhrib2Bg-4.ttf",
-			fontWeight: 700,
-		},
-		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyYMZhrib2Bg-4.ttf",
-			fontWeight: 800,
-		},
-		{
-			src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuBWYMZhrib2Bg-4.ttf",
-			fontWeight: 900,
+			src: "/fonts/Inter-BoldItalic.ttf",
+			fontWeight: 600,
+			fontStyle: "italic",
 		},
 	],
 });
@@ -60,14 +42,11 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		gap: 30,
 		fontFamily: "Inter",
-		fontWeight: "normal",
+		fontWeight: 400,
 	},
 	h1: {
 		fontSize: 40,
-		fontWeight: "bold",
-	},
-	p: {
-		fontSize: 20,
+		fontWeight: 600,
 	},
 });
 
@@ -132,18 +111,32 @@ export const Certificate = ({
 						maxWidth: 550,
 					}}
 				>
-					<Text>{text.congratulations[1]}</Text>
 					<Text
 						style={{
-							fontWeight: "bold",
+							fontStyle: "italic",
+						}}
+					>
+						{text.congratulations[1]}
+					</Text>
+					<Text
+						style={{
+							fontWeight: 600,
+							fontStyle: "italic",
 						}}
 					>
 						{" " + course}
 					</Text>
-					<Text>{" " + text.congratulations[2]}</Text>
 					<Text
 						style={{
-							fontWeight: "bold",
+							fontStyle: "italic",
+						}}
+					>
+						{" " + text.congratulations[2]}
+					</Text>
+					<Text
+						style={{
+							fontWeight: 600,
+							fontStyle: "italic",
 						}}
 					>
 						{" " + teamName}.
