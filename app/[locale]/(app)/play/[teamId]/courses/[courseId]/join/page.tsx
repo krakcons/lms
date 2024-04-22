@@ -85,7 +85,7 @@ const Page = async ({
 			<div className="absolute right-4 top-4">
 				<LanguageToggle />
 			</div>
-			<main className="m-auto flex max-w-3xl flex-col p-8">
+			<main className="m-auto flex w-full flex-col p-8 sm:w-[60%]">
 				<JoinCourseForm
 					locale={locale}
 					modules={course.modules}
@@ -102,6 +102,7 @@ const Page = async ({
 						continue: t("Join.continue"),
 						back: t("Join.back"),
 						languageLabel: t("Join.language"),
+						languageDescription: t("Join.language-description"),
 					}}
 				/>
 			</main>

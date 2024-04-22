@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -63,6 +64,7 @@ export const JoinCourseForm = ({
 		continue: string;
 		back: string;
 		languageLabel: string;
+		languageDescription: string;
 	};
 }) => {
 	const router = useRouter();
@@ -174,6 +176,9 @@ export const JoinCourseForm = ({
 												</SelectGroup>
 											</SelectContent>
 										</Select>
+										<FormDescription>
+											{text.languageDescription}
+										</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}

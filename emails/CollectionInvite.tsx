@@ -16,7 +16,7 @@ export const CollectionInvite = ({
 	organization = "Krak",
 	text = {
 		title: "Invitation:",
-		invite: "You have been invited to join the following:",
+		invite: "invites you to join the following:",
 		start: "Join",
 		by: "offered by",
 	},
@@ -54,9 +54,7 @@ export const CollectionInvite = ({
 						{text.title} {collection}
 					</Heading>
 					<Text>
-						{text.invite} <strong>{collection}</strong>
-						{` ${text.by} `}
-						<strong>{organization}</strong>.
+						<strong>{organization}</strong> {text.invite}
 					</Text>
 					{courses.map((course, index) => (
 						<Container

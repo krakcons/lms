@@ -9,7 +9,8 @@
 		"continue": "Continue",
 		"join": "Join",
 		"back": "Back",
-		"language": "Course Language"
+		"language": "Language",
+		"language-description": "Once you join you will not be able to change the language, and you will have to re-register for the course (or request a new invitation) in order to do so."
 	},
 	"Form": {
 		"learner": {
@@ -53,7 +54,7 @@
 		},
 		"CollectionInvite": {
 			"title": "Invitation:",
-			"invite": "You have been invited to join the following:",
+			"invite": "invites you to join the following:",
 			"start": "Join"
 		}
 	}
