@@ -1,61 +1,61 @@
 {
 	"Home": {
-		"title": { "1": "Apprentissage moderne", "2": "Pour moins" },
+		"title": { "1": "Apprentissage moderne", "2": "Moins cher" },
 		"description": "Découvrez une gestion de l'apprentissage moderne, abordable et facile pour une expérience éducative enrichissante."
 	},
 	"Join": {
-		"0": { "title": "S'inscrire à ce cours" },
-		"1": { "title": "Créer un apprenant" },
+		"0": { "title": "S'inscrire" },
+		"1": { "title": "Vos informations" },
 		"continue": "Continuer",
-		"join": "Rejoindre",
+		"join": "S’inscrire",
 		"back": "Retour",
-		"language": "Langue du cours",
-		"language-description": "Once you join you will not be able to change the language, and you will have to re-register for the course (or request a new invitation) in order to do so."
+		"language": "Langue",
+		"language-description": "Une fois inscrit, vous ne pourrez pas changer de langue et vous devrez vous réinscrire au cours (ou demander une nouvelle invitation) pour le faire."
 	},
 	"Form": {
 		"learner": {
 			"firstName": "Prénom",
 			"lastName": "Nom de famille",
-			"email": "Adresse e-mail"
+			"email": "Courriel"
 		},
 		"submit": "Soumettre"
 	},
 	"Certificate": {
 		"title": "Certificat de fin d'études",
-		"message": "Il s'agit de certifier que vous avez suivi le cours avec succès.",
-		"download": "Télécharger le certificat",
+		"message": "La présente atteste que vous avez suivi avec succès",
+		"download": "Télécharger",
 		"pdf": {
 			"title": "Certificat de fin d'études",
 			"message": "Nouse sommes fiers de remettre ce certificat à",
 			"congratulations": {
-				"1": "Félicitations ! Vous avez terminé avec succès le module",
-				"2": "sur la plateforme"
+				"1": "Félicitations ! Vous avez terminé avec succès",
+				"2": "offert par"
 			},
 			"date": "DATE D'ACHÈVEMENT"
 		},
 		"dialog": {
-			"title": "Cours terminé !",
+			"title": "Complété !",
 			"description": "Vous pouvez maintenant fermer cette fenêtre. Un courriel contenant votre certificat vous sera envoyé dans les plus brefs délais. Vous pouvez également le télécharger ci-dessous :"
 		}
 	},
 	"Email": {
-		"by": "par",
+		"by": "offert par",
 		"Completion": {
-			"title": "Cours terminé",
-			"completed": "Terminé",
-			"congratulations": "Félicitations ! Vous avez terminé le cours",
-			"certificate": "Téléchargez votre certificat d'achèvement au lien ci-dessous.",
-			"get": "Obtenir un certificat"
+			"title": "Félicitations !",
+			"completed": "Complété",
+			"congratulations": "Félicitations ! Vous avez complété",
+			"certificate": "Téléchargez votre certificat d'achèvement :",
+			"get": "Télécharger"
 		},
 		"CourseInvite": {
-			"title": "Invitation au cours",
-			"invite": "Vous avez été invité à vous inscrire",
-			"start": "Commencer le cours"
+			"title": "Invitation",
+			"invite": "Vous avez été invité à vous joindre au :",
+			"start": "Rejoindre"
 		},
 		"CollectionInvite": {
-			"title": "Invitation à la collecte",
-			"invite": "vous invite à participer aux activités suivantes :",
-			"start": "Début du cours"
+			"title": "Invitation",
+			"invite": "vous invite à vous joindre à :",
+			"start": "Rejoindre"
 		}
 	}
 }

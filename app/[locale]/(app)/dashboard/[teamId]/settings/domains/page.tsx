@@ -4,6 +4,7 @@ import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { getAuth, getTeam } from "@/server/auth/actions";
+import { resend } from "@/server/resend";
 import { DomainResponse, DomainVerificationStatusProps } from "@/types/domain";
 import { Team } from "@/types/team";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
@@ -295,6 +296,38 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 	);
 };
 
+const EmailStatus = async ({ team }: { team: Team }) => {
+	if (!team.resendDomainId) return null;
+
+	const domainRes = await resend.domains.get(team.resendDomainId);
+
+	console.log(domainRes);
+
+	return (
+		<>
+			{domainRes.data?.records.map((record) => (
+				<div
+					key={record.name}
+					className="flex items-center justify-between gap-6 rounded border p-3"
+				>
+					<div>
+						<p className="text-sm font-bold">Type</p>
+						<p className="mt-2 font-mono text-sm">{record.type}</p>
+					</div>
+					<div>
+						<p className="text-sm font-bold">Name</p>
+						<p className="mt-2 font-mono text-sm">{record.name}</p>
+					</div>
+					<div>
+						<p className="text-sm font-bold">Value</p>
+						<p className="mt-2 font-mono text-sm">{record.value}</p>
+					</div>
+				</div>
+			))}
+		</>
+	);
+};
+
 const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 	const { user } = await getAuth();
 
@@ -321,6 +354,7 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			<Separator className="my-8" />
 			<DomainForm team={team} />
 			{team.customDomain && <DomainStatus team={team} />}
+			{team.resendDomainId && <EmailStatus team={team} />}
 		</div>
 	);
 };
