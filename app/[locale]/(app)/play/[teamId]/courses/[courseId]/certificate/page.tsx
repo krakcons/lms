@@ -59,10 +59,11 @@ const Page = async ({
 
 	const t = await getTranslations({ locale });
 	const teamTranslation = translate(learner.course.team.translations, locale);
+	const courseTranslation = translate(learner.course.translations, locale);
 
 	const certificate: CertificateProps = {
 		name: `${learner.firstName} ${learner.lastName}`,
-		course: learner.course.translations[0].name,
+		course: courseTranslation.name,
 		completedAt: formatDate(learner.completedAt, locale),
 		teamName: teamTranslation.name,
 		text: {
