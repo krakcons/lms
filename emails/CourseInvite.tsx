@@ -17,9 +17,8 @@ export const CourseInvite = ({
 	organization = "Krak",
 	text = {
 		title: "Invitation:",
-		invite: "You have been invited to join",
+		invite: "invites you to join the following:",
 		start: "Join",
-		by: "offered by",
 	},
 }: {
 	href: string;
@@ -28,7 +27,6 @@ export const CourseInvite = ({
 	text: {
 		title: string;
 		invite: string;
-		by: string;
 		start: string;
 	};
 }) => (
@@ -41,10 +39,9 @@ export const CourseInvite = ({
 					<Heading className="mt-0">
 						{text.title} {course}
 					</Heading>
-					<Text className="text-sm">
-						{text.invite} <strong>{course}</strong>
-						{` ${text.by} `}
-						<strong>{organization}</strong>.
+					<Text>
+						<strong>{organization}</strong> {text.invite}{" "}
+						<strong>{course}</strong>
 					</Text>
 					<Button
 						className={buttonVariants({

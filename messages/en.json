@@ -49,7 +49,7 @@
 		},
 		"CourseInvite": {
 			"title": "Invitation:",
-			"invite": "You have been invited to join: ",
+			"invite": "invites you to join the following:",
 			"start": "Join"
 		},
 		"CollectionInvite": {
