@@ -55,6 +55,12 @@ export const learnersData = {
 			});
 		}
 
+		if (learner.completedAt) {
+			throw new HTTPException(400, {
+				message: "Learner has already completed the course.",
+			});
+		}
+
 		const newLearner = ExtendLearner(courseModule?.type).parse({
 			...learner,
 			data,

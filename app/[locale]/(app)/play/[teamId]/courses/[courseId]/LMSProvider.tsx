@@ -248,7 +248,9 @@ const LMSProvider = ({
 	});
 
 	useEffect(() => {
-		mutate({ param: { id: learner.id }, json: { ...learner, data } });
+		if (!learner.completedAt) {
+			mutate({ param: { id: learner.id }, json: { ...learner, data } });
+		}
 	}, [data, learner, mutate]);
 
 	const pathname = usePathname();
