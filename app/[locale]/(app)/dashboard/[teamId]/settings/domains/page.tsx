@@ -341,6 +341,8 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 		return redirect("/404");
 	}
 
+	console.log(team);
+
 	return (
 		<div>
 			<div className="flex items-center justify-between">
