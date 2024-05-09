@@ -143,7 +143,7 @@ export const learnersData = {
 				html,
 				to: learner.email,
 				subject: courseTranslation.name,
-				from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+				from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 				reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
@@ -343,7 +343,7 @@ export const learnersData = {
 			html,
 			to: email,
 			subject: collectionTranslation.name,
-			from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
@@ -412,7 +412,7 @@ export const learnersData = {
 			html,
 			to: email,
 			subject: courseTranslation.name,
-			from: `${teamTranslation.name} <noreply@lcds.krakconsultants.com>`,
+			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
