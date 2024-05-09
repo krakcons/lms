@@ -397,7 +397,6 @@ export const learnersData = {
 				text: {
 					title: t("CourseInvite.title"),
 					invite: t("CourseInvite.invite"),
-					by: t("by"),
 					start: t("CourseInvite.start"),
 				},
 			})
