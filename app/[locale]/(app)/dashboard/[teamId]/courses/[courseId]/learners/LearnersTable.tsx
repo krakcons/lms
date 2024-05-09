@@ -3,26 +3,135 @@
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormMessage,
+} from "@/components/ui/form";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { locales } from "@/i18n";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import LearnerActions from "./LearnerActions";
 
 const columnHelper = createColumnHelper<Learner & { language?: Language }>();
 
+const ReinviteButton = ({ learner }: { learner: Learner }) => {
+	const router = useRouter();
+	const [open, setOpen] = useState(false);
+	const { mutate: reinviteLearner, isPending } = useMutation({
+		mutationFn: client.api.learners[":id"].reinvite.$post,
+		onSuccess: () => {
+			router.refresh();
+			setOpen(false);
+			toast.success("Learner reinvited");
+		},
+	});
+
+	const form = useForm<{
+		inviteLanguage: Language;
+	}>({
+		defaultValues: {
+			inviteLanguage: "en",
+		},
+	});
+
+	const onSubmit = (values: { inviteLanguage: Language }) => {
+		reinviteLearner({
+			param: {
+				id: learner.id,
+			},
+			json: {
+				inviteLanguage: values.inviteLanguage,
+			},
+		});
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button variant="outline">Reinvite</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Reinvite Learner</DialogTitle>
+					<DialogDescription>
+						Modify the language and press the button to reinvite the
+						learner
+					</DialogDescription>
+				</DialogHeader>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="flex justify-end gap-2"
+					>
+						<FormField
+							control={form.control}
+							name="inviteLanguage"
+							render={({ field }) => (
+								<FormItem>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<FormControl>
+											<SelectTrigger className="w-[80px]">
+												<SelectValue placeholder="Select language" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectGroup>
+												{locales.map((locale) => (
+													<SelectItem
+														key={locale}
+														value={locale}
+													>
+														{locale}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit" isPending={isPending}>
+							Reinvite
+						</Button>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+};
+
 const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 	const status = info.row.original.status;
-	console.log("status", status);
+	const router = useRouter();
 
 	const labels = {
 		completed: "Completed",
@@ -36,45 +145,11 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 		return (
 			<div className="flex items-center gap-4">
 				<p className="text-sm">Invited</p>
+				<ReinviteButton learner={info.row.original} />
 			</div>
 		);
 	}
 	return labels[status];
-};
-
-const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
-	const router = useRouter();
-	const { mutate } = useMutation({
-		mutationFn: client.api.learners[":id"].$delete,
-		onSuccess: () => {
-			router.refresh();
-		},
-	});
-
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="h-8 w-8 p-0">
-					<span className="sr-only">Open menu</span>
-					<MoreHorizontal className="h-4 w-4" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuLabel>Actions</DropdownMenuLabel>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					className="cursor-pointer"
-					onSelect={() =>
-						mutate({
-							param: { id },
-						})
-					}
-				>
-					Remove Learner
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
 };
 
 const columns = [
