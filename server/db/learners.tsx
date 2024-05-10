@@ -342,7 +342,7 @@ export const learnersData = {
 		const { data, error } = await resend.emails.send({
 			html,
 			to: email,
-			subject: collectionTranslation.name,
+			subject: `${t("CollectionInvite.subject")} ${collectionTranslation.name}`,
 			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
@@ -411,7 +411,7 @@ export const learnersData = {
 		const { data, error } = await resend.emails.send({
 			html,
 			to: email,
-			subject: courseTranslation.name,
+			subject: `${t("CourseInvite.subject")} ${courseTranslation.name}`,
 			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});

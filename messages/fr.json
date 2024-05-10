@@ -48,11 +48,13 @@
 			"get": "Télécharger"
 		},
 		"CourseInvite": {
+			"subject": "Invitation :",
 			"title": "Invitation",
 			"invite": "vous invite à vous joindre à :",
 			"start": "Commencer"
 		},
 		"CollectionInvite": {
+			"subject": "Invitation :",
 			"title": "Invitation",
 			"invite": "vous invite à vous joindre à :",
 			"start": "Commencer"

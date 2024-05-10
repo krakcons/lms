@@ -16,7 +16,7 @@ export const CourseInvite = ({
 	course = "Golfing Tutorial",
 	organization = "Krak",
 	text = {
-		title: "Invitation:",
+		title: "Invitation",
 		invite: "invites you to join the following:",
 		start: "Join",
 	},
@@ -36,9 +36,7 @@ export const CourseInvite = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">
-						{text.title} {course}
-					</Heading>
+					<Heading className="mt-0">{text.title}</Heading>
 					<Text>
 						<strong>{organization}</strong> {text.invite}{" "}
 						<strong>{course}</strong>
