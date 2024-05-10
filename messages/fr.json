@@ -10,7 +10,7 @@
 		"join": "S’inscrire",
 		"back": "Retour",
 		"language": "Langue",
-		"language-description": "Une fois inscrit, vous ne pourrez pas changer de langue et vous devrez vous réinscrire au cours (ou demander une nouvelle invitation) pour le faire."
+		"language-description": "Une fois inscrit, vous ne pourrez pas changer de langue et vous devrez vous réinscrire (ou demander une nouvelle invitation) pour le faire."
 	},
 	"Form": {
 		"learner": {
@@ -50,12 +50,12 @@
 		"CourseInvite": {
 			"title": "Invitation",
 			"invite": "vous invite à vous joindre à :",
-			"start": "Rejoindre"
+			"start": "Commencer"
 		},
 		"CollectionInvite": {
 			"title": "Invitation",
 			"invite": "vous invite à vous joindre à :",
-			"start": "Rejoindre"
+			"start": "Commencer"
 		}
 	}
 }

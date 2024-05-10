@@ -11,6 +11,8 @@ import { unstable_noStore } from "next/cache";
 import LMSProvider from "./LMSProvider";
 import { playMetadata } from "./metadata";
 
+export const dynamic = "force-dynamic";
+
 export const generateMetadata = async ({
 	params,
 }: {

@@ -10,7 +10,7 @@
 		"join": "Join",
 		"back": "Back",
 		"language": "Language",
-		"language-description": "Language choice is final. Changing requires re-registration and loss of progress."
+		"language-description": "Once you join you will not be able to change the language, and you will have to re-register (or request a new invitation) in order to do so."
 	},
 	"Form": {
 		"learner": {
@@ -48,12 +48,12 @@
 			"get": "Download"
 		},
 		"CourseInvite": {
-			"title": "Invitation:",
+			"title": "Invitation",
 			"invite": "invites you to join the following:",
 			"start": "Join"
 		},
 		"CollectionInvite": {
-			"title": "Invitation:",
+			"title": "Invitation",
 			"invite": "invites you to join the following:",
 			"start": "Join"
 		}
