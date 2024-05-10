@@ -119,7 +119,6 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 	if (status === "Valid Configuration") {
 		return (
 			<div>
-				<Separator className="my-8" />
 				<h4 className="my-4">Domain</h4>
 				<Status status="Domain Verified" type="good" />
 				<p className="text-sm text-muted-foreground">
@@ -140,8 +139,6 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 	return (
 		<div>
 			<h4 className="my-4">Domain</h4>
-			<Separator className="my-8" />
-			<h3 className="mb-8">DNS Configuration</h3>
 			<Status
 				status={status}
 				type={status === "Pending Verification" ? "not_done" : "error"}
@@ -264,6 +261,21 @@ const EmailStatus = async ({ team }: { team: Team }) => {
 		},
 	};
 
+	if (domainRes.data?.status === "verified") {
+		return (
+			<div>
+				<h4 className="my-4">Email</h4>
+				<Status
+					status={statusMapping[domainRes.data!.status].status}
+					type={statusMapping[domainRes.data!.status].type as any}
+				/>
+				<p className="text-sm text-muted-foreground">
+					Your email is configured correctly!
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<div>
 			<h4 className="my-4">Email</h4>
@@ -313,6 +325,8 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
+			<Separator className="my-8" />
+			<h3 className="mb-8">DNS Configuration</h3>
 			{team.customDomain && <DomainStatus team={team} />}
 			{team.resendDomainId && <EmailStatus team={team} />}
 		</div>
