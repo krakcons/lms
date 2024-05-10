@@ -4,10 +4,34 @@ import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { getAuth, getTeam } from "@/server/auth/actions";
+import { resend } from "@/server/resend";
 import { DomainResponse, DomainVerificationStatusProps } from "@/types/domain";
 import { Team } from "@/types/team";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import DomainForm from "./DomainForm";
+
+import { DNSRow } from "./DNSRow";
+
+const Status = ({
+	status,
+	type,
+}: {
+	status: string;
+	type: "good" | "not_done" | "error";
+}) => {
+	const icon = {
+		good: <CheckCircle size={20} />,
+		not_done: <AlertCircle size={20} />,
+		error: <XCircle size={20} />,
+	};
+
+	return (
+		<div className="mb-4 flex items-center space-x-2">
+			{icon[type]}
+			<p className="text-lg font-semibold dark:text-white">{status}</p>
+		</div>
+	);
+};
 
 const InlineSnippet = ({
 	className,
@@ -95,13 +119,8 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 	if (status === "Valid Configuration") {
 		return (
 			<div>
-				<Separator className="my-8" />
-				<div className="mb-4 flex items-center space-x-2">
-					<CheckCircle size={20} />
-					<p className="text-lg font-semibold dark:text-white">
-						{status}
-					</p>
-				</div>
+				<h4 className="my-4">Domain</h4>
+				<Status status="Domain Verified" type="good" />
 				<p className="text-sm text-muted-foreground">
 					Your domain is configured correctly!
 				</p>
@@ -119,25 +138,11 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	return (
 		<div>
-			<Separator className="my-8" />
-			<div className="mb-4 flex items-center space-x-2">
-				{status === "Pending Verification" ? (
-					<AlertCircle
-						fill="#FBBF24"
-						stroke="currentColor"
-						className="text-white dark:text-black"
-					/>
-				) : (
-					<XCircle
-						fill="#DC2626"
-						stroke="currentColor"
-						className="text-white dark:text-black"
-					/>
-				)}
-				<p className="text-lg font-semibold dark:text-white">
-					{status}
-				</p>
-			</div>
+			<h4 className="my-4">Domain</h4>
+			<Status
+				status={status}
+				type={status === "Pending Verification" ? "not_done" : "error"}
+			/>
 			{txtVerification ? (
 				<>
 					<p className="text-sm dark:text-white">
@@ -146,33 +151,17 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 						prove ownership of{" "}
 						<InlineSnippet>{domainJson.name}</InlineSnippet>:
 					</p>
-					<div className="flex items-center justify-between gap-6 rounded border p-3">
-						<div>
-							<p className="text-sm font-bold">Type</p>
-							<p className="mt-2 font-mono text-sm">
-								{txtVerification.type}
-							</p>
-						</div>
-						<div>
-							<p className="text-sm font-bold">Name</p>
-							<p className="mt-2 font-mono text-sm">
-								{txtVerification.domain.slice(
-									0,
-									txtVerification.domain.length -
-										domainJson.apexName.length -
-										1
-								)}
-							</p>
-						</div>
-						<div>
-							<p className="text-sm font-bold">Value</p>
-							<p className="mt-2 font-mono text-sm">
-								<span className="text-ellipsis">
-									{txtVerification.value}
-								</span>
-							</p>
-						</div>
-					</div>
+					<DNSRow
+						type={txtVerification.type}
+						name={txtVerification.domain.slice(
+							0,
+							txtVerification.domain.length -
+								domainJson.apexName.length -
+								1
+						)}
+						value={txtVerification.value}
+						ttl="Auto"
+					/>
 					<p className="text-sm dark:text-stone-400">
 						Warning: if you are using this domain for another site,
 						setting this TXT record will transfer domain ownership
@@ -205,38 +194,12 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 									), set the following {recordType} record on
 									your DNS provider to continue:
 								</p>
-								<div className="flex items-center justify-between gap-6 rounded border p-3">
-									<div>
-										<p className="text-sm font-bold">
-											Type
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											{recordType}
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">
-											Name
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											@
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">
-											Value
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											76.76.21.21
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">TTL</p>
-										<p className="mt-2 font-mono text-sm">
-											86400
-										</p>
-									</div>
-								</div>
+								<DNSRow
+									type={recordType}
+									name="@"
+									value="76.76.21.21"
+									ttl="86400"
+								/>
 							</div>
 						</TabsContent>
 						<TabsContent value="cname">
@@ -249,38 +212,12 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 									), set the following {recordType} record on
 									your DNS provider to continue:
 								</p>
-								<div className="flex items-center justify-between gap-6 rounded border p-3">
-									<div>
-										<p className="text-sm font-bold">
-											Type
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											CNAME
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">
-											Name
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											{subdomain ?? "www"}
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">
-											Value
-										</p>
-										<p className="mt-2 font-mono text-sm">
-											cname.vercel-dns.com.
-										</p>
-									</div>
-									<div>
-										<p className="text-sm font-bold">TTL</p>
-										<p className="mt-2 font-mono text-sm">
-											86400
-										</p>
-									</div>
-								</div>
+								<DNSRow
+									type="CNAME"
+									name={subdomain ?? "www"}
+									value="cname.vercel-dns.com."
+									ttl="86400"
+								/>
 							</div>
 						</TabsContent>
 					</Tabs>
@@ -291,6 +228,72 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 					</p>
 				</>
 			)}
+		</div>
+	);
+};
+
+const EmailStatus = async ({ team }: { team: Team }) => {
+	if (!team.resendDomainId) return null;
+
+	const domainRes = await resend.domains.get(team.resendDomainId);
+	const verify = await resend.domains.verify(team.resendDomainId);
+
+	const statusMapping = {
+		verified: {
+			status: "Email Verified",
+			type: "good",
+		},
+		failed: {
+			status: "Email Verification Failed",
+			type: "error",
+		},
+		pending: {
+			status: "Email Verification Pending",
+			type: "not_done",
+		},
+		temporary_failure: {
+			status: "Temporary Failure",
+			type: "error",
+		},
+		not_started: {
+			status: "Not Started",
+			type: "not_done",
+		},
+	};
+
+	if (domainRes.data?.status === "verified") {
+		return (
+			<div>
+				<h4 className="my-4">Email</h4>
+				<Status
+					status={statusMapping[domainRes.data!.status].status}
+					type={statusMapping[domainRes.data!.status].type as any}
+				/>
+				<p className="text-sm text-muted-foreground">
+					Your email is configured correctly!
+				</p>
+			</div>
+		);
+	}
+
+	return (
+		<div>
+			<h4 className="my-4">Email</h4>
+			{domainRes.error ? (
+				<Status status="Error" type="error" />
+			) : (
+				<Status
+					status={statusMapping[domainRes.data!.status].status}
+					type={statusMapping[domainRes.data!.status].type as any}
+				/>
+			)}
+			{domainRes.data?.records.map((record) => (
+				<DNSRow
+					key={record.name}
+					{...record}
+					priority={record.priority ?? 1}
+				/>
+			))}
 		</div>
 	);
 };
@@ -308,6 +311,8 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 		return redirect("/404");
 	}
 
+	console.log(team);
+
 	return (
 		<div>
 			<div className="flex items-center justify-between">
@@ -320,7 +325,10 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
+			<Separator className="my-8" />
+			<h3 className="mb-8">DNS Configuration</h3>
 			{team.customDomain && <DomainStatus team={team} />}
+			{team.resendDomainId && <EmailStatus team={team} />}
 		</div>
 	);
 };

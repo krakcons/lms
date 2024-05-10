@@ -234,9 +234,9 @@ const LMSProvider = ({
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$put,
 		onSuccess: async (res) => {
+			const closed = localStorage.getItem(learner.id);
 			const data = await res.json();
-			console.log("Learner updated", data);
-			if (data.completedAt) {
+			if (data.completedAt && !closed) {
 				setOpen(true);
 			}
 		},
@@ -248,14 +248,24 @@ const LMSProvider = ({
 	});
 
 	useEffect(() => {
-		mutate({ param: { id: learner.id }, json: { ...learner, data } });
+		if (!learner.completedAt) {
+			mutate({ param: { id: learner.id }, json: { ...learner, data } });
+		}
 	}, [data, learner, mutate]);
 
 	const pathname = usePathname();
 
 	return (
 		<>
-			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+			<Dialog
+				onOpenChange={(open) => {
+					if (!open) {
+						localStorage.setItem(learner.id, "true");
+					}
+					setOpen(open);
+				}}
+				open={open}
+			>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>

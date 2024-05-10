@@ -27,6 +27,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const teams = pgTable("teams", {
 	id: text("id").primaryKey(),
 	customDomain: text("customDomain").unique(),
+	resendDomainId: text("resendDomainId"),
 });
 
 export const teamRelations = relations(teams, ({ many }) => ({

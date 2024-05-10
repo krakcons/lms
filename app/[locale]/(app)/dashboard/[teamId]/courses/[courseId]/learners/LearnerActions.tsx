@@ -15,9 +15,9 @@ import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 
-const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
+const LearnerActions = ({ learner }: { learner: Learner }) => {
 	const router = useRouter();
-	const { mutate } = useMutation({
+	const { mutate: deleteLearner } = useMutation({
 		mutationFn: client.api.learners[":id"].$delete,
 		onSuccess: () => {
 			router.refresh();
@@ -38,12 +38,12 @@ const LearnerActions = ({ learner: { id } }: { learner: Learner }) => {
 				<DropdownMenuItem
 					className="cursor-pointer"
 					onSelect={() =>
-						mutate({
-							param: { id },
+						deleteLearner({
+							param: { id: learner.id },
 						})
 					}
 				>
-					Remove Learner
+					Delete
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

@@ -10,7 +10,7 @@
 		"join": "Join",
 		"back": "Back",
 		"language": "Language",
-		"language-description": "Once you join you will not be able to change the language, and you will have to re-register for the course (or request a new invitation) in order to do so."
+		"language-description": "Language choice is final. Changing requires re-registration and loss of progress."
 	},
 	"Form": {
 		"learner": {

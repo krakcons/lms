@@ -2,7 +2,8 @@ import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
 import { teamTranslations, teams } from "@/server/db/schema";
 import { getPresignedUrl } from "@/server/r2";
-import { UpdateTeamTranslationSchema } from "@/types/team";
+import { resend } from "@/server/resend";
+import { Team, UpdateTeamTranslationSchema } from "@/types/team";
 import { LanguageSchema } from "@/types/translations";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
@@ -10,6 +11,31 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import { authedMiddleware } from "../middleware";
+
+const removeDomain = async ({
+	customDomain,
+	resendDomainId,
+}: {
+	customDomain: Team["customDomain"];
+	resendDomainId?: Team["resendDomainId"];
+}) => {
+	if (customDomain) {
+		const res = await fetch(
+			`https://api.vercel.com/v9/projects/${env.PROJECT_ID_VERCEL}/domains/${customDomain}?teamId=${env.TEAM_ID_VERCEL}`,
+			{
+				headers: {
+					Authorization: `Bearer ${env.AUTH_BEARER_TOKEN_VERCEL}`,
+				},
+				method: "DELETE",
+			}
+		);
+		console.log("VERCEL DELETE", res.status, await res.text());
+	}
+	if (resendDomainId) {
+		const res = await resend.domains.remove(resendDomainId);
+		console.log("RESEND DELETE", res.error, res.data);
+	}
+};
 
 export const teamsHandler = new Hono()
 	.put(
@@ -68,18 +94,10 @@ export const teamsHandler = new Hono()
 				});
 			}
 
-			if (team?.customDomain !== customDomain) {
-				if (team?.customDomain) {
-					await fetch(
-						`https://api.vercel.com/v9/projects/${env.PROJECT_ID_VERCEL}/domains/${team.customDomain}?teamId=${env.TEAM_ID_VERCEL}`,
-						{
-							headers: {
-								Authorization: `Bearer ${env.AUTH_BEARER_TOKEN_VERCEL}`,
-							},
-							method: "DELETE",
-						}
-					);
-				}
+			let resendDomainId: string | null = null;
+
+			if (team.customDomain !== customDomain) {
+				// Add the new domain
 				const res = await fetch(
 					`https://api.vercel.com/v10/projects/${env.PROJECT_ID_VERCEL}/domains?teamId=${env.TEAM_ID_VERCEL}`,
 					{
@@ -94,21 +112,42 @@ export const teamsHandler = new Hono()
 					}
 				);
 				if (!res.ok) {
-					console.log("ERROR", await res.text());
+					console.log("ERROR (VERCEL)", await res.text());
 					throw new HTTPException(500, {
 						message: "Failed to add domain to Vercel.",
 					});
 				}
+				const resendRes = await resend.domains.create({
+					name: customDomain,
+				});
+				if (resendRes.error) {
+					// Rollback
+					await removeDomain({
+						customDomain,
+					});
+					console.log("ERROR (RESEND)", resendRes.error.message);
+					throw new HTTPException(500, {
+						message: "Failed to add domain to Resend.",
+					});
+				}
+				resendDomainId = resendRes.data!.id;
+				// Remove the old domain
+				await removeDomain({
+					customDomain: team.customDomain,
+					resendDomainId: team.resendDomainId,
+				});
 			} else {
 				throw new HTTPException(400, {
 					message: "That domain is already set.",
 				});
 			}
 
+			// Update the team in the database
 			await db
 				.update(teams)
 				.set({
 					customDomain,
+					resendDomainId,
 				})
 				.where(eq(teams.id, id));
 
