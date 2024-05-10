@@ -21,11 +21,11 @@
 		"submit": "Soumettre"
 	},
 	"Certificate": {
-		"title": "Certificat de fin d'études",
+		"title": "Certificat d’achèvement",
 		"message": "La présente atteste que vous avez suivi avec succès",
 		"download": "Télécharger",
 		"pdf": {
-			"title": "Certificat de fin d'études",
+			"title": "Certificat d’achèvement",
 			"message": "Nouse sommes fiers de remettre ce certificat à",
 			"congratulations": {
 				"1": "Félicitations ! Vous avez terminé avec succès",
