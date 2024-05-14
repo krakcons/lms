@@ -127,6 +127,9 @@ const UploadForm = ({
 				json: { ...input },
 			});
 			if (!res.ok) {
+				logger.error("Failed to create module", {
+					error: await res.text(),
+				});
 				throw new Error(await res.text());
 			}
 			const moduleId = (await res.json()).id;
@@ -134,13 +137,26 @@ const UploadForm = ({
 			const results = await Promise.allSettled(
 				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
+					logger.info(
+						`Uploading file ${path} for module ${moduleId}`
+					);
 					const contentType = mime.lookup(path);
+					logger.info(`Content type for ${path}: ${contentType}`);
 					const presignedRes = await client.api.courses[":id"][
 						"presigned-url"
 					].$get({
 						param: { id: courseId },
 						query: { key: `${input.language}/${path}` },
 					});
+					if (!presignedRes.ok) {
+						logger.error(
+							`Failed to get presigned URL for ${path}`,
+							{
+								error: await presignedRes.text(),
+							}
+						);
+						throw new Error(await presignedRes.text());
+					}
 					const { url } = await presignedRes.json();
 
 					const res = await fetch(url, {
@@ -172,6 +188,9 @@ const UploadForm = ({
 			);
 
 			if (failed) {
+				logger.error("File failed to upload module", {
+					results,
+				});
 				await client.api.modules[":id"].$delete({
 					param: { id: moduleId },
 				});
