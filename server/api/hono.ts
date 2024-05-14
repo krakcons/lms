@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { logger } from "hono/logger";
 import { collectionsHandler } from "./handlers/collections";
 import { coursesHandler } from "./handlers/courses";
 import { keysHandler } from "./handlers/keys";
@@ -9,7 +8,6 @@ import { teamsHandler } from "./handlers/teams";
 
 const app = new Hono()
 	.basePath("/api")
-	.use(logger())
 	.route("/learners", learnersHandler)
 	.route("/modules", modulesHandler)
 	.route("/courses", coursesHandler)

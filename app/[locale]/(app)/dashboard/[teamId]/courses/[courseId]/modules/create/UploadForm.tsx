@@ -132,7 +132,7 @@ const UploadForm = ({
 			const moduleId = (await res.json()).id;
 
 			const results = await Promise.allSettled(
-				Object.keys(course.files).map(async (path) => {
+				Object.keys(course.files).map(async (path, index) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const presignedRes = await client.api.courses[":id"][

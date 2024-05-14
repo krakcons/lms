@@ -39,7 +39,13 @@ import LearnerActions from "./LearnerActions";
 
 const columnHelper = createColumnHelper<Learner & { language?: Language }>();
 
-const ReinviteButton = ({ learner }: { learner: Learner }) => {
+export const ReinviteDialog = ({
+	learner,
+	children,
+}: {
+	learner: Learner;
+	children: React.ReactNode;
+}) => {
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const { mutate: reinviteLearner, isPending } = useMutation({
@@ -72,9 +78,7 @@ const ReinviteButton = ({ learner }: { learner: Learner }) => {
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button variant="outline">Reinvite</Button>
-			</DialogTrigger>
+			{children}
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Reinvite Learner</DialogTitle>
@@ -145,7 +149,11 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 		return (
 			<div className="flex items-center gap-4">
 				<p className="text-sm">Invited</p>
-				<ReinviteButton learner={info.row.original} />
+				<ReinviteDialog learner={info.row.original}>
+					<DialogTrigger asChild>
+						<Button variant="outline">Reinvite</Button>
+					</DialogTrigger>
+				</ReinviteDialog>
 			</div>
 		);
 	}
