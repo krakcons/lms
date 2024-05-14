@@ -121,80 +121,94 @@ const UploadForm = ({
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (input: UploadModule) => {
-			const course = await JSZip.loadAsync(file);
+			try {
+				const course = await JSZip.loadAsync(file);
 
-			const res = await client.api.modules.$post({
-				json: { ...input },
-			});
-			if (!res.ok) {
-				logger.error("Failed to create module", {
-					error: await res.text(),
+				const res = await client.api.modules.$post({
+					json: { ...input },
 				});
-				throw new Error(await res.text());
-			}
-			const moduleId = (await res.json()).id;
-
-			const results = await Promise.allSettled(
-				Object.keys(course.files).map(async (path, index) => {
-					const file = await course.files[path].async("blob");
-					logger.info(
-						`Uploading file ${path} for module ${moduleId}`
-					);
-					const contentType = mime.lookup(path);
-					logger.info(`Content type for ${path}: ${contentType}`);
-					const presignedRes = await client.api.courses[":id"][
-						"presigned-url"
-					].$get({
-						param: { id: courseId },
-						query: { key: `${input.language}/${path}` },
+				if (!res.ok) {
+					logger.error("Failed to create module", {
+						error: await res.text(),
 					});
-					if (!presignedRes.ok) {
-						logger.error(
-							`Failed to get presigned URL for ${path}`,
-							{
-								error: await presignedRes.text(),
-							}
-						);
-						throw new Error(await presignedRes.text());
-					}
-					const { url } = await presignedRes.json();
+					throw new Error(await res.text());
+				}
+				const moduleId = (await res.json()).id;
 
-					const res = await fetch(url, {
-						method: "PUT",
-						headers: contentType
-							? new Headers({
+				const results = await Promise.allSettled(
+					Object.keys(course.files).map(async (path) => {
+						try {
+							if (course.files[path].dir) {
+								return;
+							}
+							const file = await course.files[path].async("blob");
+							if (!file) {
+								throw new Error(`Failed to read file ${path}`);
+							}
+
+							const contentType = mime.lookup(path);
+							if (!contentType) {
+								throw new Error(
+									`Failed to determine content type for ${path}`
+								);
+							}
+
+							const presignedRes = await client.api.courses[
+								":id"
+							]["presigned-url"].$get({
+								param: { id: courseId },
+								query: { key: `${input.language}/${path}` },
+							});
+							if (!presignedRes.ok) {
+								throw new Error(
+									`Failed to get presigned URL for ${path}`
+								);
+							}
+
+							const { url } = await presignedRes.json();
+							if (!url) {
+								throw new Error(
+									`Failed to get URL from presigned response for ${path}`
+								);
+							}
+
+							const uploadRes = await fetch(url, {
+								method: "PUT",
+								headers: new Headers({
 									"Content-Type": contentType,
-								})
-							: undefined,
-						body: file,
-					});
-
-					if (!res.ok) {
-						logger.error(
-							`Failed to upload file ${path} for module ${moduleId}`,
-							{
-								error: await res.text(),
+								}),
+								body: file,
+							});
+							if (!uploadRes.ok) {
+								throw new Error(
+									`Failed to upload file ${path}`
+								);
 							}
-						);
-						throw new Error(await res.text());
-					}
+						} catch (error) {
+							logger.error(`Error processing file ${path}`, {
+								error,
+							});
+							throw error;
+						}
+					})
+				);
 
-					return res;
-				})
-			);
+				const failed = results.some(
+					(result) => result.status === "rejected"
+				);
 
-			const failed = results.some(
-				(result) => result.status === "rejected"
-			);
-
-			if (failed) {
-				logger.error("File failed to upload module", {
-					results,
-				});
-				await client.api.modules[":id"].$delete({
-					param: { id: moduleId },
-				});
-				throw new Error("Failed to upload module");
+				if (failed) {
+					logger.error("File failed to upload module", {
+						results,
+					});
+					await client.api.modules[":id"].$delete({
+						param: { id: moduleId },
+					});
+					throw new Error("Failed to upload module");
+				}
+			} catch (error) {
+				logger.error("Error in mutationFn", { error });
+				throw error;
 			}
 		},
 		onMutate: () => {
@@ -210,7 +224,6 @@ const UploadForm = ({
 			router.refresh();
 		},
 		onError: (err: any) => {
-			logger.error(err.message);
 			form.setError("root", {
 				type: "server",
 				message: err.message,

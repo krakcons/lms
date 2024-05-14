@@ -142,10 +142,20 @@ export const coursesHandler = new Hono()
 			const { id } = c.req.param();
 			const { key } = c.req.valid("query");
 			const teamId = c.get("teamId");
-			console.log("teamId", teamId);
 
-			const url = await getPresignedUrl(`${teamId}/courses/${id}/${key}`);
+			try {
+				const url = await getPresignedUrl(
+					`${teamId}/courses/${id}/${key}`
+				);
+				console.log("url", url);
 
-			return c.json({ url });
+				return c.json({ url });
+			} catch (e) {
+				console.log(e.message);
+				console.log("key", key);
+				throw new HTTPException(500, {
+					message: e.message,
+				});
+			}
 		}
 	);

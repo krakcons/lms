@@ -1,6 +1,7 @@
 import UploadForm from "./UploadForm";
 
 export const runtime = "nodejs";
+export const fetchCache = "force-no-store";
 
 const Page = ({
 	params: { courseId, teamId },
