@@ -128,12 +128,14 @@ const UploadForm = ({
 					json: { ...input },
 				});
 				if (!res.ok) {
+					const error = await res.text();
 					logger.error("Failed to create module", {
-						error: await res.text(),
+						error,
 					});
-					throw new Error(await res.text());
+					throw new Error(error);
 				}
-				const moduleId = (await res.json()).id;
+				const body = await res.json();
+				const moduleId = body.id;
 
 				const results = await Promise.allSettled(
 					Object.keys(course.files).map(async (path) => {
@@ -153,19 +155,31 @@ const UploadForm = ({
 								);
 							}
 
-							const presignedRes = await client.api.courses[
-								":id"
-							]["presigned-url"].$get({
-								param: { id: courseId },
-								query: { key: `${input.language}/${path}` },
-							});
+							let presignedRes;
+							try {
+								presignedRes = await client.api.courses[":id"][
+									"presigned-url"
+								].$post({
+									param: { id: courseId },
+									json: { key: `${input.language}/${path}` },
+								});
+							} catch (error) {
+								logger.error(
+									`Failed to get presigned URL for ${path}`,
+									{
+										error,
+									}
+								);
+								throw error;
+							}
 							if (!presignedRes.ok) {
 								throw new Error(
 									`Failed to get presigned URL for ${path}`
 								);
 							}
 
-							const { url } = await presignedRes.json();
+							const presignedResBody = await presignedRes.json();
+							const { url } = presignedResBody;
 							if (!url) {
 								throw new Error(
 									`Failed to get URL from presigned response for ${path}`
@@ -180,8 +194,9 @@ const UploadForm = ({
 								body: file,
 							});
 							if (!uploadRes.ok) {
+								const uploadResBody = await uploadRes.text();
 								throw new Error(
-									`Failed to upload file ${path}`
+									`Failed to upload file ${path}: ${uploadResBody}`
 								);
 							}
 						} catch (error) {

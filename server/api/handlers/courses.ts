@@ -129,10 +129,10 @@ export const coursesHandler = new Hono()
 			return c.json(learners);
 		}
 	)
-	.get(
+	.post(
 		"/:id/presigned-url",
 		zValidator(
-			"query",
+			"json",
 			z.object({
 				key: z.string(),
 			})
@@ -140,7 +140,7 @@ export const coursesHandler = new Hono()
 		authedMiddleware,
 		async (c) => {
 			const { id } = c.req.param();
-			const { key } = c.req.valid("query");
+			const { key } = c.req.valid("json");
 			const teamId = c.get("teamId");
 
 			try {
