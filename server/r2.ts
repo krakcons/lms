@@ -25,7 +25,6 @@ export const getPresignedUrl = async (key: string) => {
 };
 
 export const deleteFolder = async (prefix: string) => {
-	console.log("Deleting all objects under prefix", prefix);
 	let nextContinuationToken = null;
 	do {
 		const res = await r2.fetch(
@@ -43,7 +42,6 @@ export const deleteFolder = async (prefix: string) => {
 		// Delete each object
 		const deletePromises = listObjectsData?.ListBucketResult?.Contents?.map(
 			(obj: any) => {
-				console.log("Deleting", obj.Key);
 				return r2.fetch(`${env.R2_ENDPOINT}/${obj.Key}`, {
 					method: "DELETE",
 				});

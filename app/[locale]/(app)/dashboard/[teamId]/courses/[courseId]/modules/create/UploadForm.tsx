@@ -29,6 +29,7 @@ import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
 import { Upload } from "lucide-react";
 import mime from "mime-types";
+import { useLogger } from "next-axiom";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
@@ -92,6 +93,7 @@ const UploadForm = ({
 	teamId: string;
 }) => {
 	const router = useRouter();
+	const logger = useLogger();
 
 	const form = useForm<{
 		file: File;
@@ -130,7 +132,7 @@ const UploadForm = ({
 			const moduleId = (await res.json()).id;
 
 			const results = await Promise.allSettled(
-				Object.keys(course.files).map(async (path, index) => {
+				Object.keys(course.files).map(async (path) => {
 					const file = await course.files[path].async("blob");
 					const contentType = mime.lookup(path);
 					const presignedRes = await client.api.courses[":id"][
@@ -141,7 +143,7 @@ const UploadForm = ({
 					});
 					const { url } = await presignedRes.json();
 
-					await fetch(url, {
+					const res = await fetch(url, {
 						method: "PUT",
 						headers: contentType
 							? new Headers({
@@ -150,6 +152,18 @@ const UploadForm = ({
 							: undefined,
 						body: file,
 					});
+
+					if (!res.ok) {
+						logger.error(
+							`Failed to upload file ${path} for module ${moduleId}`,
+							{
+								error: await res.text(),
+							}
+						);
+						throw new Error(await res.text());
+					}
+
+					return res;
 				})
 			);
 
@@ -177,6 +191,7 @@ const UploadForm = ({
 			router.refresh();
 		},
 		onError: (err: any) => {
+			logger.error(err.message);
 			form.setError("root", {
 				type: "server",
 				message: err.message,
