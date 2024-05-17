@@ -306,7 +306,7 @@ export const learnersData = {
 			const href =
 				team?.customDomain &&
 				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-					? `${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${course.learnerId}`
+					? `https://${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${course.learnerId}`
 					: `${env.NEXT_PUBLIC_SITE_URL}${inviteLanguage ? `/${inviteLanguage}` : ""}/play/${team?.id}/courses/${course.id}/join?learnerId=${course.learnerId}`;
 
 			const courseTranslation = translate(
@@ -381,7 +381,7 @@ export const learnersData = {
 		const href =
 			team?.customDomain &&
 			env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-				? `${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${learnerId}`
+				? `https://${team.customDomain}${inviteLanguage ? `/${inviteLanguage}` : ""}/courses/${course.id}/join?learnerId=${learnerId}`
 				: `${env.NEXT_PUBLIC_SITE_URL}${inviteLanguage ? `/${inviteLanguage}` : ""}/play/${team?.id}/courses/${course.id}/join?learnerId=${learnerId}`;
 
 		const t = await getTranslations({
