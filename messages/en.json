@@ -35,7 +35,8 @@
 		},
 		"dialog": {
 			"title": "Completed!",
-			"description": "You can close this window. An email containing your certificate will be sent shortly. Go to the certificate download page:"
+			"description": "You can close this window. An email containing your certificate will be sent shortly. Go to the certificate download page:",
+			"dont-show": "Don't show this again"
 		}
 	},
 	"Email": {

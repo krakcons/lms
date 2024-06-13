@@ -228,19 +228,30 @@ const LMSProvider = ({
 		download: string;
 		title: string;
 		description: string;
+		dontShowAgain: string;
 	};
 }) => {
+	const [dontShowAgain, setDontShowAgain] = useState(
+		localStorage.getItem(learner.id) === "true"
+	);
 	const [open, setOpen] = useState(false);
 	const { mutate } = useMutation({
 		mutationFn: client.api.learners[":id"].$put,
 		onSuccess: async (res) => {
-			const closed = localStorage.getItem(learner.id);
+			const hidden = localStorage.getItem(learner.id);
 			const data = await res.json();
-			if (data.completedAt && !closed) {
+			if (data.completedAt && !hidden) {
 				setOpen(true);
 			}
 		},
 	});
+
+	useEffect(() => {
+		const hidden = localStorage.getItem(learner.id);
+		if (learner.completedAt && !hidden) {
+			setOpen(true);
+		}
+	}, [learner]);
 
 	const { data } = useSCORM({
 		type,
@@ -253,19 +264,19 @@ const LMSProvider = ({
 		}
 	}, [data, learner, mutate]);
 
+	useEffect(() => {
+		if (dontShowAgain) {
+			localStorage.setItem(learner.id, "true");
+		} else {
+			localStorage.removeItem(learner.id);
+		}
+	}, [dontShowAgain, learner.id]);
+
 	const pathname = usePathname();
 
 	return (
 		<>
-			<Dialog
-				onOpenChange={(open) => {
-					if (!open) {
-						localStorage.setItem(learner.id, "true");
-					}
-					setOpen(open);
-				}}
-				open={open}
-			>
+			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
@@ -275,6 +286,13 @@ const LMSProvider = ({
 							{text.description}
 						</DialogDescription>
 					</DialogHeader>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							onChange={() => setDontShowAgain(!dontShowAgain)}
+						/>
+						<p className="text-sm">{text.dontShowAgain}</p>
+					</label>
 					<Link
 						href={`${pathname}/certificate?learnerId=${learner.id}`}
 						className={buttonVariants()}

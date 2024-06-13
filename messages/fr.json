@@ -35,7 +35,8 @@
 		},
 		"dialog": {
 			"title": "Complété !",
-			"description": "Vous pouvez maintenant fermer cette fenêtre. Un courriel contenant votre certificat vous sera envoyé dans les plus brefs délais. Vous pouvez également le télécharger ci-dessous :"
+			"description": "Vous pouvez maintenant fermer cette fenêtre. Un courriel contenant votre certificat vous sera envoyé dans les plus brefs délais. Vous pouvez également le télécharger ci-dessous :",
+			"dont-show": "Ne le montrez plus"
 		}
 	},
 	"Email": {

@@ -142,6 +142,7 @@ const Page = async ({
 						title: t("Certificate.dialog.title"),
 						description: t("Certificate.dialog.description"),
 						download: t("Certificate.download"),
+						dontShowAgain: t("Certificate.dialog.dont-show"),
 					}}
 				/>
 			</div>
