@@ -15,6 +15,7 @@ import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
 import { ReinviteDialog } from "./LearnersTable";
 
 const LearnerActions = ({ learner }: { learner: Learner }) => {
@@ -23,6 +24,14 @@ const LearnerActions = ({ learner }: { learner: Learner }) => {
 		mutationFn: client.api.learners[":id"].$delete,
 		onSuccess: () => {
 			router.refresh();
+		},
+	});
+
+	const { mutate: resendCertificate } = useMutation({
+		mutationFn: client.api.learners[":id"].recertify.$post,
+		onSuccess: () => {
+			router.refresh();
+			toast.success("Certificate resent");
 		},
 	});
 
@@ -43,8 +52,20 @@ const LearnerActions = ({ learner }: { learner: Learner }) => {
 							Reinvite
 						</DropdownMenuItem>
 					</DialogTrigger>
+					{learner.completedAt && (
+						<DropdownMenuItem
+							className="cursor-pointer"
+							onSelect={() => {
+								resendCertificate({
+									param: { id: learner.id },
+								});
+							}}
+						>
+							Resend Certificate
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuItem
-						className="cursor-pointer"
+						className="cursor-pointer text-red-500 focus:text-red-500"
 						onSelect={() =>
 							deleteLearner({
 								param: { id: learner.id },
