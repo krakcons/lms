@@ -32,6 +32,7 @@ import { Learner } from "@/types/learner";
 import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -164,12 +165,68 @@ const columns = [
 	columnHelper.accessor("id", {
 		header: "ID",
 	}),
-	columnHelper.accessor((row) => `${row.firstName} ${row.lastName}`, {
-		id: "fullName",
-		header: "Name",
+	columnHelper.accessor("firstName", {
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					First Name
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
+	}),
+	columnHelper.accessor("lastName", {
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Last Name
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
 	}),
 	columnHelper.accessor("email", {
-		header: "Email",
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Email
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
 	}),
 	columnHelper.accessor<(row: Learner) => string, string>(
 		(row) =>
@@ -179,7 +236,26 @@ const columns = [
 				year: "numeric",
 			}) || "N/A",
 		{
-			header: "Started At",
+			id: "startedAt",
+			header: ({ column }) => {
+				return (
+					<Button
+						variant="ghost"
+						onClick={() =>
+							column.toggleSorting(column.getIsSorted() === "asc")
+						}
+					>
+						Started At
+						{column.getIsSorted() === "asc" ? (
+							<ArrowUp className="ml-2 h-4 w-4" />
+						) : column.getIsSorted() === "desc" ? (
+							<ArrowDown className="ml-2 h-4 w-4" />
+						) : (
+							<ArrowUpDown className="ml-2 h-4 w-4" />
+						)}
+					</Button>
+				);
+			},
 		}
 	),
 	columnHelper.accessor<(row: Learner) => string, string>(
@@ -190,12 +266,59 @@ const columns = [
 				year: "numeric",
 			}) || "N/A",
 		{
-			header: "Completed At",
+			id: "completedAt",
+			header: ({ column }) => {
+				return (
+					<Button
+						variant="ghost"
+						onClick={() =>
+							column.toggleSorting(column.getIsSorted() === "asc")
+						}
+					>
+						Completed At
+						{column.getIsSorted() === "asc" ? (
+							<ArrowUp className="ml-2 h-4 w-4" />
+						) : column.getIsSorted() === "desc" ? (
+							<ArrowDown className="ml-2 h-4 w-4" />
+						) : (
+							<ArrowUpDown className="ml-2 h-4 w-4" />
+						)}
+					</Button>
+				);
+			},
 		}
 	),
 	columnHelper.accessor("status", {
-		header: "Status",
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Status
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
 		cell: (info) => <StatusCell info={info} />,
+		sortingFn: (a, b) => {
+			const labels = {
+				completed: 1,
+				"not-started": 2,
+				"in-progress": 3,
+				passed: 4,
+				failed: 5,
+			};
+			return labels[a.original.status] - labels[b.original.status];
+		},
 	}),
 	columnHelper.accessor<
 		(
@@ -205,10 +328,47 @@ const columns = [
 		) => string,
 		string
 	>((row) => row.language ?? "", {
-		header: "Language",
+		id: "language",
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Language
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
 	}),
-	columnHelper.display({
-		header: "Score",
+	columnHelper.accessor("score", {
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Score
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
 		cell: (info) => {
 			const score = info.row.original.score;
 
@@ -217,6 +377,15 @@ const columns = [
 			} else {
 				return "N/A";
 			}
+		},
+		sortingFn: (a, b) => {
+			if (!a.original.score || !a.original.score.raw) {
+				return 1;
+			}
+			if (!b.original.score || !b.original.score.raw) {
+				return -1;
+			}
+			return a.original.score.raw - b.original.score.raw;
 		},
 	}),
 	columnHelper.display({
