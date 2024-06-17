@@ -136,6 +136,9 @@ export const learnersHandler = new Hono()
 				course: courseTranslation.name,
 				organization: teamTranslation.name,
 				href,
+				logo: teamTranslation.logo
+					? env.NEXT_PUBLIC_R2_URL + teamTranslation.logo
+					: undefined,
 				text: {
 					title: t("Completion.title"),
 					congratulations: t("Completion.congratulations"),

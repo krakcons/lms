@@ -6,7 +6,9 @@ import {
 	Container,
 	Head,
 	Heading,
+	Hr,
 	Html,
+	Img,
 	Preview,
 	Text,
 } from "@react-email/components";
@@ -15,6 +17,7 @@ export const CourseCompletion = ({
 	course = "Golfing Tutorial",
 	organization = "Krak",
 	href = "https://google.com",
+	logo = "https://pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev/466a5korjz3hykf/en/logo?1717019590878",
 	text = {
 		title: "Congratulations!",
 		completed: "Completed",
@@ -27,6 +30,7 @@ export const CourseCompletion = ({
 	course?: string;
 	organization?: string;
 	href?: string;
+	logo?: string;
 	text: {
 		title: string;
 		completed: string;
@@ -42,7 +46,10 @@ export const CourseCompletion = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto mt-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					<Heading className="mt-0">
+					{logo && (
+						<Img src={logo} alt="logo" width={175} height={50} />
+					)}
+					<Heading className={!logo ? "mt-0" : ""}>
 						{text.title} {course} {text.completed}
 					</Heading>
 					<Text>
@@ -59,6 +66,8 @@ export const CourseCompletion = ({
 					>
 						{text.get}
 					</Button>
+					<Hr className="my-6" />
+					<Text className="mb-0">{organization}</Text>
 				</Container>
 			</Body>
 		</Tailwind>

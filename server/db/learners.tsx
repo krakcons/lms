@@ -128,6 +128,9 @@ export const learnersData = {
 					course: courseTranslation.name,
 					organization: teamTranslation.name,
 					href,
+					logo: teamTranslation.logo
+						? env.NEXT_PUBLIC_R2_URL + teamTranslation.logo
+						: undefined,
 					text: {
 						title: t("Completion.title"),
 						congratulations: t("Completion.congratulations"),
@@ -330,11 +333,15 @@ export const learnersData = {
 				collection: collectionTranslation.name,
 				organization: teamTranslation.name,
 				courses: courseInvites,
+				logo: teamTranslation.logo
+					? env.NEXT_PUBLIC_R2_URL + teamTranslation.logo
+					: undefined,
 				text: {
 					title: t("CollectionInvite.title"),
 					invite: t("CollectionInvite.invite"),
 					by: t("by"),
 					start: t("CollectionInvite.start"),
+					below: t("CollectionInvite.below"),
 				},
 			})
 		);
@@ -400,10 +407,14 @@ export const learnersData = {
 				course: courseTranslation.name,
 				organization: teamTranslation.name,
 				href,
+				logo: teamTranslation.logo
+					? env.NEXT_PUBLIC_R2_URL + teamTranslation.logo
+					: undefined,
 				text: {
 					title: t("CourseInvite.title"),
 					invite: t("CourseInvite.invite"),
 					start: t("CourseInvite.start"),
+					below: t("CourseInvite.below"),
 				},
 			})
 		);
