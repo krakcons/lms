@@ -31,6 +31,12 @@ const Page = async ({
 	const t = await getTranslations({ locale });
 	const teamTranslation = translate(team.translations, locale);
 
+	console.log(
+		teamTranslation.logo
+			? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
+			: undefined
+	);
+
 	return (
 		<>
 			<div className="flex items-center justify-between">
