@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/ui/data-table";
 import {
 	Dialog,
@@ -162,6 +163,30 @@ const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
 };
 
 const columns = [
+	columnHelper.display({
+		id: "select",
+		header: ({ table }) => (
+			<Checkbox
+				checked={
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && "indeterminate")
+				}
+				onCheckedChange={(value) =>
+					table.toggleAllPageRowsSelected(!!value)
+				}
+				aria-label="Select all"
+			/>
+		),
+		cell: ({ row }) => (
+			<Checkbox
+				checked={row.getIsSelected()}
+				onCheckedChange={(value) => row.toggleSelected(!!value)}
+				aria-label="Select row"
+			/>
+		),
+		enableSorting: false,
+		enableHiding: false,
+	}),
 	columnHelper.accessor("id", {
 		header: "ID",
 	}),
@@ -404,6 +429,14 @@ const LearnersTable = ({
 }: {
 	learners: (Learner & { language?: Language })[];
 }) => {
+	const router = useRouter();
+	const { mutate: deleteLearners, isPending } = useMutation({
+		mutationFn: client.api.learners.$delete,
+		onSuccess: () => {
+			router.refresh();
+		},
+	});
+
 	return (
 		<DataTable
 			data={learners}
@@ -413,6 +446,14 @@ const LearnersTable = ({
 				column: "email",
 				placeholder: "Search emails...",
 			}}
+			deleteMultiple={(learners) => {
+				deleteLearners({
+					json: {
+						ids: learners.map((learner) => learner.id),
+					},
+				});
+			}}
+			deleteMultiplePending={isPending}
 		/>
 	);
 };

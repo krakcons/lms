@@ -9,7 +9,7 @@ import { UpdateLearnerSchema } from "@/types/learner";
 import { LanguageSchema } from "@/types/translations";
 import { zValidator } from "@hono/zod-validator";
 import { renderAsync } from "@react-email/components";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { getTranslations } from "next-intl/server";
@@ -175,4 +175,20 @@ export const learnersHandler = new Hono()
 		await db.delete(learners).where(and(eq(learners.id, id)));
 
 		return c.json(null);
-	});
+	})
+	.delete(
+		"",
+		zValidator(
+			"json",
+			z.object({
+				ids: z.array(z.string()),
+			})
+		),
+		async (c) => {
+			const { ids } = c.req.valid("json");
+
+			await db.delete(learners).where(inArray(learners.id, ids));
+
+			return c.json(null);
+		}
+	);

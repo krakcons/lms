@@ -37,6 +37,8 @@ interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	onRowClick?: (row: TData) => void;
+	deleteMultiple?: (rows: TData[]) => void;
+	deleteMultiplePending?: boolean;
 }
 
 export const DataTable = <TData, TValue>({
@@ -45,6 +47,8 @@ export const DataTable = <TData, TValue>({
 	filter,
 	onRowClick,
 	name,
+	deleteMultiple,
+	deleteMultiplePending,
 }: DataTableProps<TData, TValue> & {
 	filter: {
 		column: string;
@@ -59,6 +63,7 @@ export const DataTable = <TData, TValue>({
 			id: false,
 		});
 	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
 		data,
@@ -72,9 +77,11 @@ export const DataTable = <TData, TValue>({
 			columnFilters,
 			columnVisibility,
 			sorting,
+			rowSelection,
 		},
 		onSortingChange: setSorting,
 		getSortedRowModel: getSortedRowModel(),
+		onRowSelectionChange: setRowSelection,
 	});
 
 	return (
@@ -95,6 +102,24 @@ export const DataTable = <TData, TValue>({
 					className="max-w-sm"
 				/>
 				<div className="flex gap-3">
+					{table.getFilteredSelectedRowModel().rows.length > 0 && (
+						<Button
+							variant="destructive"
+							onClick={() => {
+								if (deleteMultiple)
+									deleteMultiple(
+										table
+											.getFilteredSelectedRowModel()
+											.rows.map((row) => row.original)
+									);
+							}}
+							isPending={deleteMultiplePending}
+						>
+							Delete{" "}
+							{table.getFilteredSelectedRowModel().rows.length}{" "}
+							learners
+						</Button>
+					)}
 					<ExportCSVButton data={data} filename={name} />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -197,6 +222,10 @@ export const DataTable = <TData, TValue>({
 				</div>
 			</div>
 			<div className="flex items-center justify-end space-x-2 py-4">
+				<div className="flex-1 text-sm text-muted-foreground">
+					{table.getFilteredSelectedRowModel().rows.length} of{" "}
+					{table.getFilteredRowModel().rows.length} row(s) selected.
+				</div>
 				<Button
 					variant="outline"
 					size="sm"
