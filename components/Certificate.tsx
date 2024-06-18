@@ -103,43 +103,45 @@ export const Certificate = ({
 				</Text>
 				<View
 					style={{
-						justifyContent: "center",
-						alignItems: "center",
-						flexDirection: "row",
-						flexWrap: "wrap",
 						width: "100%",
 						maxWidth: 550,
 					}}
 				>
 					<Text
 						style={{
-							fontStyle: "italic",
+							textAlign: "center",
 						}}
 					>
-						{text.congratulations[1]}
-					</Text>
-					<Text
-						style={{
-							fontWeight: 600,
-							fontStyle: "italic",
-						}}
-					>
-						{" " + course}
-					</Text>
-					<Text
-						style={{
-							fontStyle: "italic",
-						}}
-					>
-						{" " + text.congratulations[2]}
-					</Text>
-					<Text
-						style={{
-							fontWeight: 600,
-							fontStyle: "italic",
-						}}
-					>
-						{" " + teamName}.
+						<Text
+							style={{
+								fontStyle: "italic",
+							}}
+						>
+							{text.congratulations[1]}
+						</Text>
+						<Text
+							style={{
+								fontWeight: 600,
+								fontStyle: "italic",
+							}}
+						>
+							{" " + course}
+						</Text>
+						<Text
+							style={{
+								fontStyle: "italic",
+							}}
+						>
+							{" " + text.congratulations[2]}
+						</Text>
+						<Text
+							style={{
+								fontWeight: 600,
+								fontStyle: "italic",
+							}}
+						>
+							{" " + teamName}.
+						</Text>
 					</Text>
 				</View>
 				<View
