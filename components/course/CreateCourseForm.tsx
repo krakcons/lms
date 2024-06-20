@@ -33,7 +33,7 @@ export const CreateCourseForm = ({
 			default: true,
 			language,
 			name: "",
-			description: undefined,
+			description: "",
 		},
 	});
 
@@ -42,6 +42,7 @@ export const CreateCourseForm = ({
 		onSuccess: async (res) => {
 			const data = await res.json();
 			router.push(`/dashboard/${teamId}/courses/${data.id}`);
+			router.refresh();
 		},
 	});
 

@@ -4,7 +4,13 @@ import { cache } from "react";
 import { LCDSError } from "../errors";
 import { deleteFolder } from "../r2";
 import { db } from "./db";
-import { courseTranslations, courses, learners, modules } from "./schema";
+import {
+	collectionsToCourses,
+	courseTranslations,
+	courses,
+	learners,
+	modules,
+} from "./schema";
 
 export const coursesData = {
 	create: async (course: CreateCourse, teamId: string) => {
@@ -35,19 +41,27 @@ export const coursesData = {
 	delete: async ({ id }: SelectCourse, teamId: string) => {
 		const course = await coursesData.get({ id }, teamId);
 
+		console.log("Deleting course", course.id);
+		// Delete course
 		await db
 			.delete(courses)
 			.where(and(eq(courses.id, course.id), eq(courses.teamId, teamId)));
 
+		// Delete all modules and learners
+		console.log("Deleting modules", course.id);
 		const modulesList = await db.query.modules.findMany({
-			where: eq(courses.id, course.id),
+			where: eq(modules.courseId, course.id),
 		});
-
 		modulesList.forEach(async (module) => {
 			await db.delete(learners).where(eq(learners.moduleId, module.id));
 		});
+		await db.delete(modules).where(eq(modules.courseId, course.id));
 
-		await db.delete(modules).where(eq(courses.id, course.id));
+		// Delete from collections
+		console.log("Deleting from collections", course.id);
+		await db
+			.delete(collectionsToCourses)
+			.where(eq(collectionsToCourses.courseId, course.id));
 
 		await deleteFolder(`${teamId}/courses/${course.id}`);
 	},
