@@ -33,7 +33,7 @@ export const CreateCourseForm = ({
 			default: true,
 			language,
 			name: "",
-			description: "",
+			description: undefined,
 		},
 	});
 

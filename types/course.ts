@@ -32,7 +32,6 @@ export const CreateCourseSchema = CourseTranslationSchema.pick({
 	default: true,
 }).extend({
 	name: z.string().min(1),
-	description: z.string().min(1),
 });
 export type CreateCourse = z.infer<typeof CreateCourseSchema>;
 

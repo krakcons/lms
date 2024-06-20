@@ -22,6 +22,8 @@ export const CreateCollectionTranslationSchema =
 		description: true,
 		language: true,
 		default: true,
+	}).extend({
+		name: z.string().min(1),
 	});
 export type CreateCollectionTranslation = z.infer<
 	typeof CreateCollectionTranslationSchema

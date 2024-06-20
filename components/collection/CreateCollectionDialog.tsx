@@ -52,6 +52,7 @@ export const CreateCollectionDialog = ({
 		mutationFn: client.api.collections.$post,
 		onSuccess: async () => {
 			router.refresh();
+			form.reset();
 			setOpen(false);
 		},
 	});
