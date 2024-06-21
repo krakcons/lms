@@ -70,7 +70,7 @@ const Page = async ({
 	}
 
 	return (
-		<main>
+		<main className="flex flex-col">
 			<div className="flex items-center justify-between">
 				<div>
 					<h2>Learners</h2>

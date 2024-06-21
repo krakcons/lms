@@ -65,7 +65,7 @@ const Layout = async ({
 	return (
 		<>
 			<div className="flex flex-col lg:flex-row">
-				<aside className="lg:w-1/6">
+				<aside className="lg:w-32">
 					<SidebarNav items={items} />
 				</aside>
 				<div className="flex-1 px-0 py-8 lg:px-8 lg:py-0">

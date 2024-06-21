@@ -438,23 +438,25 @@ const LearnersTable = ({
 	});
 
 	return (
-		<DataTable
-			data={learners}
-			columns={columns as any}
-			name={"Learners"}
-			filter={{
-				column: "email",
-				placeholder: "Search emails...",
-			}}
-			deleteMultiple={(learners) => {
-				deleteLearners({
-					json: {
-						ids: learners.map((learner) => learner.id),
-					},
-				});
-			}}
-			deleteMultiplePending={isPending}
-		/>
+		<div className="lg:w-[calc(100vw-48px-64px-128px)]">
+			<DataTable
+				data={learners}
+				columns={columns as any}
+				name={"Learners"}
+				filter={{
+					column: "email",
+					placeholder: "Search emails...",
+				}}
+				deleteMultiple={(learners) => {
+					deleteLearners({
+						json: {
+							ids: learners.map((learner) => learner.id),
+						},
+					});
+				}}
+				deleteMultiplePending={isPending}
+			/>
+		</div>
 	);
 };
 

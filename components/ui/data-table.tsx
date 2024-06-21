@@ -151,7 +151,7 @@ export const DataTable = <TData, TValue>({
 				</div>
 			</div>
 			<div className="rounded-md border">
-				<div className="block w-full overflow-auto">
+				<div className="block w-full overflow-x-auto">
 					<Table className="w-full min-w-max">
 						<TableHeader>
 							{table.getHeaderGroups().map((headerGroup) => (
