@@ -17,7 +17,7 @@ export const CourseInvite = ({
 	href = "https://google.com",
 	course = "Golfing Tutorial",
 	organization = "CompanionLink",
-	logo = "https://pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev/466a5korjz3hykf/en/logo?1717019590878",
+	logo = "https://pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev/ycod8h4c322hjry/en/logo",
 	text = {
 		title: "Invitation",
 		invite: "invites you to join the following:",
@@ -42,9 +42,7 @@ export const CourseInvite = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					{logo && (
-						<Img src={logo} alt="logo" width={175} height={50} />
-					)}
+					{logo && <Img src={logo} alt="logo" width={175} />}
 					<Heading className={!logo ? "mt-0" : ""}>
 						{text.title}
 					</Heading>

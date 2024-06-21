@@ -46,9 +46,7 @@ export const CourseCompletion = ({
 		<Tailwind>
 			<Body className="mx-auto my-auto bg-white font-sans">
 				<Container className="mx-auto mt-[40px] max-w-[465px] rounded border border-solid border-border p-8 text-foreground">
-					{logo && (
-						<Img src={logo} alt="logo" width={175} height={50} />
-					)}
+					{logo && <Img src={logo} alt="logo" width={175} />}
 					<Heading className={!logo ? "mt-0" : ""}>
 						{text.title} {course} {text.completed}
 					</Heading>
