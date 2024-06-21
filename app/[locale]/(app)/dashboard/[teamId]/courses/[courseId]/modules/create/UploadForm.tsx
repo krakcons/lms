@@ -138,72 +138,90 @@ const UploadForm = ({
 				const moduleId = body.id;
 
 				const results = await Promise.allSettled(
-					Object.keys(course.files).map(async (path) => {
-						try {
-							if (course.files[path].dir) {
-								return;
-							}
-							const file = await course.files[path].async("blob");
-							if (!file) {
-								throw new Error(`Failed to read file ${path}`);
-							}
-
-							const contentType = mime.lookup(path);
-							if (!contentType) {
-								throw new Error(
-									`Failed to determine content type for ${path}`
-								);
-							}
-
-							let presignedRes;
+					Object.keys(course.files).map(async (path, index) => {
+						let retries = 3; // Number of retries
+						while (retries > 0) {
 							try {
-								presignedRes = await client.api.courses[":id"][
-									"presigned-url"
-								].$post({
-									param: { id: courseId },
-									json: { key: `${input.language}/${path}` },
+								if (course.files[path].dir) {
+									return;
+								}
+								const file =
+									await course.files[path].async("blob");
+								if (!file) {
+									throw new Error(
+										`Failed to read file ${path}`
+									);
+								}
+
+								if (index === 12 && retries > 2) {
+									throw new Error("Test error");
+								}
+
+								const contentType = mime.lookup(path);
+								if (!contentType) {
+									throw new Error(
+										`Failed to determine content type for ${path}`
+									);
+								}
+
+								let presignedRes;
+								try {
+									presignedRes = await client.api.courses[
+										":id"
+									]["presigned-url"].$post({
+										param: { id: courseId },
+										json: {
+											key: `${input.language}/${path}`,
+										},
+									});
+								} catch (error) {
+									logger.error(
+										`Failed to get presigned URL for ${path}`,
+										{
+											error,
+										}
+									);
+									retries--; // Decrement retries on failure
+									continue; // Skip to next iteration
+								}
+								if (!presignedRes.ok) {
+									retries--; // Decrement retries on failure
+									continue; // Skip to next iteration
+								}
+
+								const presignedResBody =
+									await presignedRes.json();
+								const { url } = presignedResBody;
+								if (!url) {
+									throw new Error(
+										`Failed to get URL from presigned response for ${path}`
+									);
+								}
+
+								const uploadRes = await fetch(url, {
+									method: "PUT",
+									headers: new Headers({
+										"Content-Type": contentType,
+									}),
+									body: file,
 								});
+								if (!uploadRes.ok) {
+									const uploadResBody =
+										await uploadRes.text();
+									throw new Error(
+										`Failed to upload file ${path}: ${uploadResBody}`
+									);
+								}
+								break; // Break the loop if successful
 							} catch (error) {
-								logger.error(
-									`Failed to get presigned URL for ${path}`,
-									{
-										error,
-									}
-								);
-								throw error;
+								logger.error(`Error processing file ${path}`, {
+									error,
+								});
+								retries--; // Decrement retries on failure
+								if (retries === 0) {
+									throw error; // Throw error after last retry
+								}
 							}
-							if (!presignedRes.ok) {
-								throw new Error(
-									`Failed to get presigned URL for ${path}`
-								);
-							}
-
-							const presignedResBody = await presignedRes.json();
-							const { url } = presignedResBody;
-							if (!url) {
-								throw new Error(
-									`Failed to get URL from presigned response for ${path}`
-								);
-							}
-
-							const uploadRes = await fetch(url, {
-								method: "PUT",
-								headers: new Headers({
-									"Content-Type": contentType,
-								}),
-								body: file,
-							});
-							if (!uploadRes.ok) {
-								const uploadResBody = await uploadRes.text();
-								throw new Error(
-									`Failed to upload file ${path}: ${uploadResBody}`
-								);
-							}
-						} catch (error) {
-							logger.error(`Error processing file ${path}`, {
-								error,
-							});
-							throw error;
 						}
 					})
 				);
