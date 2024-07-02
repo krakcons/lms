@@ -22,6 +22,11 @@ export const UpdateCourseSchema = CourseSchema.pick({
 });
 export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;
 
+export const UpdateCourseSettingsSchema = CourseSchema.pick({
+	completionStatus: true,
+});
+export type UpdateCourseSettings = z.infer<typeof UpdateCourseSettingsSchema>;
+
 export const CourseTranslationSchema = createSelectSchema(courseTranslations);
 export type CourseTranslation = z.infer<typeof CourseTranslationSchema>;
 

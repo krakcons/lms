@@ -144,6 +144,9 @@ export const courses = pgTable("courses", {
 		.notNull()
 		.$default(() => generateId(15)),
 	teamId: text("teamId").notNull(),
+	completionStatus: text("completionStatus")
+		.notNull()
+		.default(sql`'passed'`),
 });
 
 export const coursesRelations = relations(courses, ({ one, many }) => ({

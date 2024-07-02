@@ -73,7 +73,7 @@ export const EditCourseForm = ({
 	}, [lang, form, translations]);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses[":id"].$put,
+		mutationFn: client.api.courses[":id"].translations.$put,
 		onSuccess: () => {
 			router.refresh();
 			toast("Course updated successfully");

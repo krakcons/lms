@@ -47,6 +47,9 @@ export const learnersData = {
 		}
 		const learner = await db.query.learners.findFirst({
 			where: and(eq(learners.id, id)),
+			with: {
+				course: true,
+			},
 		});
 
 		if (!learner) {
@@ -66,8 +69,13 @@ export const learnersData = {
 			data,
 		});
 
+		const isEitherStatus =
+			learner.course.completionStatus === "either" &&
+			["completed", "passed"].includes(newLearner.status);
 		const justCompleted =
-			!learner.completedAt && newLearner.status === "passed";
+			!learner.completedAt &&
+			(learner.course.completionStatus === newLearner.status ||
+				isEitherStatus);
 
 		const completedAt =
 			courseModule && justCompleted ? new Date() : learner.completedAt;

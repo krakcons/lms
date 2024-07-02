@@ -3,7 +3,7 @@ import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { courseTranslations, courses } from "@/server/db/schema";
 import { getPresignedUrl } from "@/server/r2";
-import { CreateCourseSchema } from "@/types/course";
+import { CreateCourseSchema, UpdateCourseSettingsSchema } from "@/types/course";
 import { CreateLearnerSchema } from "@/types/learner";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
@@ -43,6 +43,30 @@ export const coursesHandler = new Hono()
 	)
 	.put(
 		"/:id",
+		authedMiddleware,
+		zValidator("json", UpdateCourseSettingsSchema),
+		async (c) => {
+			const { id } = c.req.param();
+			const teamId = c.get("teamId");
+			const input = c.req.valid("json");
+
+			const course = await db.query.courses.findFirst({
+				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+			});
+
+			if (!course) {
+				throw new HTTPException(404, {
+					message: "Course not found.",
+				});
+			}
+
+			await db.update(courses).set(input);
+
+			return c.json(input);
+		}
+	)
+	.put(
+		"/:id/translations",
 		authedMiddleware,
 		zValidator("json", CreateCourseSchema),
 		async (c) => {
