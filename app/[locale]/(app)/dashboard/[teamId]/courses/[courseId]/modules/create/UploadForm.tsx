@@ -36,6 +36,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+// Define a function to check if a file should be ignored
+const shouldIgnoreFile = (path: string) => {
+	// Adjusted pattern to match files starting with a dot anywhere in the path
+	const ignoredPatterns = [/^__MACOSX\//, /\/\./, /^\./];
+	return ignoredPatterns.some((pattern) => pattern.test(path));
+};
+
 const Dropzone = ({
 	value,
 	setValue,
@@ -132,6 +139,9 @@ const UploadForm = ({
 					logger.error("Failed to create module", {
 						error,
 					});
+					console.log("Failed to create module", {
+						error,
+					});
 					throw new Error(error);
 				}
 				const body = await res.json();
@@ -145,16 +155,20 @@ const UploadForm = ({
 								if (course.files[path].dir) {
 									return;
 								}
+								// Skip files based on the ignore check
+								if (shouldIgnoreFile(path)) {
+									console.log(
+										`Skipping ignored file: ${path}`
+									);
+									return; // Skip the rest of the loop and proceed with the next iteration
+								}
+
 								const file =
 									await course.files[path].async("blob");
 								if (!file) {
 									throw new Error(
 										`Failed to read file ${path}`
 									);
-								}
-
-								if (index === 12 && retries > 2) {
-									throw new Error("Test error");
 								}
 
 								const contentType = mime.lookup(path);
@@ -181,6 +195,13 @@ const UploadForm = ({
 											error,
 										}
 									);
+									console.log(
+										`Failed to get presigned URL for ${path}`,
+										{
+											error,
+										}
+									);
+
 									retries--; // Decrement retries on failure
 									continue; // Skip to next iteration
 								}
@@ -217,6 +238,9 @@ const UploadForm = ({
 								logger.error(`Error processing file ${path}`, {
 									error,
 								});
+								console.log(`Error processing file ${path}`, {
+									error,
+								});
 								retries--; // Decrement retries on failure
 								if (retries === 0) {
 									throw error; // Throw error after last retry
@@ -234,6 +258,9 @@ const UploadForm = ({
 					logger.error("File failed to upload module", {
 						results,
 					});
+					console.log("File failed to upload module", {
+						results,
+					});
 					await client.api.modules[":id"].$delete({
 						param: { id: moduleId },
 					});
@@ -241,6 +268,7 @@ const UploadForm = ({
 				}
 			} catch (error) {
 				logger.error("Error in mutationFn", { error });
+				console.log("Error in mutationFn", { error });
 				throw error;
 			}
 		},
