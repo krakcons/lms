@@ -48,6 +48,19 @@ const DomainForm = ({ team }: { team: Team }) => {
 		},
 	});
 
+	const { mutate: deleteDomain, isPending: isDeletingDomain } = useMutation({
+		mutationFn: client.api.teams[":id"].domain.$delete,
+		onSettled: (res) => {
+			if (res && !res.ok) {
+				toast.error("Something went wrong");
+			} else {
+				toast.success("Successfully deleted domain");
+				form.reset({ customDomain: "" });
+			}
+			router.refresh();
+		},
+	});
+
 	const onSubmit = async ({ customDomain }: DomainForm) => {
 		mutate({
 			param: { id: team.id },
@@ -57,7 +70,7 @@ const DomainForm = ({ team }: { team: Team }) => {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 				<FormField
 					control={form.control}
 					name="customDomain"
@@ -74,9 +87,26 @@ const DomainForm = ({ team }: { team: Team }) => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" isPending={isPending}>
-					Submit
-				</Button>
+				<div className="flex gap-3">
+					<Button type="submit" isPending={isPending}>
+						Submit
+					</Button>
+					{team.customDomain && (
+						<Button
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								deleteDomain({
+									param: { id: team.id },
+								});
+							}}
+							isPending={isDeletingDomain}
+							variant="destructive"
+						>
+							Delete
+						</Button>
+					)}
+				</div>
 			</form>
 		</Form>
 	);

@@ -180,6 +180,34 @@ export const teamsHandler = new Hono()
 		const data = await res.json();
 		return c.json(data);
 	})
+	.delete("/:id/domain", authedMiddleware, async (c) => {
+		const { id } = c.req.param();
+
+		const team = await db.query.teams.findFirst({
+			where: eq(teams.id, id),
+		});
+
+		if (!team) {
+			throw new HTTPException(404, {
+				message: "Team not found.",
+			});
+		}
+
+		await removeDomain({
+			customDomain: team.customDomain,
+			resendDomainId: team.resendDomainId,
+		});
+
+		await db
+			.update(teams)
+			.set({
+				customDomain: null,
+				resendDomainId: null,
+			})
+			.where(eq(teams.id, id));
+
+		return c.json(null);
+	})
 	.post(
 		"/logo",
 		zValidator(

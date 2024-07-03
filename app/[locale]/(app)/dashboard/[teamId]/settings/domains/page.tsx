@@ -325,10 +325,14 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			</div>
 			<Separator className="my-8" />
 			<DomainForm team={team} />
-			<Separator className="my-8" />
-			<h3 className="mb-8">DNS Configuration</h3>
-			{team.customDomain && <DomainStatus team={team} />}
-			{team.resendDomainId && <EmailStatus team={team} />}
+			{team.customDomain && (
+				<>
+					<Separator className="my-8" />
+					<h3 className="mb-8">DNS Configuration</h3>
+					<DomainStatus team={team} />
+					{team.resendDomainId && <EmailStatus team={team} />}
+				</>
+			)}
 		</div>
 	);
 };
