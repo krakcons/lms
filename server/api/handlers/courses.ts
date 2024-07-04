@@ -60,7 +60,7 @@ export const coursesHandler = new Hono()
 				});
 			}
 
-			await db.update(courses).set(input);
+			await db.update(courses).set(input).where(eq(courses.id, id));
 
 			return c.json(input);
 		}

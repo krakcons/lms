@@ -25,7 +25,7 @@ const Home = ({ params: { locale } }: { params: { locale: string } }) => {
 						className: "mt-8 sm:mt-12",
 					})}
 				>
-					Get Started
+					{t("get-started")}
 				</a>
 			</div>
 		</main>

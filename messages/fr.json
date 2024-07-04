@@ -1,7 +1,8 @@
 {
 	"Home": {
 		"title": { "1": "Apprentissage moderne", "2": "Moins cher" },
-		"description": "Découvrez une gestion de l'apprentissage moderne, abordable et facile pour une expérience éducative enrichissante."
+		"description": "Découvrez une gestion de l'apprentissage moderne, abordable et facile pour une expérience éducative enrichissante.",
+		"get-started": "Démarrer"
 	},
 	"Join": {
 		"0": { "title": "S'inscrire" },
