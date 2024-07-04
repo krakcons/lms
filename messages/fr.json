@@ -22,11 +22,11 @@
 		"submit": "Soumettre"
 	},
 	"Certificate": {
-		"title": "Certificat d’achèvement",
+		"title": "Certificat de réussite",
 		"message": "La présente atteste que vous avez suivi avec succès",
 		"download": "Télécharger",
 		"pdf": {
-			"title": "Certificat d’achèvement",
+			"title": "Certificat de réussite",
 			"message": "Nouse sommes fiers de remettre ce certificat à",
 			"congratulations": {
 				"1": "Félicitations ! Vous avez terminé avec succès",
@@ -46,7 +46,7 @@
 			"title": "Félicitations !",
 			"completed": "Complété",
 			"congratulations": "Félicitations ! Vous avez complété",
-			"certificate": "Téléchargez votre certificat d'achèvement :",
+			"certificate": "Téléchargez votre certificat de réussite :",
 			"get": "Télécharger"
 		},
 		"CourseInvite": {
@@ -54,7 +54,7 @@
 			"title": "Invitation",
 			"invite": "vous invite à vous joindre à :",
 			"start": "Commencer",
-			"below": "☕ Besoin de prendre une pause ? Nous avons une solution. Apprenez à votre propre rythme en cliquant sur le bouton ci-dessus pour reprendre là où vous vous êtes arrêté. \n\n Lorsque vous aurez terminé votre apprentissage, vous recevrez par courriel un certificat d'achèvement. \n\n Veuillez vous abstenir de répondre à ce courriel car il n'y a pas de boîte de réception prévue à cet effet. \n\n Bon apprentissage !"
+			"below": "☕ Besoin de prendre une pause ? Nous avons une solution. Apprenez à votre propre rythme en cliquant sur le bouton ci-dessus pour reprendre là où vous vous êtes arrêté. \n\n Lorsque vous aurez terminé votre apprentissage, vous recevrez par courriel un certificat de réussite. \n\n Veuillez vous abstenir de répondre à ce courriel car il n'y a pas de boîte de réception prévue à cet effet. \n\n Bon apprentissage !"
 		},
 		"CollectionInvite": {
 			"subject": "Invitation :",
