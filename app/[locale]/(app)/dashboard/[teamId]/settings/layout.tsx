@@ -1,4 +1,4 @@
-import { SidebarNav } from "@/components/ui/sidebar";
+import { TabNav } from "@/components/ui/tabbar";
 import { FileBadge2, Globe, Key, Languages } from "lucide-react";
 
 const Layout = ({
@@ -35,13 +35,17 @@ const Layout = ({
 
 	return (
 		<>
-			<div className="flex flex-col lg:flex-row">
-				<aside className="lg:w-48 lg:max-w-48">
-					<SidebarNav items={items} />
-				</aside>
-				<div className="flex-1 px-0 py-8 lg:px-8 lg:py-0">
-					{children}
+			<div className="flex flex-col gap-8">
+				<div className="flex flex-col gap-4 rounded border p-4">
+					<div className="flex items-center gap-4">
+						<h1>Team settings</h1>
+						<p className="rounded bg-muted p-1 px-3 text-sm text-muted-foreground">
+							ID: {teamId}
+						</p>
+					</div>
+					<TabNav items={items} />
 				</div>
+				<div className="flex-1">{children}</div>
 			</div>
 		</>
 	);

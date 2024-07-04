@@ -70,7 +70,7 @@ const Page = async ({
 	}
 
 	return (
-		<main className="flex flex-col">
+		<div className="flex w-full max-w-full flex-col">
 			<div className="flex items-center justify-between">
 				<div>
 					<h2>Learners</h2>
@@ -101,7 +101,7 @@ const Page = async ({
 			<Suspense fallback={<div>Loading...</div>}>
 				<Table courseId={courseId} />
 			</Suspense>
-		</main>
+		</div>
 	);
 };
 

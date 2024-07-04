@@ -1,10 +1,20 @@
 import { buttonVariants } from "@/components/ui/button";
+import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 
-type Props = {
+const Layout = async ({
+	children,
+	params: { locale },
+}: {
+	params: { locale: string };
 	children: React.ReactNode;
-};
+}) => {
+	unstable_setRequestLocale(locale);
 
-const Layout = async ({ children }: Props) => {
+	const t = await getTranslations({
+		locale,
+		namespace: "Home",
+	});
+
 	return (
 		<>
 			<header className="border-b-elevation-4 flex h-14 w-full items-center justify-center border-b px-6">
@@ -15,7 +25,7 @@ const Layout = async ({ children }: Props) => {
 							className: "mr-4",
 						})}
 					>
-						Get Started
+						{t("get-started")}
 					</a>
 				</nav>
 			</header>

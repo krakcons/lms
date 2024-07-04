@@ -1,24 +1,21 @@
-import { SidebarNav } from "@/components/ui/sidebar";
+import { TabNav } from "@/components/ui/tabbar";
 import { redirect } from "@/lib/navigation";
+import { translate } from "@/lib/translation";
 import { getAuth } from "@/server/auth/actions";
-import { coursesData } from "@/server/db/courses";
-import { LCDSError } from "@/server/errors";
-import { File, Home, Languages, Settings, Users, Webhook } from "lucide-react";
+import { db } from "@/server/db/db";
+import { courses } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
+import { File, Languages, Settings, Users, Webhook } from "lucide-react";
 import { notFound } from "next/navigation";
 
 const Layout = async ({
 	children,
-	params: { courseId, teamId },
+	params: { courseId, teamId, locale },
 }: {
 	children: React.ReactNode;
-	params: { courseId: string; teamId: string };
+	params: { courseId: string; teamId: string; locale: string };
 }) => {
 	const items = [
-		{
-			href: `/dashboard/${teamId}/courses/${courseId}`,
-			title: "Home",
-			icon: <Home size={18} />,
-		},
 		{
 			href: `/dashboard/${teamId}/courses/${courseId}/learners`,
 			title: "Learners",
@@ -52,25 +49,30 @@ const Layout = async ({
 		return redirect("/auth/google");
 	}
 
-	let course;
-	try {
-		course = await coursesData.get({ id: courseId }, user.id);
-	} catch (error) {
-		if (error instanceof LCDSError && error.code === "NOT_FOUND") {
-			return notFound();
-		}
-		throw error;
+	const course = await db.query.courses.findFirst({
+		where: eq(courses.id, courseId),
+		with: {
+			translations: true,
+		},
+	});
+
+	if (!course) {
+		return notFound();
 	}
 
 	return (
 		<>
-			<div className="flex flex-col lg:flex-row">
-				<aside className="lg:w-48 lg:max-w-48">
-					<SidebarNav items={items} />
-				</aside>
-				<div className="flex-1 px-0 py-8 lg:px-8 lg:py-0">
-					{children}
+			<div className="flex flex-col gap-8">
+				<div className="flex flex-col gap-4 rounded border p-4">
+					<div className="flex items-center gap-4">
+						<h1>{translate(course.translations, locale).name}</h1>
+						<p className="rounded bg-muted p-1 px-3 text-sm text-muted-foreground">
+							ID: {course.id}
+						</p>
+					</div>
+					<TabNav items={items} />
 				</div>
+				<div className="flex-1">{children}</div>
 			</div>
 		</>
 	);

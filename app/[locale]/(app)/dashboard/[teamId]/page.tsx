@@ -66,7 +66,7 @@ const Page = async ({
 			<div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
 				{courseList?.map((course) => (
 					<Link
-						href={`/dashboard/${teamId}/courses/${course.id}`}
+						href={`/dashboard/${teamId}/courses/${course.id}/learners`}
 						key={course.id}
 						className={buttonVariants({
 							variant: "outline",
@@ -151,7 +151,7 @@ const Page = async ({
 											key={course.id}
 										>
 											<Link
-												href={`/dashboard/${teamId}/courses/${course.id}`}
+												href={`/dashboard/${teamId}/courses/${course.id}/learners`}
 												className={buttonVariants({
 													variant: "outline",
 													className:

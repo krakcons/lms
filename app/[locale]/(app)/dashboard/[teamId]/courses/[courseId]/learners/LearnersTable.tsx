@@ -438,7 +438,7 @@ const LearnersTable = ({
 	});
 
 	return (
-		<div className="lg:w-[calc(100vw-48px-64px-128px)]">
+		<div>
 			<DataTable
 				data={learners}
 				columns={columns as any}

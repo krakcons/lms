@@ -69,8 +69,6 @@ const CourseSettingsForm = ({ course }: { course: Course }) => {
 		mutate(input);
 	};
 
-	console.log(course.completionStatus);
-
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
