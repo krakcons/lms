@@ -33,6 +33,7 @@ import { Learner } from "@/types/learner";
 import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
+import dayjs from "dayjs";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -255,11 +256,9 @@ const columns = [
 	}),
 	columnHelper.accessor<(row: Learner) => string, string>(
 		(row) =>
-			row.startedAt?.toLocaleDateString("en-GB", {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-			}) || "N/A",
+			row.startedAt
+				? dayjs(row.startedAt).format("DD-MMM-YYYY HH:mm:ss")
+				: "N/A",
 		{
 			id: "startedAt",
 			header: ({ column }) => {
@@ -285,11 +284,9 @@ const columns = [
 	),
 	columnHelper.accessor<(row: Learner) => string, string>(
 		(row) =>
-			row.completedAt?.toLocaleDateString("en-GB", {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-			}) || "N/A",
+			row.completedAt
+				? dayjs(row.completedAt).format("DD-MMM-YYYY HH:mm:ss")
+				: "N/A",
 		{
 			id: "completedAt",
 			header: ({ column }) => {
