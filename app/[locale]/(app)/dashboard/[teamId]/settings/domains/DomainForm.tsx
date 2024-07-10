@@ -1,5 +1,16 @@
 "use client";
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -10,6 +21,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { env } from "@/env.mjs";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Team, validDomainSchema } from "@/types/team";
@@ -92,19 +104,39 @@ const DomainForm = ({ team }: { team: Team }) => {
 						Submit
 					</Button>
 					{team.customDomain && (
-						<Button
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								deleteDomain({
-									param: { id: team.id },
-								});
-							}}
-							isPending={isDeletingDomain}
-							variant="destructive"
-						>
-							Delete
-						</Button>
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button variant="destructive">Delete</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										Are you sure you want to delete this
+										domain?
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										Any previous invites and links with your
+										custom domain will no longer work. Your
+										domain will be reset to the default
+										domain ({env.NEXT_PUBLIC_SITE_URL})
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										Cancel
+									</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => {
+											deleteDomain({
+												param: { id: team.id },
+											});
+										}}
+									>
+										Continue
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					)}
 				</div>
 			</form>
