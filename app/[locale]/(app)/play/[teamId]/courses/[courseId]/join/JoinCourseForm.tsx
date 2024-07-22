@@ -31,7 +31,8 @@ import { Module } from "@/types/module";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useLogger } from "next-axiom";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -69,21 +70,20 @@ export const JoinCourseForm = ({
 }) => {
 	const router = useRouter();
 	const pathname = usePathname();
-	const [page, setPage] = useState(-1);
-
-	useEffect(() => {
-		if (initialLearner?.moduleId) {
-			router.push(
-				`${pathname.replace("/join", "")}?learnerId=${initialLearner.id}`
-			);
-		} else {
-			setPage(0);
-		}
-	}, [initialLearner, pathname, router]);
+	const [page, setPage] = useState(0);
+	const logger = useLogger();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.modules[":id"].learners.$post,
-		onSuccess: async (res) => {
+		mutationFn: async (input: JoinCourse) => {
+			const res = await client.api.modules[":id"].learners.$post({
+				json: input,
+				param: { id: input.moduleId },
+			});
+			if (!res.ok) {
+				const error = await res.text();
+				logger.error("Failed to join course", { error });
+				throw new Error(error);
+			}
 			const data = await res.json();
 			router.push(
 				`${pathname.replace("/join", "")}?learnerId=${data?.id}`
@@ -115,12 +115,8 @@ export const JoinCourseForm = ({
 	});
 
 	const onSubmit = async (input: JoinCourse) => {
-		mutate({ param: { id: input.moduleId }, json: input });
+		mutate(input);
 	};
-
-	if (page === -1) {
-		return null;
-	}
 
 	return (
 		<div className="flex flex-col gap-4">

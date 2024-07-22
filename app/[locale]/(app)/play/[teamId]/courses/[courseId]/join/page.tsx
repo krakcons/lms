@@ -1,4 +1,6 @@
 import LanguageToggle from "@/components/LanguageToggle";
+import { env } from "@/env.mjs";
+import { redirect } from "@/lib/navigation";
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
@@ -36,7 +38,15 @@ const Page = async ({
 		const learner = await db.query.learners.findFirst({
 			where: and(eq(learners.id, learnerId)),
 			with: {
-				module: true,
+				module: {
+					with: {
+						course: {
+							with: {
+								team: true,
+							},
+						},
+					},
+				},
 			},
 		});
 
@@ -45,6 +55,15 @@ const Page = async ({
 				<div>
 					<p>No learner found with this id</p>
 				</div>
+			);
+		}
+
+		if (learner.module) {
+			const team = learner.module.course.team;
+			redirect(
+				learner.module.course.team.customDomain
+					? `https://${team.customDomain}/courses/${courseId}/join`
+					: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join`
 			);
 		}
 		initialLearner = learner;
