@@ -4,7 +4,7 @@ import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { learners } from "@/server/db/schema";
-import { resend } from "@/server/resend";
+import { isResendVerified, resend } from "@/server/resend";
 import { UpdateLearnerSchema } from "@/types/learner";
 import { LanguageSchema } from "@/types/translations";
 import { zValidator } from "@hono/zod-validator";
@@ -150,12 +150,15 @@ export const learnersHandler = new Hono()
 			})
 		);
 
+		const domainVerified = await isResendVerified(
+			learner.course.team.resendDomainId
+		);
 		const { error } = await resend.emails.send({
 			html,
 			to: learner.email,
 			subject: courseTranslation.name,
-			from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+			from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+			reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		if (error) {

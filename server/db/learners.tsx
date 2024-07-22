@@ -20,7 +20,7 @@ import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
 import { getTranslations } from "next-intl/server";
 import React, { cache } from "react";
-import { resend } from "../resend";
+import { isResendVerified, resend } from "../resend";
 import { modulesData } from "./modules";
 
 export const learnersData = {
@@ -150,12 +150,15 @@ export const learnersData = {
 				})
 			);
 
+			const domainVerified = await isResendVerified(
+				learner.course.team.resendDomainId
+			);
 			const { error } = await resend.emails.send({
 				html,
 				to: learner.email,
 				subject: courseTranslation.name,
-				from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
-				reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+				from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+				reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
 			if (error) {
@@ -354,12 +357,13 @@ export const learnersData = {
 			})
 		);
 
-		const { data, error } = await resend.emails.send({
+		const domainVerified = await isResendVerified(team.resendDomainId);
+		const { error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: `${t("CollectionInvite.subject")} ${collectionTranslation.name}`,
-			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			from: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			reply_to: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		if (error) {
@@ -427,16 +431,14 @@ export const learnersData = {
 			})
 		);
 
-		const { data, error } = await resend.emails.send({
+		const domainVerified = await isResendVerified(team.resendDomainId);
+		const { error } = await resend.emails.send({
 			html,
 			to: email,
 			subject: `${t("CourseInvite.subject")} ${courseTranslation.name}`,
-			from: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${team.customDomain ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			from: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			reply_to: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
-
-		console.log("error", error);
-		console.log("data", data);
 
 		if (error) {
 			throw new HTTPException(500, {

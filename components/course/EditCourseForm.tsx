@@ -30,11 +30,14 @@ import {
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
+
+const editCourseFn = client.api.courses[":id"].translations.$put;
 
 export const EditCourseForm = ({
 	translations,
@@ -73,7 +76,13 @@ export const EditCourseForm = ({
 	}, [lang, form, translations]);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses[":id"].translations.$put,
+		mutationFn: async (input: InferRequestType<typeof editCourseFn>) => {
+			const res = await editCourseFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+			return res;
+		},
 		onSuccess: () => {
 			router.refresh();
 			toast("Course updated successfully");

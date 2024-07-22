@@ -30,6 +30,7 @@ import {
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { Edit } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -44,6 +45,8 @@ import {
 } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
+
+const updateCollectionFn = client.api.collections[":id"].$put;
 
 export const EditCollectionForm = ({
 	translations,
@@ -82,7 +85,14 @@ export const EditCollectionForm = ({
 	}, [lang, form, translations]);
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.collections[":id"].$put,
+		mutationFn: async (
+			input: InferRequestType<typeof updateCollectionFn>
+		) => {
+			const res = await updateCollectionFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 			toast("Collection updated successfully");

@@ -27,6 +27,7 @@ import { useRouter } from "@/lib/navigation";
 import { Team, validDomainSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,6 +36,9 @@ export const DomainFormSchema = z.object({
 	customDomain: validDomainSchema,
 });
 export type DomainForm = z.infer<typeof DomainFormSchema>;
+
+const updateDomainFn = client.api.teams[":id"].domain.$put;
+const deleteDomainFn = client.api.teams[":id"].domain.$delete;
 
 const DomainForm = ({ team }: { team: Team }) => {
 	const router = useRouter();
@@ -46,29 +50,28 @@ const DomainForm = ({ team }: { team: Team }) => {
 	});
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.teams[":id"].domain.$put,
-		onSettled: (res) => {
-			if (res && !res.ok) {
-				form.setError("customDomain", {
-					type: "server",
-					message: "Something went wrong",
-				});
-			} else {
-				toast("Successfully updated domain");
+		mutationFn: async (input: InferRequestType<typeof updateDomainFn>) => {
+			const res = await updateDomainFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
 			}
+		},
+		onSuccess: () => {
+			toast("Successfully updated domain");
 			router.refresh();
 		},
 	});
 
-	const { mutate: deleteDomain, isPending: isDeletingDomain } = useMutation({
-		mutationFn: client.api.teams[":id"].domain.$delete,
-		onSettled: (res) => {
-			if (res && !res.ok) {
-				toast.error("Something went wrong");
-			} else {
-				toast.success("Successfully deleted domain");
-				form.reset({ customDomain: "" });
+	const { mutate: deleteDomain } = useMutation({
+		mutationFn: async (input: InferRequestType<typeof deleteDomainFn>) => {
+			const res = await deleteDomainFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
 			}
+		},
+		onSuccess: () => {
+			toast("Successfully deleted domain");
+			form.reset({ customDomain: "" });
 			router.refresh();
 		},
 	});

@@ -34,7 +34,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useLogger } from "next-axiom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const JoinCourseSchema = CreateLearnerSchema.extend({
@@ -80,9 +79,7 @@ export const JoinCourseForm = ({
 				param: { id: input.moduleId },
 			});
 			if (!res.ok) {
-				const error = await res.text();
-				logger.error("Failed to join course", { error });
-				throw new Error(error);
+				throw new Error(await res.text());
 			}
 			const data = await res.json();
 			router.push(
@@ -93,9 +90,6 @@ export const JoinCourseForm = ({
 			form.setError("root", {
 				type: "server",
 				message: err.message,
-			});
-			toast("Something went wrong!", {
-				description: err.message,
 			});
 		},
 	});

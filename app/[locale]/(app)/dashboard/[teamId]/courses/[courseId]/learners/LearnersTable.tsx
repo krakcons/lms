@@ -34,6 +34,7 @@ import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
+import { InferRequestType } from "hono/client";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -41,6 +42,8 @@ import { toast } from "sonner";
 import LearnerActions from "./LearnerActions";
 
 const columnHelper = createColumnHelper<Learner & { language?: Language }>();
+
+const reinvite = client.api.learners[":id"].reinvite.$post;
 
 export const ReinviteDialog = ({
 	learner,
@@ -52,7 +55,12 @@ export const ReinviteDialog = ({
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const { mutate: reinviteLearner, isPending } = useMutation({
-		mutationFn: client.api.learners[":id"].reinvite.$post,
+		mutationFn: async (input: InferRequestType<typeof reinvite>) => {
+			const res = await reinvite(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 			setOpen(false);
@@ -70,9 +78,7 @@ export const ReinviteDialog = ({
 
 	const onSubmit = (values: { inviteLanguage: Language }) => {
 		reinviteLearner({
-			param: {
-				id: learner.id,
-			},
+			param: { id: learner.id },
 			json: {
 				inviteLanguage: values.inviteLanguage,
 			},
@@ -428,7 +434,14 @@ const LearnersTable = ({
 }) => {
 	const router = useRouter();
 	const { mutate: deleteLearners, isPending } = useMutation({
-		mutationFn: client.api.learners.$delete,
+		mutationFn: async (
+			input: InferRequestType<typeof client.api.learners.$delete>
+		) => {
+			const res = await client.api.learners.$delete(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 		},

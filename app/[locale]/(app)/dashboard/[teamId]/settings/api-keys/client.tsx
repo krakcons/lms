@@ -42,7 +42,14 @@ export const AddKeyDialog = () => {
 		},
 	});
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.keys.$post,
+		mutationFn: async (input: AddKeyForm) => {
+			const res = await client.api.keys.$post({
+				json: input,
+			});
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			setOpen(false);
 			form.reset();
@@ -51,9 +58,7 @@ export const AddKeyDialog = () => {
 	});
 
 	const onSubmit = (data: AddKeyForm) => {
-		mutate({
-			json: data,
-		});
+		mutate(data);
 	};
 
 	return (
@@ -104,18 +109,21 @@ export const AddKeyDialog = () => {
 export const DeleteKeyButton = ({ id }: { id: string }) => {
 	const router = useRouter();
 	const { mutate } = useMutation({
-		mutationFn: client.api.keys[":id"].$delete,
+		mutationFn: async (id: string) => {
+			const res = await client.api.keys[":id"].$delete({
+				param: { id },
+			});
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSettled: () => {
 			router.refresh();
 		},
 	});
 
 	return (
-		<Button
-			variant="outline"
-			size="icon"
-			onClick={() => mutate({ param: { id } })}
-		>
+		<Button variant="outline" size="icon" onClick={() => mutate(id)}>
 			<Trash size={20} />
 		</Button>
 	);

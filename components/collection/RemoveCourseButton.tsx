@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { Loader2, Minus } from "lucide-react";
+
+const removeCourseFn =
+	client.api.collections[":id"].courses[":courseId"].$delete;
 
 const RemoveCourseButton = ({
 	courseId,
@@ -15,7 +19,12 @@ const RemoveCourseButton = ({
 }) => {
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.collections[":id"].courses[":courseId"].$delete,
+		mutationFn: async (input: InferRequestType<typeof removeCourseFn>) => {
+			const res = await removeCourseFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: async () => {
 			router.refresh();
 		},

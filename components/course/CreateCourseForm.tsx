@@ -16,6 +16,7 @@ import { CreateCourse, CreateCourseSchema } from "@/types/course";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { useForm } from "react-hook-form";
 import { Textarea } from "../ui/textarea";
 
@@ -38,7 +39,15 @@ export const CreateCourseForm = ({
 	});
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.courses.$post,
+		mutationFn: async (
+			input: InferRequestType<typeof client.api.courses.$post>
+		) => {
+			const res = await client.api.courses.$post(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+			return res;
+		},
 		onSuccess: async (res) => {
 			const data = await res.json();
 			router.push(`/dashboard/${teamId}/courses/${data.id}`);

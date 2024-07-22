@@ -27,6 +27,7 @@ import { CreateCourse } from "@/types/course";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -49,7 +50,14 @@ export const CreateCollectionDialog = ({
 	});
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.collections.$post,
+		mutationFn: async (
+			input: InferRequestType<typeof client.api.collections.$post>
+		) => {
+			const res = await client.api.collections.$post(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: async () => {
 			router.refresh();
 			form.reset();

@@ -13,7 +13,10 @@ import { translate } from "@/lib/translation";
 import { Course, CourseTranslation } from "@/types/course";
 import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { Plus } from "lucide-react";
+
+const addCourseFn = client.api.collections[":id"].courses.$post;
 
 export const AddCourseDialog = ({
 	collectionId,
@@ -26,7 +29,12 @@ export const AddCourseDialog = ({
 }) => {
 	const router = useRouter();
 	const { mutate } = useMutation({
-		mutationFn: client.api.collections[":id"].courses.$post,
+		mutationFn: async (input: InferRequestType<typeof addCourseFn>) => {
+			const res = await addCourseFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: async () => {
 			router.refresh();
 		},

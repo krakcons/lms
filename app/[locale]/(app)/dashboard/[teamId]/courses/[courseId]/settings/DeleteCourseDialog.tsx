@@ -15,25 +15,27 @@ import { buttonVariants } from "@/components/ui/button";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { InferRequestType } from "hono";
 
 type Props = {
 	courseId: string;
 };
 
+const deleteCourseFn = client.api.courses[":id"].$delete;
+
 const DeleteCourseDialog = ({ courseId }: Props) => {
 	const router = useRouter();
 
 	const { mutate } = useMutation({
-		mutationFn: client.api.courses[":id"].$delete,
+		mutationFn: async (input: InferRequestType<typeof deleteCourseFn>) => {
+			const res = await deleteCourseFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.push("/dashboard");
 			router.refresh();
-		},
-		onError: (error) => {
-			toast.error("Something went wrong!", {
-				description: error.message,
-			});
 		},
 	});
 

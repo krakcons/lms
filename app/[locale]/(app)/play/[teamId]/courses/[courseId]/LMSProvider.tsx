@@ -21,6 +21,7 @@ import {
 	Scorm2004ErrorMessage,
 } from "@/types/scorm/versions/2004";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -213,6 +214,8 @@ const useSCORM = ({
 	return { data };
 };
 
+const updateLearnerFn = client.api.learners[":id"].$put;
+
 const LMSProvider = ({
 	type,
 	learner,
@@ -236,7 +239,13 @@ const LMSProvider = ({
 	);
 	const [open, setOpen] = useState(false);
 	const { mutate } = useMutation({
-		mutationFn: client.api.learners[":id"].$put,
+		mutationFn: async (input: InferRequestType<typeof updateLearnerFn>) => {
+			const res = await updateLearnerFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+			return res;
+		},
 		onSuccess: async (res) => {
 			const hidden = localStorage.getItem(learner.id);
 			const data = await res.json();

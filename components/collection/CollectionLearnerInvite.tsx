@@ -16,9 +16,12 @@ import {
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+const inviteLearnerFn = client.api.collections[":id"].learners.$post;
 
 export const CollectionLearnerInvite = ({
 	collectionId,
@@ -29,18 +32,18 @@ export const CollectionLearnerInvite = ({
 	const router = useRouter();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: client.api.collections[":id"].learners.$post,
+		mutationFn: async (input: InferRequestType<typeof inviteLearnerFn>) => {
+			const res = await inviteLearnerFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 			toast("Successfully Invited", {
 				description: `User has been sent an invitation to join this course.`,
 			});
 			setOpen(false);
-		},
-		onError: (err) => {
-			toast.error("Something went wrong!", {
-				description: err.message,
-			});
 		},
 	});
 

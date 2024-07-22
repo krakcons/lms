@@ -35,7 +35,6 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 			if (!res.ok) {
 				throw new Error(await res.text());
 			}
-			return res;
 		},
 		onSuccess: () => {
 			router.refresh();
@@ -43,11 +42,6 @@ const InviteLearnerDialog = ({ courseId }: { courseId: string }) => {
 				description: `User has been sent an invitation to join this course.`,
 			});
 			setOpen(false);
-		},
-		onError: (err) => {
-			toast.error("Something went wrong!", {
-				description: err.message,
-			});
 		},
 	});
 

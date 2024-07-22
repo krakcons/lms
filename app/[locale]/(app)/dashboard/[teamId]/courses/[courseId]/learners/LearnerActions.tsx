@@ -14,21 +14,37 @@ import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
+import { InferRequestType } from "hono";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { ReinviteDialog } from "./LearnersTable";
 
+const deleteLearnerFn = client.api.learners[":id"].$delete;
+const resendCertificateFn = client.api.learners[":id"].recertify.$post;
+
 const LearnerActions = ({ learner }: { learner: Learner }) => {
 	const router = useRouter();
 	const { mutate: deleteLearner } = useMutation({
-		mutationFn: client.api.learners[":id"].$delete,
+		mutationFn: async (input: InferRequestType<typeof deleteLearnerFn>) => {
+			const res = await deleteLearnerFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 		},
 	});
 
 	const { mutate: resendCertificate } = useMutation({
-		mutationFn: client.api.learners[":id"].recertify.$post,
+		mutationFn: async (
+			input: InferRequestType<typeof resendCertificateFn>
+		) => {
+			const res = await resendCertificateFn(input);
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		},
 		onSuccess: () => {
 			router.refresh();
 			toast.success("Certificate resent");

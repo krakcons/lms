@@ -267,8 +267,6 @@ const UploadForm = ({
 					throw new Error("Failed to upload module");
 				}
 			} catch (error) {
-				logger.error("Error in mutationFn", { error });
-				console.log("Error in mutationFn", { error });
 				throw error;
 			}
 		},
@@ -288,9 +286,6 @@ const UploadForm = ({
 			form.setError("root", {
 				type: "server",
 				message: err.message,
-			});
-			toast.error("Something went wrong!", {
-				description: err.message,
 			});
 		},
 	});

@@ -51,11 +51,6 @@ const CourseSettingsForm = ({ course }: { course: Course }) => {
 			router.refresh();
 			toast.success("Successfully Updated");
 		},
-		onError: (err) => {
-			toast.error("Something went wrong!", {
-				description: err.message,
-			});
-		},
 	});
 
 	const form = useForm<UpdateCourseSettings>({
