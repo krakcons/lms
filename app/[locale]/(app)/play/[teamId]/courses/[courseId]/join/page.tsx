@@ -1,6 +1,5 @@
 import LanguageToggle from "@/components/LanguageToggle";
 import { env } from "@/env.mjs";
-import { redirect } from "@/lib/navigation";
 import { db } from "@/server/db/db";
 import { courses, learners } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
@@ -8,6 +7,7 @@ import { Language } from "@/types/translations";
 import { and, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
+import { redirect } from "next/navigation";
 import { playMetadata } from "../metadata";
 import { JoinCourseForm } from "./JoinCourseForm";
 
@@ -62,8 +62,8 @@ const Page = async ({
 			const team = learner.module.course.team;
 			redirect(
 				learner.module.course.team.customDomain
-					? `https://${team.customDomain}/courses/${courseId}/join`
-					: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}/join`
+					? `https://${team.customDomain}/courses/${courseId}?learnerId=${learner.id}`
+					: `${env.NEXT_PUBLIC_SITE_URL}/play/${teamId}/courses/${courseId}?learnerId=${learner.id}`
 			);
 		}
 		initialLearner = learner;
