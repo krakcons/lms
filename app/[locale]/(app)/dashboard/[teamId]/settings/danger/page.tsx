@@ -24,9 +24,7 @@ const Page = ({
 			}
 		},
 		onSuccess: () => {
-			setTimeout(() => {
-				router.push("/dashboard");
-			}, 3000);
+			router.push("/dashboard");
 		},
 	});
 

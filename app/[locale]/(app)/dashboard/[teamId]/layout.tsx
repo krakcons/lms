@@ -87,7 +87,7 @@ const Layout = async ({
 							Dashboard
 						</Link>
 						<Link
-							href={`/dashboard/${teamId}/settings/api-keys`}
+							href={`/dashboard/${teamId}/settings/edit`}
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
 						>
 							Settings

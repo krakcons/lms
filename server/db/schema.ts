@@ -13,6 +13,7 @@ import { generateId } from "lucia";
 
 export const moduleTypeEnum = pgEnum("module_type", ["1.2", "2004"]);
 export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
+export const roleEnum = pgEnum("role_enum", ["owner", "member"]);
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -42,6 +43,9 @@ export const usersToTeams = pgTable(
 	{
 		userId: text("userId").notNull(),
 		teamId: text("teamId").notNull(),
+		role: roleEnum("role")
+			.notNull()
+			.default(sql`'member'`),
 	},
 	(t) => ({
 		pk: primaryKey({

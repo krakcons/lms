@@ -1,7 +1,7 @@
 import { lucia } from "@/server/auth/lucia";
 import { db } from "@/server/db/db";
-import { keys } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { keys, usersToTeams } from "@/server/db/schema";
+import { and, eq } from "drizzle-orm";
 import { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { getTeam } from "../auth/actions";
@@ -73,4 +73,27 @@ export const userMiddleware: MiddlewareHandler<{
 	} else {
 		return c.text("Session required", 401);
 	}
+};
+
+export const ownerMiddleware: MiddlewareHandler<{
+	Variables: {
+		userId: string;
+		teamId: string;
+	};
+}> = async (c, next) => {
+	const userId = c.get("userId");
+	const teamId = c.get("teamId");
+
+	const userToTeam = await db.query.usersToTeams.findFirst({
+		where: and(
+			eq(usersToTeams.userId, userId),
+			eq(usersToTeams.teamId, teamId)
+		),
+	});
+
+	if (userToTeam?.role !== "owner") {
+		return c.text("Not owner of team", 401);
+	}
+
+	return await next();
 };

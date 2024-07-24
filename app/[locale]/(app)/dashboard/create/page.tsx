@@ -53,11 +53,7 @@ const Page = ({
 		},
 	});
 
-	const values = form.watch();
-	console.log(values);
-
 	const onSubmit = async (input: CreateTeam) => {
-		console.log(input);
 		mutate(input);
 	};
 
