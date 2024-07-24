@@ -1,7 +1,7 @@
 import { CreateCourse, SelectCourse } from "@/types/course";
 import { and, eq } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import { cache } from "react";
-import { LCDSError } from "../errors";
 import { deleteFolder } from "../r2";
 import { db } from "./db";
 import {
@@ -30,9 +30,8 @@ export const coursesData = {
 		});
 
 		if (!course) {
-			throw new LCDSError({
-				code: "NOT_FOUND",
-				message: "Course not found",
+			throw new HTTPException(404, {
+				message: "Course not found.",
 			});
 		}
 
