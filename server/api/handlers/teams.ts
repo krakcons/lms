@@ -154,32 +154,6 @@ export const teamsHandler = new Hono()
 			return c.json(null);
 		}
 	)
-	.get("/:id/domain", async (c) => {
-		const { id } = c.req.param();
-
-		const team = await db.query.teams.findFirst({
-			where: eq(teams.id, id),
-		});
-
-		if (!team) {
-			throw new HTTPException(404, {
-				message: "Team not found.",
-			});
-		}
-
-		const res = await fetch(
-			`https://api.vercel.com/v9/projects/${process.env.PROJECT_ID_VERCEL}/domains/${team?.customDomain}?teamId=${process.env.TEAM_ID_VERCEL}`,
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${process.env.AUTH_BEARER_TOKEN}`,
-					"Content-Type": "application/json",
-				},
-			}
-		);
-		const data = await res.json();
-		return c.json(data);
-	})
 	.delete("/:id/domain", authedMiddleware, async (c) => {
 		const { id } = c.req.param();
 

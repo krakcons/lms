@@ -153,6 +153,7 @@ export const coursesHandler = new Hono()
 			return c.json(learners);
 		}
 	)
+	// Private
 	.post(
 		"/:id/presigned-url",
 		zValidator(

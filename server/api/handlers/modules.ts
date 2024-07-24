@@ -15,13 +15,6 @@ import { generateId } from "lucia";
 import { authedMiddleware } from "../middleware";
 
 export const modulesHandler = new Hono()
-	.get("/:id", async (c) => {
-		const { id } = c.req.param();
-
-		const learner = await learnersData.get({ id });
-
-		return c.json(learner);
-	})
 	.get("/:id/learners", authedMiddleware, async (c) => {
 		const { id } = c.req.param();
 		const teamId = c.get("teamId");
@@ -36,6 +29,7 @@ export const modulesHandler = new Hono()
 			"json",
 			CreateLearnerSchema.omit({
 				moduleId: true,
+				courseId: true,
 			})
 		),
 		async (c) => {
@@ -115,6 +109,7 @@ export const modulesHandler = new Hono()
 
 		return c.json(null);
 	})
+	// Private
 	.post(
 		"/",
 		zValidator("json", UploadModuleSchema),

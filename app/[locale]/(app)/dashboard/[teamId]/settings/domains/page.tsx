@@ -26,7 +26,7 @@ const Status = ({
 	};
 
 	return (
-		<div className="mb-4 flex items-center space-x-2">
+		<div className="flex items-center space-x-2">
 			{icon[type]}
 			<p className="text-lg font-semibold dark:text-white">{status}</p>
 		</div>
@@ -118,13 +118,13 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 
 	if (status === "Valid Configuration") {
 		return (
-			<div>
-				<h4 className="my-4">Domain</h4>
+			<>
+				<h4>Domain</h4>
 				<Status status="Domain Verified" type="good" />
 				<p className="text-sm text-muted-foreground">
 					Your domain is configured correctly!
 				</p>
-			</div>
+			</>
 		);
 	}
 
@@ -137,8 +137,8 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 				);
 
 	return (
-		<div>
-			<h4 className="my-4">Domain</h4>
+		<>
+			<h4>Domain</h4>
 			<Status
 				status={status}
 				type={status === "Pending Verification" ? "not_done" : "error"}
@@ -228,7 +228,7 @@ const DomainStatus = async ({ team }: { team: Team }) => {
 					</p>
 				</>
 			)}
-		</div>
+		</>
 	);
 };
 
@@ -263,22 +263,28 @@ const EmailStatus = async ({ team }: { team: Team }) => {
 
 	if (domainRes.data?.status === "verified") {
 		return (
-			<div>
-				<h4 className="my-4">Email</h4>
+			<>
+				<h4>Email</h4>
 				<Status
 					status={statusMapping[domainRes.data!.status].status}
 					type={statusMapping[domainRes.data!.status].type as any}
 				/>
 				<p className="text-sm text-muted-foreground">
-					Your email is configured correctly!
+					Your email is configured correctly! All emails now contain
+					the {'"from"'} and {'"reply-to"'} address of noreply@
+					{team.customDomain}
 				</p>
-			</div>
+			</>
 		);
 	}
 
 	return (
-		<div>
-			<h4 className="my-4">Email</h4>
+		<>
+			<h4>Email</h4>
+			<p className="text-sm text-muted-foreground">
+				Will fallback to lcds.krakconsultants.com until email is
+				verified.
+			</p>
 			{domainRes.error ? (
 				<Status status="Error" type="error" />
 			) : (
@@ -294,7 +300,7 @@ const EmailStatus = async ({ team }: { team: Team }) => {
 					priority={record.priority ?? 1}
 				/>
 			))}
-		</div>
+		</>
 	);
 };
 
@@ -326,12 +332,12 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 			<Separator className="my-8" />
 			<DomainForm team={team} />
 			{team.customDomain && (
-				<>
+				<div className="flex flex-col gap-4">
 					<Separator className="my-8" />
-					<h3 className="mb-8">DNS Configuration</h3>
+					<h3>DNS Configuration</h3>
 					<DomainStatus team={team} />
 					{team.resendDomainId && <EmailStatus team={team} />}
-				</>
+				</div>
 			)}
 		</div>
 	);
