@@ -1,7 +1,16 @@
 import { env } from "@/env.mjs";
+import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
-import { teamTranslations, teams } from "@/server/db/schema";
-import { getPresignedUrl } from "@/server/r2";
+import {
+	collectionTranslations,
+	collections,
+	courses,
+	keys,
+	teamTranslations,
+	teams,
+	usersToTeams,
+} from "@/server/db/schema";
+import { deleteFolder, getPresignedUrl } from "@/server/r2";
 import { resend } from "@/server/resend";
 import { Team, UpdateTeamTranslationSchema } from "@/types/team";
 import { LanguageSchema } from "@/types/translations";
@@ -9,8 +18,9 @@ import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { generateId } from "lucia";
 import { z } from "zod";
-import { authedMiddleware } from "../middleware";
+import { authedMiddleware, userMiddleware } from "../middleware";
 
 const removeDomain = async ({
 	customDomain,
@@ -38,6 +48,42 @@ const removeDomain = async ({
 };
 
 export const teamsHandler = new Hono()
+	.post(
+		"/",
+		zValidator(
+			"json",
+			z.object({ name: z.string(), language: LanguageSchema })
+		),
+		userMiddleware,
+		async (c) => {
+			const { name, language } = c.req.valid("json");
+			const userId = c.get("userId");
+
+			if (!userId) {
+				throw new HTTPException(401, {
+					message: "Must be logged into dashboard",
+				});
+			}
+
+			const id = generateId(15);
+
+			await db.insert(teams).values({ id });
+			await db.insert(teamTranslations).values({
+				teamId: id,
+				name,
+				language,
+				default: true,
+			});
+			await db.insert(usersToTeams).values({
+				userId,
+				teamId: id,
+			});
+
+			return c.json({
+				id,
+			});
+		}
+	)
 	.put(
 		"/:id",
 		zValidator("json", UpdateTeamTranslationSchema),
@@ -219,4 +265,50 @@ export const teamsHandler = new Hono()
 
 			return c.json({ url, imageUrl });
 		}
-	);
+	)
+	.delete("/:id", authedMiddleware, async (c) => {
+		const { id } = c.req.param();
+		const teamId = c.get("teamId");
+
+		await deleteFolder(`${teamId}`);
+
+		// Delete all courses/modules/translations/collection relations
+		const courseList = await db.query.courses.findMany({
+			where: eq(courses.teamId, id),
+		});
+		await Promise.all(
+			courseList.map(async (course) => {
+				return coursesData.delete({ id: course.id }, teamId);
+			})
+		);
+		await db
+			.delete(teamTranslations)
+			.where(eq(teamTranslations.teamId, id));
+
+		// Delete all collections and translations
+		const collectionList = await db.query.collections.findMany({
+			where: eq(collections.teamId, id),
+		});
+		await Promise.all(
+			collectionList.map(async (collection) => {
+				return db
+					.delete(collectionTranslations)
+					.where(
+						eq(collectionTranslations.collectionId, collection.id)
+					);
+			})
+		);
+		await db.delete(collections).where(eq(collections.teamId, id));
+
+		// Delete all keys
+		await db.delete(keys).where(eq(keys.teamId, id));
+
+		// Delete team and translations
+		await db
+			.delete(teamTranslations)
+			.where(eq(teamTranslations.teamId, id));
+		await db.delete(usersToTeams).where(eq(usersToTeams.teamId, id));
+		await db.delete(teams).where(eq(teams.id, id));
+
+		return c.json(null);
+	});

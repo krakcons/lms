@@ -4,12 +4,19 @@ import { Link, redirect } from "@/lib/navigation";
 import { getAuth, getTeam } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { usersToTeams } from "@/server/db/schema";
+import { Language } from "@/types/translations";
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 import TeamSwitcher from "./TeamSwitcher";
 import ThemeButton from "./ThemeButton";
 
-const TeamSwitcherServer = async ({ teamId }: { teamId: string }) => {
+const TeamSwitcherServer = async ({
+	teamId,
+	locale,
+}: {
+	teamId: string;
+	locale: Language;
+}) => {
 	const { user } = await getAuth();
 
 	if (!user) {
@@ -22,23 +29,34 @@ const TeamSwitcherServer = async ({ teamId }: { teamId: string }) => {
 		return redirect("/dashboard");
 	}
 
-	const teamsList = await db.query.teams.findMany({
+	const teamsList = await db.query.usersToTeams.findMany({
+		where: eq(usersToTeams.userId, user.id),
 		with: {
-			usersToTeams: {
-				where: eq(usersToTeams.userId, user.id),
+			team: {
+				with: {
+					translations: true,
+				},
 			},
 		},
 	});
 
-	return <TeamSwitcher teams={teamsList} user={user} />;
+	return (
+		<TeamSwitcher
+			teams={teamsList.map(({ team }) => team)}
+			user={user}
+			teamId={teamId}
+			locale={locale}
+		/>
+	);
 };
 
 const Layout = async ({
-	params: { teamId },
+	params: { teamId, locale },
 	children,
 }: {
 	params: {
 		teamId: string;
+		locale: Language;
 	};
 	children: React.ReactNode;
 }) => {
@@ -52,9 +70,16 @@ const Layout = async ({
 			<header className="border-elevation-2 border-b px-4 py-2">
 				<nav className="m-auto flex max-w-screen-xl items-center justify-between">
 					<div className="flex items-center justify-center gap-4">
-						{/* <Suspense>
-							<TeamSwitcherServer teamId={teamId} />
-						</Suspense> */}
+						<Suspense
+							fallback={
+								<div className="h-10 w-48 rounded bg-muted"></div>
+							}
+						>
+							<TeamSwitcherServer
+								teamId={teamId}
+								locale={locale}
+							/>
+						</Suspense>
 						<Link
 							href={`/dashboard/${teamId}`}
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"

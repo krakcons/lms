@@ -1,5 +1,12 @@
 import { TabNav } from "@/components/ui/tabbar";
-import { FileBadge2, Globe, Key, Languages } from "lucide-react";
+import {
+	FileBadge2,
+	Globe,
+	Key,
+	Languages,
+	TriangleAlert,
+	Users,
+} from "lucide-react";
 
 const Layout = ({
 	children,
@@ -27,9 +34,19 @@ const Layout = ({
 			icon: <FileBadge2 size={18} />,
 		},
 		{
+			href: `/dashboard/${teamId}/settings/members`,
+			title: "Members",
+			icon: <Users size={18} />,
+		},
+		{
 			href: `/dashboard/${teamId}/settings/edit`,
 			title: "Edit",
 			icon: <Languages size={18} />,
+		},
+		{
+			href: `/dashboard/${teamId}/settings/danger`,
+			title: "Danger",
+			icon: <TriangleAlert size={18} />,
 		},
 	];
 

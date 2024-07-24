@@ -1,6 +1,7 @@
 import { teamTranslations, teams } from "@/server/db/schema";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { LanguageSchema } from "./translations";
 
 export const validDomainSchema = z
 	.string()
@@ -23,3 +24,9 @@ export const UpdateTeamTranslationSchema = TeamTranslationSchema.omit({
 	teamId: true,
 });
 export type UpdateTeamTranslation = z.infer<typeof UpdateTeamTranslationSchema>;
+
+export const CreateTeamSchema = z.object({
+	name: z.string().min(1),
+	language: LanguageSchema,
+});
+export type CreateTeam = z.infer<typeof CreateTeamSchema>;
