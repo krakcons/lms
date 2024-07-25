@@ -28,7 +28,7 @@ export const CourseInvite = ({
 	href: string;
 	course?: string;
 	organization?: string;
-	logo?: string;
+	logo?: string | null;
 	text: {
 		title: string;
 		invite: string;
