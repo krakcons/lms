@@ -4,11 +4,10 @@ import { db } from "@/server/db/db";
 import { teams } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { User } from "lucide-react";
+import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { AddMemberDialog } from "./AddMemberDialog";
 import DeleteMember from "./DeleteMember";
-
-export const dynamic = "force-dynamic";
 
 const Page = async ({
 	params: { teamId },
@@ -17,6 +16,7 @@ const Page = async ({
 		teamId: string;
 	};
 }) => {
+	unstable_noStore();
 	const team = await db.query.teams.findFirst({
 		where: eq(teams.id, teamId),
 		with: {

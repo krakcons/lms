@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
 	boolean,
+	integer,
 	json,
 	pgEnum,
 	pgTable,
@@ -163,21 +164,16 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	translations: many(courseTranslations),
 }));
 
-export const modules = pgTable(
-	"modules",
-	{
-		id: text("id")
-			.primaryKey()
-			.notNull()
-			.$default(() => generateId(15)),
-		courseId: text("courseId").notNull(),
-		language: languageEnum("language").notNull(),
-		type: moduleTypeEnum("type").notNull(),
-	},
-	(t) => ({
-		unq_module: uniqueIndex("unq_module").on(t.courseId, t.language),
-	})
-);
+export const modules = pgTable("modules", {
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
+	courseId: text("courseId").notNull(),
+	language: languageEnum("language").notNull(),
+	type: moduleTypeEnum("type").notNull(),
+	versionNumber: integer("versionNumber").notNull().default(1),
+});
 
 export const modulesRelations = relations(modules, ({ many, one }) => ({
 	course: one(courses, {

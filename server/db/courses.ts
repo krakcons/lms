@@ -69,18 +69,16 @@ export const coursesData = {
 			where: eq(courses.teamId, teamId),
 		});
 	}),
-	getCourseWithModules: cache(
-		async ({ id }: SelectCourse, teamId: string) => {
-			return await db.query.courses.findFirst({
-				where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
-				with: {
-					modules: {
-						with: {
-							learners: true,
-						},
+	getCourseWithModules: async ({ id }: SelectCourse, teamId: string) => {
+		return await db.query.courses.findFirst({
+			where: and(eq(courses.id, id), eq(courses.teamId, teamId)),
+			with: {
+				modules: {
+					with: {
+						learners: true,
 					},
 				},
-			});
-		}
-	),
+			},
+		});
+	},
 };

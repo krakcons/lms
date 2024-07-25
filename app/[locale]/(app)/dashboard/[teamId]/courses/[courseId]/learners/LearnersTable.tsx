@@ -30,6 +30,7 @@ import { locales } from "@/i18n";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Learner } from "@/types/learner";
+import { Module } from "@/types/module";
 import { Language } from "@/types/translations";
 import { useMutation } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -41,7 +42,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import LearnerActions from "./LearnerActions";
 
-const columnHelper = createColumnHelper<Learner & { language?: Language }>();
+const columnHelper = createColumnHelper<Learner & { module: Module | null }>();
 
 const reinvite = client.api.learners[":id"].reinvite.$post;
 
@@ -348,14 +349,7 @@ const columns = [
 			return labels[a.original.status] - labels[b.original.status];
 		},
 	}),
-	columnHelper.accessor<
-		(
-			row: Learner & {
-				language?: Language;
-			}
-		) => string,
-		string
-	>((row) => row.language ?? "", {
+	columnHelper.accessor((row) => row.module?.language ?? "", {
 		id: "language",
 		header: ({ column }) => {
 			return (
@@ -366,6 +360,28 @@ const columns = [
 					}
 				>
 					Language
+					{column.getIsSorted() === "asc" ? (
+						<ArrowUp className="ml-2 h-4 w-4" />
+					) : column.getIsSorted() === "desc" ? (
+						<ArrowDown className="ml-2 h-4 w-4" />
+					) : (
+						<ArrowUpDown className="ml-2 h-4 w-4" />
+					)}
+				</Button>
+			);
+		},
+	}),
+	columnHelper.accessor((row) => row.module?.versionNumber ?? "", {
+		id: "versionNumber",
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() =>
+						column.toggleSorting(column.getIsSorted() === "asc")
+					}
+				>
+					Module Version
 					{column.getIsSorted() === "asc" ? (
 						<ArrowUp className="ml-2 h-4 w-4" />
 					) : column.getIsSorted() === "desc" ? (
@@ -430,7 +446,7 @@ const columns = [
 const LearnersTable = ({
 	learners,
 }: {
-	learners: (Learner & { language?: Language })[];
+	learners: (Learner & { module: Module | null })[];
 }) => {
 	const router = useRouter();
 	const { mutate: deleteLearners, isPending } = useMutation({

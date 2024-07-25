@@ -8,7 +8,7 @@ import { deleteFolder } from "@/server/r2";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { UploadModuleSchema } from "@/types/module";
 import { zValidator } from "@hono/zod-validator";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { generateId } from "lucia";
@@ -51,6 +51,19 @@ export const modulesHandler = new Hono()
 				throw new HTTPException(401, {
 					message: "Module not found",
 				});
+			}
+
+			const existingLearner = await db.query.learners.findFirst({
+				where: and(
+					eq(learners.email, learner.email),
+					eq(learners.courseId, courseModule.courseId)
+				),
+			});
+
+			if (existingLearner && existingLearner.moduleId) {
+				return c.json(
+					ExtendLearner(courseModule.type).parse(existingLearner)
+				);
 			}
 
 			// Create a new learner
@@ -104,7 +117,7 @@ export const modulesHandler = new Hono()
 		await db.delete(learners).where(eq(learners.moduleId, courseModule.id));
 
 		await deleteFolder(
-			`${teamId}/courses/${courseModule.courseId}/${courseModule.language}`
+			`${teamId}/courses/${courseModule.courseId}/${courseModule.language}${courseModule.versionNumber === 1 ? "" : `_${courseModule.versionNumber}`}`
 		);
 
 		return c.json(null);
@@ -124,29 +137,32 @@ export const modulesHandler = new Hono()
 
 			await coursesData.get({ id: courseId }, teamId);
 
-			const languageWhere = and(
-				eq(modules.courseId, courseId),
-				eq(modules.language, language)
-			);
-			const where = id
-				? or(eq(modules.id, id), languageWhere)
-				: languageWhere;
-			const courseModule = await db.query.modules.findFirst({
-				where,
-			});
-			if (courseModule) {
-				throw new HTTPException(409, {
-					message: "Module already exists with that id or language",
-				});
-			}
+			const newestModule = await db
+				.select({
+					versionNumber: max(modules.versionNumber),
+				})
+				.from(modules)
+				.where(
+					and(
+						eq(modules.courseId, courseId),
+						eq(modules.language, language)
+					)
+				);
 
 			const insertId = id ?? generateId(15);
+
+			console.log("Inserting module", insertId);
+			console.log(newestModule);
 
 			await db.insert(modules).values({
 				id: insertId,
 				courseId,
 				type,
 				language,
+				versionNumber:
+					newestModule.length > 0 && newestModule[0].versionNumber
+						? newestModule[0].versionNumber + 1
+						: 1,
 			});
 
 			return c.json({ id: insertId });
