@@ -31,7 +31,6 @@ import { Module } from "@/types/module";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useLogger } from "next-axiom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -70,7 +69,6 @@ export const JoinCourseForm = ({
 	const router = useRouter();
 	const pathname = usePathname();
 	const [page, setPage] = useState(0);
-	const logger = useLogger();
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (input: JoinCourse) => {

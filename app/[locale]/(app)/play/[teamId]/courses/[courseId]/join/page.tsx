@@ -1,10 +1,11 @@
 import LanguageToggle from "@/components/LanguageToggle";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
-import { courses, learners } from "@/server/db/schema";
+import { courses, learners, modules } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
+import { Module } from "@/types/module";
 import { Language } from "@/types/translations";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
 import { redirect } from "next/navigation";
@@ -35,6 +36,7 @@ const Page = async ({
 
 	let initialLearner: BaseLearner | undefined = undefined;
 	if (learnerId) {
+		console.log("learnerId", learnerId);
 		const learner = await db.query.learners.findFirst({
 			where: and(eq(learners.id, learnerId)),
 			with: {
@@ -58,6 +60,7 @@ const Page = async ({
 			);
 		}
 
+		console.log("learner module", learner);
 		if (learner.module) {
 			const team = learner.module.course.team;
 			redirect(
@@ -72,7 +75,9 @@ const Page = async ({
 	const course = await db.query.courses.findFirst({
 		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),
 		with: {
-			modules: true,
+			modules: {
+				orderBy: [desc(modules.versionNumber)],
+			},
 			translations: true,
 		},
 	});
@@ -95,7 +100,17 @@ const Page = async ({
 
 	const t = await getTranslations({ locale });
 
-	const defaultModule = course.modules.find(
+	// Get the first module for each language (will be the latest version)
+	const maxVersionModules = new Map<Language, Module>();
+	course.modules.forEach((module) => {
+		if (!maxVersionModules.get(module.language)) {
+			maxVersionModules.set(module.language, module);
+		}
+	});
+
+	const modulesArray = Array.from(maxVersionModules.values());
+
+	const defaultModule = modulesArray.find(
 		(module) => module.language === locale
 	);
 
@@ -107,8 +122,8 @@ const Page = async ({
 			<main className="m-auto flex w-full flex-col p-8 sm:w-[60%]">
 				<JoinCourseForm
 					locale={locale}
-					modules={course.modules}
-					defaultModule={defaultModule ?? course.modules[0]}
+					modules={modulesArray}
+					defaultModule={defaultModule ?? modulesArray[0]}
 					course={course}
 					initialLearner={initialLearner}
 					text={{

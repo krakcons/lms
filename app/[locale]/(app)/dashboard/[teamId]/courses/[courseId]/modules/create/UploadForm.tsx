@@ -23,14 +23,14 @@ import { formatBytes } from "@/lib/helpers";
 import { ModuleFileSchema, ModuleUploadSchema } from "@/lib/module";
 import { useRouter } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { UploadModule, UploadModuleSchema } from "@/types/module";
+import { Module, UploadModule, UploadModuleSchema } from "@/types/module";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import JSZip from "jszip";
 import { Upload } from "lucide-react";
 import mime from "mime-types";
 import { useLogger } from "next-axiom";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -95,9 +95,11 @@ const Dropzone = ({
 const UploadForm = ({
 	courseId,
 	teamId,
+	modules,
 }: {
 	courseId: string;
 	teamId: string;
+	modules: Module[];
 }) => {
 	const router = useRouter();
 	const logger = useLogger();
@@ -125,6 +127,14 @@ const UploadForm = ({
 
 	const file = form.watch("file");
 	const moduleType = form.watch("upload.type");
+	const language = form.watch("upload.language");
+
+	const moduleVersion = useMemo(() => {
+		const latestModule = modules
+			.sort((a, b) => b.versionNumber - a.versionNumber)
+			.find((module) => module.language === language);
+		return latestModule ? latestModule.versionNumber + 1 : 1;
+	}, [language]);
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (input: UploadModule) => {
@@ -185,7 +195,7 @@ const UploadForm = ({
 									]["presigned-url"].$post({
 										param: { id: courseId },
 										json: {
-											key: `${input.language}/${path}`,
+											key: `${input.language}${moduleVersion > 1 ? `_${moduleVersion}` : ""}/${path}`,
 										},
 									});
 								} catch (error) {

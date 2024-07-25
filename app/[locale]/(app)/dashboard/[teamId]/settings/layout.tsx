@@ -1,7 +1,15 @@
 import { TabNav } from "@/components/ui/tabbar";
-import { FileBadge2, Globe, Key, Languages } from "lucide-react";
+import { getUserRole } from "@/server/auth/actions";
+import {
+	FileBadge2,
+	Globe,
+	Key,
+	Languages,
+	TriangleAlert,
+	Users,
+} from "lucide-react";
 
-const Layout = ({
+const Layout = async ({
 	children,
 	params: { teamId },
 }: {
@@ -10,16 +18,18 @@ const Layout = ({
 		teamId: string;
 	};
 }) => {
+	const role = await getUserRole(teamId);
+
 	const items = [
 		{
-			href: `/dashboard/${teamId}/settings/api-keys`,
-			title: "API Keys",
-			icon: <Key size={18} />,
+			href: `/dashboard/${teamId}/settings/edit`,
+			title: "Edit",
+			icon: <Languages size={18} />,
 		},
 		{
-			href: `/dashboard/${teamId}/settings/domains`,
-			title: "Domains",
-			icon: <Globe size={18} />,
+			href: `/dashboard/${teamId}/settings/members`,
+			title: "Members",
+			icon: <Users size={18} />,
 		},
 		{
 			href: `/dashboard/${teamId}/settings/certificate`,
@@ -27,11 +37,24 @@ const Layout = ({
 			icon: <FileBadge2 size={18} />,
 		},
 		{
-			href: `/dashboard/${teamId}/settings/edit`,
-			title: "Edit",
-			icon: <Languages size={18} />,
+			href: `/dashboard/${teamId}/settings/domains`,
+			title: "Domains",
+			icon: <Globe size={18} />,
+		},
+		{
+			href: `/dashboard/${teamId}/settings/api-keys`,
+			title: "API Keys",
+			icon: <Key size={18} />,
 		},
 	];
+
+	if (role === "owner") {
+		items.push({
+			href: `/dashboard/${teamId}/settings/danger`,
+			title: "Danger",
+			icon: <TriangleAlert size={18} />,
+		});
+	}
 
 	return (
 		<>
