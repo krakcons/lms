@@ -5,6 +5,7 @@ import { learnersData } from "@/server/db/learners";
 import { modulesData } from "@/server/db/modules";
 import { learners, modules } from "@/server/db/schema";
 import { deleteFolder } from "@/server/r2";
+import { svix } from "@/server/svix";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
 import { UploadModuleSchema } from "@/types/module";
 import { zValidator } from "@hono/zod-validator";
@@ -120,6 +121,15 @@ export const modulesHandler = new Hono()
 					inviteLanguage: newLearner.inviteLanguage,
 				});
 			}
+
+			const startedLearner = ExtendLearner(courseModule.type).parse(
+				createdLearner[0]
+			);
+
+			await svix.message.create(`app_${startedLearner.courseId}`, {
+				eventType: "learner.started",
+				payload: startedLearner,
+			});
 
 			return c.json(
 				ExtendLearner(courseModule.type).parse(createdLearner[0])

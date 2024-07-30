@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { cache } from "react";
 import { deleteFolder } from "../r2";
+import { svix } from "../svix";
 import { db } from "./db";
 import {
 	collectionsToCourses,
@@ -61,6 +62,8 @@ export const coursesData = {
 		await db
 			.delete(collectionsToCourses)
 			.where(eq(collectionsToCourses.courseId, course.id));
+
+		await svix.application.delete(`app_${course.id}`);
 
 		await deleteFolder(`${teamId}/courses/${course.id}`);
 	},

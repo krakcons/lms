@@ -21,6 +21,7 @@ import { generateId } from "lucia";
 import { getTranslations } from "next-intl/server";
 import React, { cache } from "react";
 import { isResendVerified, resend } from "../resend";
+import { svix } from "../svix";
 import { modulesData } from "./modules";
 
 export const learnersData = {
@@ -111,6 +112,11 @@ export const learnersData = {
 				});
 			}
 
+			await svix.message.create(`app_${learner.courseId}`, {
+				eventType: "learner.complete",
+				payload: newLearner,
+			});
+
 			const href =
 				learner.course.team?.customDomain &&
 				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
@@ -169,12 +175,12 @@ export const learnersData = {
 			}
 		}
 
-		return { ...newLearner, completedAt };
+		await svix.message.create(`app_${learner.courseId}`, {
+			eventType: "learner.update",
+			payload: newLearner,
+		});
 
-		// await svix.message.create(`app_${moduleId}`, {
-		// 	eventType: "learner.update",
-		// 	payload: newLearner,
-		// });
+		return { ...newLearner, completedAt };
 	},
 	create: async (
 		input: Omit<CreateLearner, "moduleId" | "courseId">[],
@@ -277,9 +283,23 @@ export const learnersData = {
 		}
 
 		if (learnerList.length === 1) {
-			return ExtendLearner().parse(learnerList[0]);
+			const newLearner = ExtendLearner().parse(learnerList[0]);
+			await svix.message.create(`app_${newLearner.courseId}`, {
+				eventType: "learner.created",
+				payload: newLearner,
+			});
+			return newLearner;
 		} else {
-			return ExtendLearner().array().parse(learnerList);
+			const newLearners = ExtendLearner().array().parse(learnerList);
+			await Promise.allSettled(
+				newLearners.map((learner) => {
+					return svix.message.create(`app_${learner.courseId}`, {
+						eventType: "learner.created",
+						payload: learner,
+					});
+				})
+			);
+			return newLearners;
 		}
 	},
 	collectionInvite: async ({
