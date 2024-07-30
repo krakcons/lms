@@ -5,6 +5,7 @@ import { unstable_noStore } from "next/cache";
 import UploadForm from "./UploadForm";
 
 export const runtime = "nodejs";
+export const fetchCache = "force-no-store";
 
 const Page = async ({
 	params: { courseId, teamId },
