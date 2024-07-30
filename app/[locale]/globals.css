@@ -93,4 +93,13 @@
 	.p {
 		@apply text-base leading-7;
 	}
+	blockquote {
+		@apply border-l-2 pl-6 italic;
+	}
+	code {
+		@apply w-full rounded bg-muted font-mono;
+	}
+	pre {
+		@apply w-full overflow-x-auto rounded bg-muted p-4;
+	}
 }

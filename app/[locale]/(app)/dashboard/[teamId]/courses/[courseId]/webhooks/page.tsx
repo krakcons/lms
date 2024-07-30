@@ -1,5 +1,7 @@
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SvixErrorSchema, svix } from "@/server/svix";
+import Docs from "./docs.mdx";
 
 const Page = async ({
 	params: { courseId },
@@ -34,18 +36,29 @@ const Page = async ({
 		<main>
 			<h2>Webhooks</h2>
 			<p className="text-muted-foreground">Manage your webhooks</p>
-			<Separator className="my-8" />
-			<iframe
-				src={url}
-				style={{
-					width: "100%",
-					height: "600px",
-					border: "none",
-					borderRadius: "8px",
-				}}
-				allow="clipboard-write"
-				loading="lazy"
-			></iframe>
+			<Tabs defaultValue="manage">
+				<TabsList className="mt-4">
+					<TabsTrigger value="manage">Manage</TabsTrigger>
+					<TabsTrigger value="docs">Docs</TabsTrigger>
+				</TabsList>
+				<Separator className="my-8" />
+				<TabsContent value="manage">
+					<iframe
+						src={url}
+						style={{
+							width: "100%",
+							height: "600px",
+							border: "none",
+							borderRadius: "8px",
+						}}
+						allow="clipboard-write"
+						loading="lazy"
+					></iframe>
+				</TabsContent>
+				<TabsContent value="docs" className="flex flex-col gap-8">
+					<Docs />
+				</TabsContent>
+			</Tabs>
 		</main>
 	);
 };

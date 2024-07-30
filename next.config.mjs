@@ -1,9 +1,13 @@
-const withNextIntl = require("next-intl/plugin")();
-const { withAxiom } = require("next-axiom");
+import createMDX from "@next/mdx";
+import { withAxiom } from "next-axiom";
+import nextIntl from "next-intl/plugin";
+
+const withNextIntl = nextIntl();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
+	pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
 	async rewrites() {
 		return [
 			{
@@ -52,7 +56,15 @@ const nextConfig = {
 	},
 	experimental: {
 		ppr: true,
+		mdxRs: false,
 	},
 };
 
-module.exports = withAxiom(withNextIntl(nextConfig));
+const withMDX = createMDX({
+	options: {
+		remarkPlugins: [],
+		rehypePlugins: [],
+	},
+});
+
+export default withAxiom(withMDX(withNextIntl(nextConfig)));
