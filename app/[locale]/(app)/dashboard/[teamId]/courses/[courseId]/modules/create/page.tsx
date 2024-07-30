@@ -1,16 +1,17 @@
 import { db } from "@/server/db/db";
 import { modules } from "@/server/db/schema";
 import { and, eq } from "drizzle-orm";
+import { unstable_noStore } from "next/cache";
 import UploadForm from "./UploadForm";
 
 export const runtime = "nodejs";
-export const fetchCache = "force-no-store";
 
 const Page = async ({
 	params: { courseId, teamId },
 }: {
 	params: { courseId: string; teamId: string };
 }) => {
+	unstable_noStore();
 	const moduleList = await db.query.modules.findMany({
 		where: and(eq(modules.courseId, courseId)),
 	});

@@ -134,7 +134,7 @@ const UploadForm = ({
 			.sort((a, b) => b.versionNumber - a.versionNumber)
 			.find((module) => module.language === language);
 		return latestModule ? latestModule.versionNumber + 1 : 1;
-	}, [language]);
+	}, [language, modules]);
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (input: UploadModule) => {
