@@ -30,3 +30,9 @@ export const CreateTeamSchema = z.object({
 	language: LanguageSchema,
 });
 export type CreateTeam = z.infer<typeof CreateTeamSchema>;
+
+export const InviteMemberFormSchema = z.object({
+	email: z.string().email(),
+	role: z.enum(["owner", "member"]).optional().default("member"),
+});
+export type InviteMemberForm = z.infer<typeof InviteMemberFormSchema>;

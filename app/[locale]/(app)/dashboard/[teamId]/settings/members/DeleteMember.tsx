@@ -16,12 +16,11 @@ const DeleteMember = ({
 	const router = useRouter();
 	const deleteMember = useMutation({
 		mutationFn: async () => {
-			const res = await client.api.teams[":id"].member.$delete({
-				param: { id: teamId },
-				json: {
-					userId,
-				},
-			});
+			const res = await client.api.teams[":id"].member[":userId"].$delete(
+				{
+					param: { id: teamId, userId },
+				}
+			);
 			if (!res.ok) {
 				throw new Error(await res.text());
 			}

@@ -1,6 +1,17 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
@@ -39,15 +50,35 @@ const Page = ({
 				</div>
 			</div>
 			<Separator className="my-8" />
-			<Button
-				variant="destructive"
-				onClick={() => {
-					deleteMutation.mutate();
-				}}
-				isPending={deleteMutation.isPending}
-			>
-				Delete team
-			</Button>
+			<AlertDialog>
+				<AlertDialogTrigger
+					className={buttonVariants({ variant: "destructive" })}
+				>
+					Delete Team
+				</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Are you absolutely sure?
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone and will permanently
+							all courses, learners and data associated with this
+							team.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => {
+								deleteMutation.mutate();
+							}}
+						>
+							Continue
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 };

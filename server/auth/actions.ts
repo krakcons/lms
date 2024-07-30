@@ -26,6 +26,7 @@ export const logout = async () => {
 	if (!session?.value) return;
 	const blankCookie = lucia.createBlankSessionCookie();
 	cookies().set(blankCookie.name, blankCookie.value, blankCookie.attributes);
+	cookies().delete("teamId");
 	await lucia.invalidateSession(session.value);
 };
 

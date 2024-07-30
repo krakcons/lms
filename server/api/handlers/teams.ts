@@ -13,7 +13,11 @@ import {
 } from "@/server/db/schema";
 import { deleteFolder, getPresignedUrl } from "@/server/r2";
 import { resend } from "@/server/resend";
-import { Team, UpdateTeamTranslationSchema } from "@/types/team";
+import {
+	InviteMemberFormSchema,
+	Team,
+	UpdateTeamTranslationSchema,
+} from "@/types/team";
 import { LanguageSchema } from "@/types/translations";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
@@ -92,17 +96,12 @@ export const teamsHandler = new Hono()
 	)
 	.post(
 		"/:id/invite",
-		zValidator(
-			"json",
-			z.object({
-				email: z.string().email(),
-			})
-		),
+		zValidator("json", InviteMemberFormSchema),
 		authedMiddleware,
 		ownerMiddleware,
 		async (c) => {
 			const { id } = c.req.param();
-			const { email } = c.req.valid("json");
+			const { email, role } = c.req.valid("json");
 
 			const team = await db.query.teams.findFirst({
 				where: eq(teams.id, id),
@@ -141,25 +140,18 @@ export const teamsHandler = new Hono()
 			await db.insert(usersToTeams).values({
 				userId: user.id,
 				teamId: id,
-				role: "member",
+				role,
 			});
 
 			return c.json(null);
 		}
 	)
 	.delete(
-		"/:id/member",
-		zValidator(
-			"json",
-			z.object({
-				userId: z.string(),
-			})
-		),
+		"/:id/member/:userId",
 		authedMiddleware,
 		ownerMiddleware,
 		async (c) => {
-			const { id } = c.req.param();
-			const { userId } = c.req.valid("json");
+			const { id, userId } = c.req.param();
 
 			await db
 				.delete(usersToTeams)
@@ -355,6 +347,7 @@ export const teamsHandler = new Hono()
 			return c.json({ url, imageUrl });
 		}
 	)
+	// Private
 	.delete("/:id", authedMiddleware, ownerMiddleware, async (c) => {
 		const { id } = c.req.param();
 		const teamId = c.get("teamId");

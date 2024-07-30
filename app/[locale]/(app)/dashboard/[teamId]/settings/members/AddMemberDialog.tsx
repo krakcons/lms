@@ -27,25 +27,28 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/lib/api";
+import { InviteMemberForm, InviteMemberFormSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const InviteFormSchema = z.object({
-	email: z.string().email(),
-	role: z.enum(["owner", "member"]),
-});
-type InviteForm = z.infer<typeof InviteFormSchema>;
 
 export const AddMemberDialog = ({ teamId }: { teamId: string }) => {
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
+
+	const form = useForm<InviteMemberForm>({
+		resolver: zodResolver(InviteMemberFormSchema),
+		defaultValues: {
+			email: "",
+			role: "member",
+		},
+	});
+
 	const { mutate, isPending } = useMutation({
-		mutationFn: async (input: InviteForm) => {
+		mutationFn: async (input: InviteMemberForm) => {
 			const res = await client.api.teams[":id"].invite.$post({
 				param: { id: teamId },
 				json: input,
@@ -57,6 +60,7 @@ export const AddMemberDialog = ({ teamId }: { teamId: string }) => {
 		onSuccess: () => {
 			router.refresh();
 			setOpen(false);
+			form.reset();
 		},
 		onError: (err) => {
 			form.setError("email", {
@@ -66,15 +70,7 @@ export const AddMemberDialog = ({ teamId }: { teamId: string }) => {
 		},
 	});
 
-	const form = useForm<InviteForm>({
-		resolver: zodResolver(InviteFormSchema),
-		defaultValues: {
-			email: "",
-			role: "member",
-		},
-	});
-
-	const onSubmit = async (input: InviteForm) => {
+	const onSubmit = async (input: InviteMemberForm) => {
 		mutate(input);
 	};
 
@@ -88,7 +84,7 @@ export const AddMemberDialog = ({ teamId }: { teamId: string }) => {
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Add team member</DialogTitle>
+					<DialogTitle>Add Team Member</DialogTitle>
 					<DialogDescription>
 						Make sure you trust the person you are inviting and they
 						have an account.
@@ -129,11 +125,11 @@ export const AddMemberDialog = ({ teamId }: { teamId: string }) => {
 										</FormControl>
 										<SelectContent>
 											<SelectGroup>
-												<SelectItem value="owner">
-													Owner
-												</SelectItem>
 												<SelectItem value="member">
 													Member
+												</SelectItem>
+												<SelectItem value="owner">
+													Owner
 												</SelectItem>
 											</SelectGroup>
 										</SelectContent>
