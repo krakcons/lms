@@ -23,6 +23,8 @@ export const authedMiddleware: MiddlewareHandler<{
 		if (key) {
 			c.set("teamId", key.teamId);
 			return await next();
+		} else {
+			return c.text("Invalid API key", 401);
 		}
 	} else if (sessionId) {
 		const user = await lucia.validateSession(sessionId);

@@ -19,7 +19,29 @@ export const modulesHandler = new Hono()
 		const { id } = c.req.param();
 		const teamId = c.get("teamId");
 
-		const learners = await modulesData.getLearners({ id }, teamId);
+		const courseModule = await db.query.modules.findFirst({
+			where: and(eq(modules.id, id)),
+			with: {
+				course: true,
+				learners: true,
+			},
+		});
+
+		if (!courseModule) {
+			throw new HTTPException(404, {
+				message: "Module not found",
+			});
+		}
+
+		if (courseModule.course.teamId !== teamId) {
+			throw new HTTPException(401, {
+				message: "Unauthorized",
+			});
+		}
+
+		const learners = courseModule.learners.map((learner) =>
+			ExtendLearner(courseModule.type).parse(learner)
+		);
 
 		return c.json(learners);
 	})

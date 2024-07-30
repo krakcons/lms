@@ -16,7 +16,9 @@ export const coursesHandler = new Hono()
 	.get("/", authedMiddleware, async (c) => {
 		const teamId = c.get("teamId");
 
-		const courseList = await coursesData.getAll(undefined, teamId);
+		const courseList = await db.query.courses.findMany({
+			where: eq(courses.teamId, teamId),
+		});
 
 		return c.json(courseList);
 	})

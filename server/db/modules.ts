@@ -1,5 +1,5 @@
 import { SelectCourse } from "@/types/course";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { db } from "./db";
 import { modules } from "./schema";
@@ -17,10 +17,5 @@ export const modulesData = {
 		}
 
 		return courseModule;
-	},
-	getLearners: async ({ id }: { id: string }, userId: string) => {
-		return await db.query.learners.findMany({
-			where: and(eq(modules.id, id)),
-		});
 	},
 };
