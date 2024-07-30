@@ -138,7 +138,7 @@ export const learnersHandler = new Hono()
 				href,
 				logo: teamTranslation.logo
 					? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
-					: undefined,
+					: null,
 				text: {
 					title: t("Completion.title"),
 					congratulations: t("Completion.congratulations"),

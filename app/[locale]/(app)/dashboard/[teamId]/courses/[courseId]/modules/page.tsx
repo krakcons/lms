@@ -10,7 +10,10 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { getAuth } from "@/server/auth/actions";
-import { coursesData } from "@/server/db/courses";
+import { db } from "@/server/db/db";
+import { courses } from "@/server/db/schema";
+import { and, eq } from "drizzle-orm";
+import { unstable_noStore } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import DeleteModule from "./DeleteModule";
@@ -20,16 +23,23 @@ const Page = async ({
 }: {
 	params: { courseId: string; teamId: string };
 }) => {
+	unstable_noStore();
 	const { user } = await getAuth();
 
 	if (!user) {
 		return redirect("/auth/google");
 	}
 
-	const course = await coursesData.getCourseWithModules(
-		{ id: courseId },
-		user.id
-	);
+	const course = await await db.query.courses.findFirst({
+		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),
+		with: {
+			modules: {
+				with: {
+					learners: true,
+				},
+			},
+		},
+	});
 
 	return (
 		<main>
@@ -56,24 +66,31 @@ const Page = async ({
 						<TableHead>Id</TableHead>
 						<TableHead>Type</TableHead>
 						<TableHead>Language</TableHead>
+						<TableHead>Version Number</TableHead>
+						<TableHead>Learners</TableHead>
 						<TableHead></TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{course?.modules.map((module) => (
-						<TableRow key={module.id}>
-							<TableCell>{module.id}</TableCell>
-							<TableCell>{module.type}</TableCell>
-							<TableCell>
-								{module.language === "fr"
-									? "Francais"
-									: "English"}
-							</TableCell>
-							<TableCell>
-								<DeleteModule moduleId={module.id} />
-							</TableCell>
-						</TableRow>
-					))}
+					{course?.modules
+						.sort((a, b) => (b.language === "fr" ? -1 : 1))
+						.sort((a, b) => b.versionNumber - a.versionNumber)
+						.map((module) => (
+							<TableRow key={module.id}>
+								<TableCell>{module.id}</TableCell>
+								<TableCell>{module.type}</TableCell>
+								<TableCell>
+									{module.language === "fr"
+										? "Francais"
+										: "English"}
+								</TableCell>
+								<TableCell>{module.versionNumber}</TableCell>
+								<TableCell>{module.learners.length}</TableCell>
+								<TableCell>
+									<DeleteModule moduleId={module.id} />
+								</TableCell>
+							</TableRow>
+						))}
 				</TableBody>
 				{!course?.modules && <TableCaption>No files yet.</TableCaption>}
 			</Table>

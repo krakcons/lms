@@ -30,7 +30,7 @@ export const CourseCompletion = ({
 	course?: string;
 	organization?: string;
 	href?: string;
-	logo?: string;
+	logo?: string | null;
 	text: {
 		title: string;
 		completed: string;

@@ -45,7 +45,7 @@ const Table = async ({ courseId }: { courseId: string }) => {
 	const extendedLearnerList = learnerList.map((learner) => {
 		return {
 			...ExtendLearner(learner.module?.type).parse(learner),
-			language: learner.module?.language,
+			module: learner.module,
 		};
 	});
 

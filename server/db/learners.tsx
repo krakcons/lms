@@ -138,7 +138,7 @@ export const learnersData = {
 					href,
 					logo: teamTranslation.logo
 						? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
-						: undefined,
+						: null,
 					text: {
 						title: t("Completion.title"),
 						congratulations: t("Completion.congratulations"),
@@ -346,7 +346,7 @@ export const learnersData = {
 				courses: courseInvites,
 				logo: teamTranslation.logo
 					? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
-					: undefined,
+					: null,
 				text: {
 					title: t("CollectionInvite.title"),
 					invite: t("CollectionInvite.invite"),
@@ -421,7 +421,7 @@ export const learnersData = {
 				href,
 				logo: teamTranslation.logo
 					? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
-					: undefined,
+					: null,
 				text: {
 					title: t("CourseInvite.title"),
 					invite: t("CourseInvite.invite"),

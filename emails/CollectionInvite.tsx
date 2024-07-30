@@ -41,7 +41,7 @@ export const CollectionInvite = ({
 		title: string;
 	}[];
 	organization?: string;
-	logo?: string;
+	logo?: string | null;
 	text: {
 		title: string;
 		invite: string;

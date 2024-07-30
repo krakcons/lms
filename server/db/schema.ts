@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
 	boolean,
+	integer,
 	json,
 	pgEnum,
 	pgTable,
@@ -13,6 +14,7 @@ import { generateId } from "lucia";
 
 export const moduleTypeEnum = pgEnum("module_type", ["1.2", "2004"]);
 export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
+export const roleEnum = pgEnum("role_enum", ["owner", "member"]);
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -42,6 +44,9 @@ export const usersToTeams = pgTable(
 	{
 		userId: text("userId").notNull(),
 		teamId: text("teamId").notNull(),
+		role: roleEnum("role")
+			.notNull()
+			.default(sql`'member'`),
 	},
 	(t) => ({
 		pk: primaryKey({
@@ -159,21 +164,16 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	translations: many(courseTranslations),
 }));
 
-export const modules = pgTable(
-	"modules",
-	{
-		id: text("id")
-			.primaryKey()
-			.notNull()
-			.$default(() => generateId(15)),
-		courseId: text("courseId").notNull(),
-		language: languageEnum("language").notNull(),
-		type: moduleTypeEnum("type").notNull(),
-	},
-	(t) => ({
-		unq_module: uniqueIndex("unq_module").on(t.courseId, t.language),
-	})
-);
+export const modules = pgTable("modules", {
+	id: text("id")
+		.primaryKey()
+		.notNull()
+		.$default(() => generateId(15)),
+	courseId: text("courseId").notNull(),
+	language: languageEnum("language").notNull(),
+	type: moduleTypeEnum("type").notNull(),
+	versionNumber: integer("versionNumber").notNull().default(1),
+});
 
 export const modulesRelations = relations(modules, ({ many, one }) => ({
 	course: one(courses, {

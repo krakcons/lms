@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "@/lib/navigation";
 import { lucia } from "@/server/auth/lucia";
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
@@ -25,6 +26,7 @@ export const logout = async () => {
 	if (!session?.value) return;
 	const blankCookie = lucia.createBlankSessionCookie();
 	cookies().set(blankCookie.name, blankCookie.value, blankCookie.attributes);
+	cookies().delete("teamId");
 	await lucia.invalidateSession(session.value);
 };
 
@@ -39,4 +41,21 @@ export const getTeam = cache(async (id: string, userId: string) => {
 		},
 	});
 	return userToTeam?.team;
+});
+
+export const getUserRole = cache(async (teamId: string) => {
+	const user = await getAuth();
+
+	if (!user.user) {
+		return redirect("/auth/google");
+	}
+
+	const userToTeam = await db.query.usersToTeams.findFirst({
+		where: and(
+			eq(usersToTeams.userId, user.user?.id),
+			eq(usersToTeams.teamId, teamId)
+		),
+	});
+
+	return userToTeam!.role;
 });
