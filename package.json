@@ -10,7 +10,8 @@
     "db:push": "drizzle-kit push:mysql",
     "studio": "drizzle-kit studio",
     "email": "email dev",
-    "email:export": "email export"
+    "email:export": "email export",
+    "generate:dbml": "node --experimental-specifier-resolution=node --loader ts-node/esm ./server/db/dbml.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.5.4",
@@ -56,6 +57,7 @@
     "cmdk": "^1.0.0",
     "dayjs": "^1.11.11",
     "dotenv": "^16.4.5",
+    "drizzle-dbml-generator": "^0.8.0",
     "drizzle-orm": "0.31.2",
     "drizzle-zod": "^0.5.1",
     "eslint": "8.57.0",
