@@ -22,6 +22,8 @@ export type TeamTranslation = z.infer<typeof TeamTranslationSchema>;
 
 export const UpdateTeamTranslationSchema = TeamTranslationSchema.omit({
 	teamId: true,
+}).extend({
+	name: z.string().min(1),
 });
 export type UpdateTeamTranslation = z.infer<typeof UpdateTeamTranslationSchema>;
 
