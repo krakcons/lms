@@ -58,7 +58,15 @@ const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
 				<div>
 					<h2>API Keys</h2>
 					<p className="text-muted-foreground">
-						View and manage API access
+						View and manage API access. View the API documentation{" "}
+						<a
+							href="https://documenter.getpostman.com/view/26552546/2sA2xmWBe6#c4113410-46e0-42bf-98b4-4a23d4dbe632"
+							className="text-blue-500 underline"
+							target="_blank"
+						>
+							here
+						</a>
+						.
 					</p>
 				</div>
 				<AddKeyDialog />
