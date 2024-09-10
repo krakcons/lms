@@ -1,3 +1,4 @@
+import NotFound from "@/app/NotFound";
 import { env } from "@/env.mjs";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
@@ -84,7 +85,7 @@ const Page = async ({
 
 	// Get course user
 	const learner = await db.query.learners.findFirst({
-		where: and(eq(learners.id, learnerId)),
+		where: and(eq(learners.id, learnerId), eq(learners.courseId, courseId)),
 		with: {
 			module: {
 				with: {
@@ -104,19 +105,11 @@ const Page = async ({
 	});
 
 	if (!learner) {
-		return (
-			<div>
-				<p>No learner found with this id</p>
-			</div>
-		);
+		return <NotFound description="Learner could not be found" />;
 	}
 
 	if (!learner.module) {
-		return (
-			<div>
-				<p>Learner has no module</p>
-			</div>
-		);
+		return <NotFound description="Learner has no module" />;
 	}
 
 	const t = await getTranslations({ locale });

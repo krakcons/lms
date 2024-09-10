@@ -183,7 +183,7 @@ export const learnersData = {
 		return { ...newLearner, completedAt };
 	},
 	create: async (
-		input: Omit<CreateLearner, "moduleId" | "courseId">[],
+		input: Omit<CreateLearner, "moduleId" | "courseId" | "id">[],
 		courses: (Course & { translations: CourseTranslation[] })[],
 		collection?: Collection & { translations: CollectionTranslation[] }
 	) => {
@@ -192,7 +192,7 @@ export const learnersData = {
 				// Create a new learner
 				return {
 					...learner,
-					id: learner.id ?? generateId(32),
+					id: generateId(32),
 					moduleId: null,
 					courseId: id,
 					data: {},
@@ -222,24 +222,30 @@ export const learnersData = {
 				.filter(
 					(learner) => learner.sendEmail !== false && learner.email
 				)
+				// Map through learners invited
 				.map((learner) => {
+					// Create course invite list with each course and corresponding learner id
 					const courseInvites = learnerList
+						// Find learners with the same email
 						.filter((l) => l.email === learner.email)
+						// Map to courses
 						.map((l) => {
-							const learnerId =
-								existingLearners.find(
-									(l) =>
-										l.email === learner.email &&
-										l.courseId === l.courseId
-								)?.id ?? l.id;
+							// Find course
 							const course = courses.find(
 								(c) => c.id === l.courseId
 							)!;
+							// Find learnerr with that course
+							const learnerId = existingLearners.find(
+								(l) =>
+									l.email === learner.email &&
+									l.courseId === course.id
+							)?.id!;
 							return {
 								...course,
 								learnerId,
 							};
 						});
+					console.log(courseInvites);
 					return {
 						email: learner.email,
 						collection,

@@ -1,11 +1,10 @@
 import { Link } from "@/lib/navigation";
+import NotFound from "../NotFound";
 
-export default function NotFound() {
+export default function NotFoundPage() {
 	return (
-		<div>
-			<h2>Not Found</h2>
-			<p>Could not find requested resource</p>
+		<NotFound>
 			<Link href="/">Return Home</Link>
-		</div>
+		</NotFound>
 	);
 }

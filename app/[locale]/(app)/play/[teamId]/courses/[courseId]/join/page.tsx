@@ -1,3 +1,4 @@
+import NotFound from "@/app/NotFound";
 import LanguageToggle from "@/components/LanguageToggle";
 import { env } from "@/env.mjs";
 import { db } from "@/server/db/db";
@@ -53,11 +54,7 @@ const Page = async ({
 		});
 
 		if (!learner) {
-			return (
-				<div>
-					<p>No learner found with this id</p>
-				</div>
-			);
+			return <NotFound description="Learner could not be found" />;
 		}
 
 		console.log("learner module", learner);
@@ -83,19 +80,11 @@ const Page = async ({
 	});
 
 	if (!course) {
-		return (
-			<div>
-				<p>Course not found</p>
-			</div>
-		);
+		return <NotFound description="Course could not be found" />;
 	}
 
 	if (!course.modules || course.modules.length === 0) {
-		return (
-			<div>
-				<p>Course has no modules</p>
-			</div>
-		);
+		return <NotFound description="Course has no modules" />;
 	}
 
 	const t = await getTranslations({ locale });

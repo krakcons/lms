@@ -1,3 +1,4 @@
+import NotFound from "@/app/NotFound";
 import { CertificateProps } from "@/components/Certificate";
 import LanguageToggle from "@/components/LanguageToggle";
 import { Separator } from "@/components/ui/separator";
@@ -9,7 +10,6 @@ import { learners } from "@/server/db/schema";
 import { Language } from "@/types/translations";
 import { and, eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { playMetadata } from "../metadata";
 import DownloadLink from "./DownloadLink";
 import PDFView from "./PDFView";
@@ -27,18 +27,19 @@ export const generateMetadata = async ({
 };
 
 const Page = async ({
-	params: { locale },
+	params: { locale, courseId },
 	searchParams: { learnerId },
 }: {
 	params: {
 		locale: Language;
+		courseId: string;
 	};
 	searchParams: {
 		learnerId: string;
 	};
 }) => {
 	const learner = await db.query.learners.findFirst({
-		where: and(eq(learners.id, learnerId)),
+		where: and(eq(learners.id, learnerId), eq(learners.courseId, courseId)),
 		with: {
 			course: {
 				with: {
@@ -54,7 +55,9 @@ const Page = async ({
 	});
 
 	if (!learner || !learner.completedAt) {
-		return notFound();
+		return (
+			<NotFound description="Learner could not be found or has not completed course" />
+		);
 	}
 
 	const t = await getTranslations({ locale });
