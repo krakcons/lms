@@ -202,7 +202,10 @@ export const learnersData = {
 			})
 		);
 
-		const existingLearners = await db.query.learners.findMany({
+		await db.insert(learners).values(learnerList).onConflictDoNothing();
+
+		// Get learners after insert accounting for duplicates
+		const finalLearners = await db.query.learners.findMany({
 			where: and(
 				inArray(
 					learners.courseId,
@@ -214,8 +217,6 @@ export const learnersData = {
 				)
 			),
 		});
-
-		await db.insert(learners).values(learnerList).onConflictDoNothing();
 
 		if (collection) {
 			const emailList = input
@@ -234,8 +235,8 @@ export const learnersData = {
 							const course = courses.find(
 								(c) => c.id === l.courseId
 							)!;
-							// Find learnerr with that course
-							const learnerId = existingLearners.find(
+							// Find learner with that course
+							const learnerId = finalLearners.find(
 								(l) =>
 									l.email === learner.email &&
 									l.courseId === course.id
@@ -245,7 +246,7 @@ export const learnersData = {
 								learnerId,
 							};
 						});
-					console.log(courseInvites);
+					console.log("INVITES", courseInvites);
 					return {
 						email: learner.email,
 						collection,
@@ -270,12 +271,11 @@ export const learnersData = {
 					return {
 						email: learner.email,
 						// If the learner already exists, use the existing learner id
-						learnerId:
-							existingLearners.find(
-								(l) =>
-									l.email === learner.email &&
-									l.courseId === learner.courseId
-							)?.id ?? learner.id,
+						learnerId: finalLearners.find(
+							(l) =>
+								l.email === learner.email &&
+								l.courseId === learner.courseId
+						)?.id!,
 						course,
 						inviteLanguage: learner.inviteLanguage,
 					};
