@@ -234,10 +234,18 @@ const LMSProvider = ({
 		dontShowAgain: string;
 	};
 }) => {
-	const [dontShowAgain, setDontShowAgain] = useState(
-		localStorage.getItem(learner.id) === "true"
-	);
-	const [open, setOpen] = useState(false);
+	const [certOpen, setCertOpen] = useState(false);
+
+	// Course completion status
+	const [completed, setCompleted] = useState(!!learner.completedAt);
+
+	// Scorm wrapper
+	const { data } = useSCORM({
+		type,
+		initialData: learner.data,
+	});
+
+	// Update learner mutation
 	const { mutate } = useMutation({
 		mutationFn: async (input: InferRequestType<typeof updateLearnerFn>) => {
 			const res = await updateLearnerFn(input);
@@ -250,42 +258,29 @@ const LMSProvider = ({
 			const hidden = localStorage.getItem(learner.id);
 			const data = await res.json();
 			if (data.completedAt && !hidden) {
-				setOpen(true);
+				setCompleted(true);
 			}
 		},
 	});
 
 	useEffect(() => {
 		const hidden = localStorage.getItem(learner.id);
-		if (learner.completedAt && !hidden) {
-			setOpen(true);
+		if (completed && !hidden) {
+			setCertOpen(true);
 		}
-	}, [learner]);
-
-	const { data } = useSCORM({
-		type,
-		initialData: learner.data,
-	});
+	}, [completed, learner.id]);
 
 	useEffect(() => {
-		if (!learner.completedAt) {
+		if (!completed) {
 			mutate({ param: { id: learner.id }, json: { ...learner, data } });
 		}
-	}, [data, learner, mutate]);
-
-	useEffect(() => {
-		if (dontShowAgain) {
-			localStorage.setItem(learner.id, "true");
-		} else {
-			localStorage.removeItem(learner.id);
-		}
-	}, [dontShowAgain, learner.id]);
+	}, [data, completed, mutate, learner]);
 
 	const pathname = usePathname();
 
 	return (
 		<>
-			<Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+			<Dialog onOpenChange={(open) => setCertOpen(open)} open={certOpen}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
@@ -298,7 +293,13 @@ const LMSProvider = ({
 					<label className="flex items-center gap-2">
 						<input
 							type="checkbox"
-							onChange={() => setDontShowAgain(!dontShowAgain)}
+							onChange={(e) => {
+								if (e.target.checked) {
+									localStorage.setItem(learner.id, "true");
+								} else {
+									localStorage.removeItem(learner.id);
+								}
+							}}
 						/>
 						<p className="text-sm">{text.dontShowAgain}</p>
 					</label>
