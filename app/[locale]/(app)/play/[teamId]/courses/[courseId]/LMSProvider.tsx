@@ -22,6 +22,7 @@ import {
 } from "@/types/scorm/versions/2004";
 import { useMutation } from "@tanstack/react-query";
 import { InferRequestType } from "hono";
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -41,6 +42,7 @@ const useSCORM = ({
 	const [data, setData] = useState<Record<string, string>>(initialData);
 	const error = useRef<number | undefined>();
 	const initialized = useRef<boolean>(false);
+	const [isApiAvailable, setIsApiAvailable] = useState(false);
 
 	// Log error
 	useEffect(() => {
@@ -53,6 +55,22 @@ const useSCORM = ({
 	}, [error]);
 
 	console.log("useSCORM", type === "1.2" && typeof window !== "undefined");
+
+	useEffect(() => {
+		const checkApiAvailability = () => {
+			if (
+				typeof window !== "undefined" &&
+				(window.API || window.API_1484_11)
+			) {
+				setIsApiAvailable(true);
+			} else {
+				// Retry after a short delay if API is not available yet
+				setTimeout(checkApiAvailability, 50);
+			}
+		};
+
+		checkApiAvailability();
+	}, []);
 
 	if (type === "1.2" && typeof window !== "undefined") {
 		window.API = {
@@ -211,7 +229,7 @@ const useSCORM = ({
 		};
 	}
 
-	return { data };
+	return { data, isApiAvailable };
 };
 
 const updateLearnerFn = client.api.learners[":id"].$put;
@@ -234,30 +252,35 @@ const LMSProvider = ({
 		dontShowAgain: string;
 	};
 }) => {
+	const [loading, setLoading] = useState(true);
 	const [certOpen, setCertOpen] = useState(false);
 
 	// Course completion status
 	const [completed, setCompleted] = useState(!!learner.completedAt);
 
 	// Scorm wrapper
-	const { data } = useSCORM({
+	const { data, isApiAvailable } = useSCORM({
 		type,
 		initialData: learner.data,
 	});
 
 	// Update learner mutation
 	const { mutate } = useMutation({
+		mutationKey: ["updateLearner"],
 		mutationFn: async (input: InferRequestType<typeof updateLearnerFn>) => {
 			const res = await updateLearnerFn(input);
 			if (!res.ok) {
+				if (res.status === 400) {
+					return true;
+				}
 				throw new Error(await res.text());
 			}
-			return res;
+			const learner = await res.json();
+			return !!learner.completedAt;
 		},
-		onSuccess: async (res) => {
+		onSuccess: async (isCompleted) => {
 			const hidden = localStorage.getItem(learner.id);
-			const data = await res.json();
-			if (data.completedAt && !hidden) {
+			if (isCompleted && !hidden) {
 				setCompleted(true);
 			}
 		},
@@ -311,7 +334,18 @@ const LMSProvider = ({
 					</Link>
 				</DialogContent>
 			</Dialog>
-			<iframe src={url} className="flex-1" />
+			{loading && (
+				<div className="absolute flex h-screen w-screen items-center justify-center bg-background">
+					<Loader2 size={48} className="animate-spin" />
+				</div>
+			)}
+			{isApiAvailable && (
+				<iframe
+					src={url}
+					className="flex-1"
+					onLoad={() => setLoading(false)}
+				/>
+			)}
 		</>
 	);
 };

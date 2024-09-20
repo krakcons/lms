@@ -126,10 +126,14 @@ export const modulesHandler = new Hono()
 				createdLearner[0]
 			);
 
-			await svix.message.create(`app_${startedLearner.courseId}`, {
-				eventType: "learner.started",
-				payload: startedLearner,
-			});
+			try {
+				await svix.message.create(`app_${startedLearner.courseId}`, {
+					eventType: "learner.started",
+					payload: startedLearner,
+				});
+			} catch (e) {
+				console.error(e);
+			}
 
 			return c.json(
 				ExtendLearner(courseModule.type).parse(createdLearner[0])

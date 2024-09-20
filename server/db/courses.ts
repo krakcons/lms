@@ -63,7 +63,11 @@ export const coursesData = {
 			.delete(collectionsToCourses)
 			.where(eq(collectionsToCourses.courseId, course.id));
 
-		await svix.application.delete(`app_${course.id}`);
+		try {
+			await svix.application.delete(`app_${course.id}`);
+		} catch (e) {
+			console.error(e);
+		}
 
 		await deleteFolder(`${teamId}/courses/${course.id}`);
 	},
