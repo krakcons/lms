@@ -42,6 +42,7 @@ const useSCORM = ({
 	const [data, setData] = useState<Record<string, string>>(initialData);
 	const error = useRef<number | undefined>();
 	const initialized = useRef<boolean>(false);
+	const [isApiAvailable, setIsApiAvailable] = useState(false);
 
 	// Log error
 	useEffect(() => {
@@ -54,6 +55,22 @@ const useSCORM = ({
 	}, [error]);
 
 	console.log("useSCORM", type === "1.2" && typeof window !== "undefined");
+
+	useEffect(() => {
+		const checkApiAvailability = () => {
+			if (
+				typeof window !== "undefined" &&
+				(window.API || window.API_1484_11)
+			) {
+				setIsApiAvailable(true);
+			} else {
+				// Retry after a short delay if API is not available yet
+				setTimeout(checkApiAvailability, 50);
+			}
+		};
+
+		checkApiAvailability();
+	}, []);
 
 	if (type === "1.2" && typeof window !== "undefined") {
 		window.API = {
@@ -212,7 +229,7 @@ const useSCORM = ({
 		};
 	}
 
-	return { data };
+	return { data, isApiAvailable };
 };
 
 const updateLearnerFn = client.api.learners[":id"].$put;
@@ -242,7 +259,7 @@ const LMSProvider = ({
 	const [completed, setCompleted] = useState(!!learner.completedAt);
 
 	// Scorm wrapper
-	const { data } = useSCORM({
+	const { data, isApiAvailable } = useSCORM({
 		type,
 		initialData: learner.data,
 	});
@@ -322,11 +339,13 @@ const LMSProvider = ({
 					<Loader2 size={48} className="animate-spin" />
 				</div>
 			)}
-			<iframe
-				src={url}
-				className="flex-1"
-				onLoad={() => setLoading(false)}
-			/>
+			{isApiAvailable && (
+				<iframe
+					src={url}
+					className="flex-1"
+					onLoad={() => setLoading(false)}
+				/>
+			)}
 		</>
 	);
 };
