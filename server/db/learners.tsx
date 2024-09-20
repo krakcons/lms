@@ -112,10 +112,14 @@ export const learnersData = {
 				});
 			}
 
-			await svix.message.create(`app_${learner.courseId}`, {
-				eventType: "learner.complete",
-				payload: newLearner,
-			});
+			try {
+				await svix.message.create(`app_${learner.courseId}`, {
+					eventType: "learner.complete",
+					payload: newLearner,
+				});
+			} catch (e) {
+				console.error(e);
+			}
 
 			const href =
 				learner.course.team?.customDomain &&
@@ -175,10 +179,14 @@ export const learnersData = {
 			}
 		}
 
-		await svix.message.create(`app_${learner.courseId}`, {
-			eventType: "learner.update",
-			payload: newLearner,
-		});
+		try {
+			await svix.message.create(`app_${learner.courseId}`, {
+				eventType: "learner.update",
+				payload: newLearner,
+			});
+		} catch (e) {
+			console.error(e);
+		}
 
 		return { ...newLearner, completedAt };
 	},
@@ -290,21 +298,30 @@ export const learnersData = {
 
 		if (learnerList.length === 1) {
 			const newLearner = ExtendLearner().parse(learnerList[0]);
-			await svix.message.create(`app_${newLearner.courseId}`, {
-				eventType: "learner.created",
-				payload: newLearner,
-			});
+
+			try {
+				await svix.message.create(`app_${newLearner.courseId}`, {
+					eventType: "learner.created",
+					payload: newLearner,
+				});
+			} catch (e) {
+				console.error(e);
+			}
 			return newLearner;
 		} else {
 			const newLearners = ExtendLearner().array().parse(learnerList);
-			await Promise.allSettled(
-				newLearners.map((learner) => {
-					return svix.message.create(`app_${learner.courseId}`, {
-						eventType: "learner.created",
-						payload: learner,
-					});
-				})
-			);
+			try {
+				await Promise.allSettled(
+					newLearners.map((learner) => {
+						return svix.message.create(`app_${learner.courseId}`, {
+							eventType: "learner.created",
+							payload: learner,
+						});
+					})
+				);
+			} catch (e) {
+				console.error(e);
+			}
 			return newLearners;
 		}
 	},

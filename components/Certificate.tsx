@@ -34,6 +34,8 @@ Font.register({
 	],
 });
 
+Font.registerHyphenationCallback((word) => ["", word, ""]);
+
 // Create styles
 const styles = StyleSheet.create({
 	page: {
@@ -47,6 +49,7 @@ const styles = StyleSheet.create({
 	h1: {
 		fontSize: 40,
 		fontWeight: 600,
+		textAlign: "center",
 	},
 });
 
@@ -99,7 +102,9 @@ export const Certificate = ({
 						},
 					]}
 				>
-					{" " + name + " "}
+					{" " +
+						"Lorem Ipsum is simply dummy text of the printng and typesetting industry." +
+						" "}
 				</Text>
 				<View
 					style={{

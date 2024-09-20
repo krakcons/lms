@@ -121,7 +121,7 @@ const Page = async ({
 	);
 
 	return (
-		<main className="flex h-screen w-full flex-col bg-slate-100">
+		<main className="flex h-screen w-full flex-col">
 			<div className="flex flex-1 flex-row">
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
