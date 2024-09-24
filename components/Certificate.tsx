@@ -103,7 +103,7 @@ export const Certificate = ({
 					]}
 				>
 					{" " +
-						"Lorem Ipsum is simply dummy text of the printng and typesetting industry." +
+						name +
 						" "}
 				</Text>
 				<View
