@@ -12,8 +12,7 @@ const nextConfig = {
 		return [
 			{
 				source: "/:locale/r2/:slug*",
-				destination:
-					"https://pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev/:slug*",
+				destination: "https://cdn.revivios.com/:slug*",
 				locale: false,
 			},
 		];
@@ -49,7 +48,7 @@ const nextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "pub-4cd6330f5bdf4bfaadef07fedda4411b.r2.dev",
+				hostname: "cdn.revivios.com",
 				port: "",
 			},
 		],
