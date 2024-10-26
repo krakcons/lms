@@ -12,17 +12,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
-import { Learner } from "@/types/learner";
 import { useMutation } from "@tanstack/react-query";
 import { InferRequestType } from "hono";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { ReinviteDialog } from "./LearnersTable";
+import { ReinviteDialog, TableLearner } from "./LearnersTable";
 
 const deleteLearnerFn = client.api.learners[":id"].$delete;
 const resendCertificateFn = client.api.learners[":id"].recertify.$post;
 
-const LearnerActions = ({ learner }: { learner: Learner }) => {
+const LearnerActions = ({ learner }: { learner: TableLearner }) => {
 	const router = useRouter();
 	const { mutate: deleteLearner } = useMutation({
 		mutationFn: async (input: InferRequestType<typeof deleteLearnerFn>) => {
@@ -80,6 +79,14 @@ const LearnerActions = ({ learner }: { learner: Learner }) => {
 							Resend Certificate
 						</DropdownMenuItem>
 					)}
+					<DropdownMenuItem
+						className="cursor-pointer"
+						onSelect={() =>
+							navigator.clipboard.writeText(learner.joinLink)
+						}
+					>
+						Copy join link
+					</DropdownMenuItem>
 					<DropdownMenuItem
 						className="cursor-pointer text-red-500 focus:text-red-500"
 						onSelect={() =>

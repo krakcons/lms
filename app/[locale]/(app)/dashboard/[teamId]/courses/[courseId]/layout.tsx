@@ -65,7 +65,7 @@ const Layout = async ({
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-col gap-4 rounded border p-4">
 					<div className="flex flex-wrap items-center gap-4">
-						<h1 className="break-all">
+						<h1 className="break-words">
 							{translate(course.translations, locale).name}
 						</h1>
 						<p className="rounded bg-muted p-1 px-3 text-sm text-muted-foreground">

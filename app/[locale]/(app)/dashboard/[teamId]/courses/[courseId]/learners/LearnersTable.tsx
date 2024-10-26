@@ -42,7 +42,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import LearnerActions from "./LearnerActions";
 
-const columnHelper = createColumnHelper<Learner & { module: Module | null }>();
+export type TableLearner = Learner & {
+	module: Module | null;
+	joinLink: string;
+};
+
+const columnHelper = createColumnHelper<TableLearner>();
 
 const reinvite = client.api.learners[":id"].reinvite.$post;
 
@@ -50,7 +55,7 @@ export const ReinviteDialog = ({
 	learner,
 	children,
 }: {
-	learner: Learner;
+	learner: TableLearner;
 	children: React.ReactNode;
 }) => {
 	const router = useRouter();
@@ -143,7 +148,15 @@ export const ReinviteDialog = ({
 	);
 };
 
-const StatusCell = ({ info }: { info: { row: { original: Learner } } }) => {
+const StatusCell = ({
+	info,
+}: {
+	info: {
+		row: {
+			original: TableLearner;
+		};
+	};
+}) => {
 	const status = info.row.original.status;
 	const router = useRouter();
 
@@ -261,7 +274,7 @@ const columns = [
 			);
 		},
 	}),
-	columnHelper.accessor<(row: Learner) => string, string>(
+	columnHelper.accessor<(row: TableLearner) => string, string>(
 		(row) =>
 			row.startedAt
 				? dayjs(row.startedAt).format("DD-MMM-YYYY HH:mm:ss")
@@ -289,7 +302,7 @@ const columns = [
 			},
 		}
 	),
-	columnHelper.accessor<(row: Learner) => string, string>(
+	columnHelper.accessor<(row: TableLearner) => string, string>(
 		(row) =>
 			row.completedAt
 				? dayjs(row.completedAt).format("DD-MMM-YYYY HH:mm:ss")
@@ -443,11 +456,7 @@ const columns = [
 	}),
 ];
 
-const LearnersTable = ({
-	learners,
-}: {
-	learners: (Learner & { module: Module | null })[];
-}) => {
+const LearnersTable = ({ learners }: { learners: TableLearner[] }) => {
 	const router = useRouter();
 	const { mutate: deleteLearners, isPending } = useMutation({
 		mutationFn: async (

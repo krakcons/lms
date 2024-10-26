@@ -28,12 +28,19 @@ const CopyText = async ({ text }: { text: string }) => {
 	);
 };
 
-const Table = async ({ courseId }: { courseId: string }) => {
+const Table = async ({
+	courseId,
+	teamId,
+}: {
+	courseId: string;
+	teamId: string;
+}) => {
 	const { user } = await getAuth();
 
 	if (!user) {
 		return null;
 	}
+	const team = await getTeam(teamId, user.id);
 
 	const learnerList = await db.query.learners.findMany({
 		where: eq(learners.courseId, courseId),
@@ -46,6 +53,11 @@ const Table = async ({ courseId }: { courseId: string }) => {
 		return {
 			...ExtendLearner(learner.module?.type).parse(learner),
 			module: learner.module,
+			joinLink:
+				team?.customDomain &&
+				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
+					? `https://${team.customDomain}/courses/${courseId}/join?learnerId=${learner.id}`
+					: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${courseId}/join?learnerId=${learner.id}`,
 		};
 	});
 
@@ -99,7 +111,7 @@ const Page = async ({
 			</div>
 			<Separator className="my-8" />
 			<Suspense fallback={<div>Loading...</div>}>
-				<Table courseId={courseId} />
+				<Table courseId={courseId} teamId={teamId} />
 			</Suspense>
 		</div>
 	);
