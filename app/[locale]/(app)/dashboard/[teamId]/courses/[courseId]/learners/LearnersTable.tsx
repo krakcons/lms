@@ -44,7 +44,7 @@ import LearnerActions from "./LearnerActions";
 
 export type TableLearner = Learner & {
 	module: Module | null;
-	joinLink: string;
+	joinLink?: string;
 };
 
 const columnHelper = createColumnHelper<TableLearner>();

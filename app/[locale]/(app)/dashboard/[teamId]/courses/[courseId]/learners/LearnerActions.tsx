@@ -79,14 +79,18 @@ const LearnerActions = ({ learner }: { learner: TableLearner }) => {
 							Resend Certificate
 						</DropdownMenuItem>
 					)}
-					<DropdownMenuItem
-						className="cursor-pointer"
-						onSelect={() =>
-							navigator.clipboard.writeText(learner.joinLink)
-						}
-					>
-						Copy join link
-					</DropdownMenuItem>
+					{learner.joinLink && (
+						<DropdownMenuItem
+							className="cursor-pointer"
+							onSelect={() => {
+								navigator.clipboard.writeText(
+									learner.joinLink!
+								);
+							}}
+						>
+							Copy Join Link
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuItem
 						className="cursor-pointer text-red-500 focus:text-red-500"
 						onSelect={() =>

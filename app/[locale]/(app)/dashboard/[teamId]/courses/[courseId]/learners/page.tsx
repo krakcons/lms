@@ -3,7 +3,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { redirect } from "@/lib/navigation";
-import { getAuth, getTeam } from "@/server/auth/actions";
+import { getAuth, getTeam, getUserRole } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
 import { ExtendLearner } from "@/types/learner";
@@ -49,15 +49,19 @@ const Table = async ({
 		},
 	});
 
+	const role = await getUserRole(teamId);
+
 	const extendedLearnerList = learnerList.map((learner) => {
 		return {
 			...ExtendLearner(learner.module?.type).parse(learner),
 			module: learner.module,
 			joinLink:
-				team?.customDomain &&
-				env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
-					? `https://${team.customDomain}/courses/${courseId}/join?learnerId=${learner.id}`
-					: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${courseId}/join?learnerId=${learner.id}`,
+				role === "owner"
+					? team?.customDomain &&
+						env.NEXT_PUBLIC_SITE_URL !== "http://localhost:3000"
+						? `https://${team.customDomain}/courses/${courseId}/join?learnerId=${learner.id}`
+						: `${env.NEXT_PUBLIC_SITE_URL}/play/${team?.id}/courses/${courseId}/join?learnerId=${learner.id}`
+					: undefined,
 		};
 	});
 
