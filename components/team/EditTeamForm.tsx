@@ -55,12 +55,12 @@ export const EditTeamForm = ({
 	const defaultTeam = translate(translations, language);
 	const [logoImageUrl, setLogoImageUrl] = useState<string | null>(
 		defaultTeam.logo
-			? `${env.NEXT_PUBLIC_R2_URL}/${defaultTeam.logo}`
+			? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${defaultTeam.logo}`
 			: null
 	);
 	const [faviconImageUrl, setFaviconImageUrl] = useState<string | null>(
 		defaultTeam.favicon
-			? `${env.NEXT_PUBLIC_R2_URL}/${defaultTeam.favicon}`
+			? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${defaultTeam.favicon}`
 			: null
 	);
 	const form = useForm<EditTeamForm>({
@@ -81,11 +81,11 @@ export const EditTeamForm = ({
 				?.name || ""
 		);
 		const logo = translate(translations, lang).logo
-			? `${env.NEXT_PUBLIC_R2_URL}/${translate(translations, lang).logo}`
+			? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${translate(translations, lang).logo}`
 			: null;
 		setLogoImageUrl(logo);
 		const favicon = translate(translations, lang).favicon
-			? `${env.NEXT_PUBLIC_R2_URL}/${translate(translations, lang).favicon}`
+			? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${translate(translations, lang).favicon}`
 			: null;
 		setFaviconImageUrl(favicon);
 	}, [lang, form, translations, defaultTeam.logo, defaultTeam.favicon]);

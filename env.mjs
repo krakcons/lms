@@ -7,7 +7,6 @@ export const env = createEnv({
 		RESEND_API_KEY: z.string().min(1),
 		CRON_SECRET: z.string().min(1),
 		SVIX_AUTH_TOKEN: z.string().min(1),
-		R2_ENDPOINT: z.string().min(1),
 		R2_SECRET: z.string().min(1),
 		R2_KEY_ID: z.string().min(1),
 		GOOGLE_CLIENT_ID: z.string().min(1),
@@ -18,12 +17,10 @@ export const env = createEnv({
 	},
 	client: {
 		NEXT_PUBLIC_SITE_URL: z.string().url(),
-		NEXT_PUBLIC_R2_URL: z.string().min(1),
 		NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(1),
 	},
 	experimental__runtimeEnv: {
 		NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-		NEXT_PUBLIC_R2_URL: process.env.NEXT_PUBLIC_R2_URL,
 		NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
 	},
 });

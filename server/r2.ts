@@ -14,7 +14,7 @@ const parser = new XMLParser({
 });
 
 export const getPresignedUrl = async (key: string) => {
-	const res = await r2.sign(`${env.R2_ENDPOINT}/${key}`, {
+	const res = await r2.sign(`${env.NEXT_PUBLIC_SITE_URL}/r2/${key}`, {
 		method: "PUT",
 		aws: {
 			signQuery: true,
@@ -28,7 +28,7 @@ export const deleteFolder = async (prefix: string) => {
 	let nextContinuationToken = null;
 	do {
 		const res = await r2.fetch(
-			`${env.R2_ENDPOINT}?list-type=2&prefix=${prefix}${nextContinuationToken ? `&continuation-token=${nextContinuationToken}` : ""}`,
+			`${env.NEXT_PUBLIC_SITE_URL}/r2?list-type=2&prefix=${prefix}${nextContinuationToken ? `&continuation-token=${nextContinuationToken}` : ""}`,
 			{
 				method: "GET",
 				headers: {
@@ -42,7 +42,7 @@ export const deleteFolder = async (prefix: string) => {
 		// Delete each object
 		const deletePromises = listObjectsData?.ListBucketResult?.Contents?.map(
 			(obj: any) => {
-				return r2.fetch(`${env.R2_ENDPOINT}/${obj.Key}`, {
+				return r2.fetch(`${env.NEXT_PUBLIC_SITE_URL}/r2/${obj.Key}`, {
 					method: "DELETE",
 				});
 			}

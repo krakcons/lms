@@ -137,7 +137,7 @@ export const learnersHandler = new Hono()
 				organization: teamTranslation.name,
 				href,
 				logo: teamTranslation.logo
-					? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
+					? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${teamTranslation.logo}`
 					: null,
 				text: {
 					title: t("Completion.title"),

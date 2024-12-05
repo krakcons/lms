@@ -79,7 +79,7 @@ const Page = async ({
 			date: t("Certificate.pdf.date"),
 		},
 		logo: teamTranslation.logo
-			? `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`
+			? `${env.NEXT_PUBLIC_SITE_URL}/cdn/${teamTranslation.logo}`
 			: undefined,
 	};
 

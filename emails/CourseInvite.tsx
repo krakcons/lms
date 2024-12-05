@@ -18,7 +18,7 @@ export const CourseInvite = ({
 	href = "https://google.com",
 	course = "Golfing Tutorial",
 	organization = "CompanionLink",
-	logo = `${env.NEXT_PUBLIC_R2_URL}/ycod8h4c322hjry/en/logo`,
+	logo = `${env.NEXT_PUBLIC_SITE_URL}/cdn/ycod8h4c322hjry/en/logo`,
 	text = {
 		title: "Invitation",
 		invite: "invites you to join the following:",

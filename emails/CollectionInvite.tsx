@@ -17,7 +17,7 @@ import {
 export const CollectionInvite = ({
 	collection = "Volunteer Training",
 	organization = "CompanionLink",
-	logo = `${env.NEXT_PUBLIC_R2_URL}/466a5korjz3hykf/en/logo?1717019590878`,
+	logo = `${env.NEXT_PUBLIC_SITE_URL}/cdn/466a5korjz3hykf/en/logo?1717019590878`,
 	text = {
 		title: "Invitation",
 		invite: "invites you to join the following:",

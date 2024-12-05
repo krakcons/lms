@@ -10,9 +10,28 @@ const nextConfig = {
 	pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
 	async rewrites() {
 		return [
+			// CDN with and without locale
+			{
+				source: "/:locale/cdn/:slug*",
+				destination: "https://cdn.revivios.com/:slug*",
+				locale: false,
+			},
+			{
+				source: "/cdn/:slug*",
+				destination: "https://cdn.revivios.com/:slug*",
+				locale: false,
+			},
+			// R2 Upload with and without locale
 			{
 				source: "/:locale/r2/:slug*",
-				destination: "https://cdn.revivios.com/:slug*",
+				destination:
+					"https://273ffde8e5ef0bc865698a233a283028.r2.cloudflarestorage.com/krak-lcds/:slug*",
+				locale: false,
+			},
+			{
+				source: "/r2/:slug*",
+				destination:
+					"https://273ffde8e5ef0bc865698a233a283028.r2.cloudflarestorage.com/krak-lcds/:slug*",
 				locale: false,
 			},
 		];

@@ -37,10 +37,10 @@ export const playMetadata = async ({
 		title: `${prefix}${courseTranslation.name} | ${teamTranslation.name}`,
 		description: courseTranslation.description,
 		openGraph: {
-			images: [`${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.logo}`],
+			images: [`${env.NEXT_PUBLIC_SITE_URL}/cdn/${teamTranslation.logo}`],
 		},
 		icons: {
-			icon: `${env.NEXT_PUBLIC_R2_URL}/${teamTranslation.favicon}`,
+			icon: `${env.NEXT_PUBLIC_SITE_URL}/cdn/${teamTranslation.favicon}`,
 		},
 	};
 };

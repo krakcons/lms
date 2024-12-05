@@ -117,7 +117,7 @@ const Page = async ({
 	const extendedLearner = ExtendLearner(learner.module.type).parse(learner);
 
 	const { scorm, resources } = await parseCourse(
-		`${env.NEXT_PUBLIC_R2_URL}/${teamId}/courses/${courseId}/${learner.module.language}${learner.module.versionNumber === 1 ? "" : "_" + learner.module.versionNumber}/imsmanifest.xml`
+		`${env.NEXT_PUBLIC_SITE_URL}/cdn/${teamId}/courses/${courseId}/${learner.module.language}${learner.module.versionNumber === 1 ? "" : "_" + learner.module.versionNumber}/imsmanifest.xml`
 	);
 
 	return (
@@ -126,7 +126,7 @@ const Page = async ({
 				<LMSProvider
 					type={`${scorm.metadata.schemaversion}`}
 					learner={extendedLearner}
-					url={`/${learner.module.language}/r2/${teamId}/courses/${courseId}/${learner.module.language}${learner.module.versionNumber === 1 ? "" : "_" + learner.module.versionNumber}/${resources[0].href}`}
+					url={`/${learner.module.language}/cdn/${teamId}/courses/${courseId}/${learner.module.language}${learner.module.versionNumber === 1 ? "" : "_" + learner.module.versionNumber}/${resources[0].href}`}
 					course={
 						translate(learner.module.course.translations, locale)
 							.name
