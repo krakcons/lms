@@ -6,6 +6,7 @@ export const r2 = new AwsClient({
 	accessKeyId: env.R2_KEY_ID,
 	secretAccessKey: env.R2_SECRET,
 	region: "auto",
+	service: "s3",
 });
 
 const parser = new XMLParser({
@@ -14,21 +15,23 @@ const parser = new XMLParser({
 });
 
 export const getPresignedUrl = async (key: string) => {
-	const res = await r2.sign(`${env.NEXT_PUBLIC_SITE_URL}/r2/${key}`, {
+	const res = await r2.sign(`${env.R2_ENDPOINT}/${key}`, {
 		method: "PUT",
 		aws: {
 			signQuery: true,
 		},
 	});
+	const url = new URL(res.url);
+	// url.searchParams.set("X-Amz-Expires", "86400");
 
-	return res.url;
+	return url.toString();
 };
 
 export const deleteFolder = async (prefix: string) => {
 	let nextContinuationToken = null;
 	do {
 		const res = await r2.fetch(
-			`${env.NEXT_PUBLIC_SITE_URL}/r2?list-type=2&prefix=${prefix}${nextContinuationToken ? `&continuation-token=${nextContinuationToken}` : ""}`,
+			`${env.R2_ENDPOINT}?list-type=2&prefix=${prefix}${nextContinuationToken ? `&continuation-token=${nextContinuationToken}` : ""}`,
 			{
 				method: "GET",
 				headers: {
@@ -42,7 +45,7 @@ export const deleteFolder = async (prefix: string) => {
 		// Delete each object
 		const deletePromises = listObjectsData?.ListBucketResult?.Contents?.map(
 			(obj: any) => {
-				return r2.fetch(`${env.NEXT_PUBLIC_SITE_URL}/r2/${obj.Key}`, {
+				return r2.fetch(`${env.R2_ENDPOINT}/${obj.Key}`, {
 					method: "DELETE",
 				});
 			}
