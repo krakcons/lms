@@ -3,11 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SvixErrorSchema, svix } from "@/server/svix";
 import Docs from "./docs.mdx";
 
-const Page = async ({
-	params: { courseId },
-}: {
-	params: { courseId: string };
-}) => {
+const Page = async ({ params }: { params: Promise<{ courseId: string }> }) => {
+	const { courseId } = await params;
 	let url = undefined;
 	try {
 		const dashboard = await svix.authentication.appPortalAccess(

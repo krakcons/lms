@@ -1,10 +1,11 @@
 import CollectionInvite from "@/emails/CollectionInvite";
 import CourseCompletion from "@/emails/CourseCompletion";
 import { CourseInvite } from "@/emails/CourseInvite";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners, teams } from "@/server/db/schema";
+import { generateId } from "@/server/helpers";
 import { Collection, CollectionTranslation } from "@/types/collections";
 import { Course, CourseTranslation } from "@/types/course";
 import {
@@ -17,7 +18,6 @@ import { Language } from "@/types/translations";
 import { renderAsync } from "@react-email/components";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import { generateId } from "lucia";
 import { getTranslations } from "next-intl/server";
 import React, { cache } from "react";
 import { isResendVerified, resend } from "../resend";
@@ -168,7 +168,7 @@ export const learnersData = {
 				to: learner.email,
 				subject: courseTranslation.name,
 				from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
-				reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+				replyTo: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 			});
 
 			if (error) {
@@ -406,7 +406,7 @@ export const learnersData = {
 			to: email,
 			subject: `${t("CollectionInvite.subject")} ${collectionTranslation.name}`,
 			from: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			replyTo: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		if (error) {
@@ -480,7 +480,7 @@ export const learnersData = {
 			to: email,
 			subject: `${t("CourseInvite.subject")} ${courseTranslation.name}`,
 			from: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
+			replyTo: `${teamTranslation.name} <noreply@${team.customDomain && domainVerified ? team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		if (error) {

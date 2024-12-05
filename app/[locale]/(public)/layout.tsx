@@ -1,14 +1,16 @@
 import { buttonVariants } from "@/components/ui/button";
-import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
+import { Link } from "@/lib/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 const Layout = async ({
 	children,
-	params: { locale },
+	params,
 }: {
-	params: { locale: string };
+	params: Promise<{ locale: string }>;
 	children: React.ReactNode;
 }) => {
-	unstable_setRequestLocale(locale);
+	const { locale } = await params;
+	setRequestLocale(locale);
 
 	const t = await getTranslations({
 		locale,
@@ -19,14 +21,14 @@ const Layout = async ({
 		<>
 			<header className="border-b-elevation-4 flex h-14 w-full items-center justify-center border-b px-6">
 				<nav className="flex w-full max-w-screen-lg items-center justify-end">
-					<a
+					<Link
 						href="/auth/google"
 						className={buttonVariants({
 							className: "mr-4",
 						})}
 					>
 						{t("get-started")}
-					</a>
+					</Link>
 				</nav>
 			</header>
 			{children}

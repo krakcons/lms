@@ -10,11 +10,12 @@ import { notFound } from "next/navigation";
 
 const Layout = async ({
 	children,
-	params: { courseId, teamId, locale },
+	params,
 }: {
 	children: React.ReactNode;
-	params: { courseId: string; teamId: string; locale: string };
+	params: Promise<{ courseId: string; teamId: string; locale: string }>;
 }) => {
+	const { courseId, teamId, locale } = await params;
 	const items = [
 		{
 			href: `/dashboard/${teamId}/courses/${courseId}/learners`,

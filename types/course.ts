@@ -15,20 +15,13 @@ export const SelectCourseSchema = CourseSchema.pick({
 });
 export type SelectCourse = z.infer<typeof SelectCourseSchema>;
 
-export const UpdateCourseSchema = CourseSchema.pick({
-	id: true,
-	name: true,
-	description: true,
-});
-export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;
+export const CourseTranslationSchema = createSelectSchema(courseTranslations);
+export type CourseTranslation = z.infer<typeof CourseTranslationSchema>;
 
 export const UpdateCourseSettingsSchema = CourseSchema.pick({
 	completionStatus: true,
 });
 export type UpdateCourseSettings = z.infer<typeof UpdateCourseSettingsSchema>;
-
-export const CourseTranslationSchema = createSelectSchema(courseTranslations);
-export type CourseTranslation = z.infer<typeof CourseTranslationSchema>;
 
 export const CreateCourseSchema = CourseTranslationSchema.pick({
 	language: true,

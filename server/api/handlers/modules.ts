@@ -4,6 +4,7 @@ import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
 import { modulesData } from "@/server/db/modules";
 import { learners, modules } from "@/server/db/schema";
+import { generateId } from "@/server/helpers";
 import { deleteFolder } from "@/server/r2";
 import { svix } from "@/server/svix";
 import { CreateLearnerSchema, ExtendLearner } from "@/types/learner";
@@ -12,7 +13,6 @@ import { zValidator } from "@hono/zod-validator";
 import { and, eq, max } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { generateId } from "lucia";
 import { authedMiddleware } from "../middleware";
 
 export const modulesHandler = new Hono()

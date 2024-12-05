@@ -1,5 +1,5 @@
 import CourseCompletion from "@/emails/CourseCompletion";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learnersData } from "@/server/db/learners";
@@ -158,7 +158,7 @@ export const learnersHandler = new Hono()
 			to: learner.email,
 			subject: courseTranslation.name,
 			from: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
-			reply_to: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
+			replyTo: `${teamTranslation.name} <noreply@${learner.course.team.customDomain && domainVerified ? learner.course.team.customDomain : "lcds.krakconsultants.com"}>`,
 		});
 
 		if (error) {

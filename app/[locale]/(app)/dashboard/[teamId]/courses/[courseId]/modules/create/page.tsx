@@ -8,10 +8,11 @@ export const runtime = "nodejs";
 export const fetchCache = "force-no-store";
 
 const Page = async ({
-	params: { courseId, teamId },
+	params,
 }: {
-	params: { courseId: string; teamId: string };
+	params: Promise<{ courseId: string; teamId: string }>;
 }) => {
+	const { courseId, teamId } = await params;
 	unstable_noStore();
 	const moduleList = await db.query.modules.findMany({
 		where: and(eq(modules.courseId, courseId)),

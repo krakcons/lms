@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { redirect } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { getAuth, getTeam } from "@/server/auth/actions";
@@ -304,7 +304,8 @@ const EmailStatus = async ({ team }: { team: Team }) => {
 	);
 };
 
-const Page = async ({ params: { teamId } }: { params: { teamId: string } }) => {
+const Page = async ({ params }: { params: Promise<{ teamId: string }> }) => {
+	const { teamId } = await params;
 	const { user } = await getAuth();
 
 	if (!user) {

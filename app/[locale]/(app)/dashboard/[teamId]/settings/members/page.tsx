@@ -9,13 +9,8 @@ import { notFound } from "next/navigation";
 import { AddMemberDialog } from "./AddMemberDialog";
 import DeleteMember from "./DeleteMember";
 
-const Page = async ({
-	params: { teamId },
-}: {
-	params: {
-		teamId: string;
-	};
-}) => {
+const Page = async ({ params }: { params: Promise<{ teamId: string }> }) => {
+	const { teamId } = await params;
 	unstable_noStore();
 	const team = await db.query.teams.findFirst({
 		where: eq(teams.id, teamId),

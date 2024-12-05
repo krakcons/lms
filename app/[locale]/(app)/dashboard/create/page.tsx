@@ -15,16 +15,11 @@ import { CreateTeam, CreateTeamSchema } from "@/types/team";
 import { Language } from "@/types/translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-const Page = ({
-	params: { locale },
-}: {
-	params: {
-		locale: Language;
-	};
-}) => {
+const Page = () => {
+	const { locale } = useParams<{ locale: Language }>();
 	const router = useRouter();
 	const { mutate, isPending } = useMutation({
 		mutationFn: async (input: CreateTeam) => {

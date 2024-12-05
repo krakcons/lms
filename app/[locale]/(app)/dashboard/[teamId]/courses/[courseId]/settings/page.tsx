@@ -6,11 +6,8 @@ import { unstable_noStore } from "next/cache";
 import CourseSettingsForm from "./CourseSettingsForm";
 import DeleteCourseDialog from "./DeleteCourseDialog";
 
-const Page = async ({
-	params: { courseId },
-}: {
-	params: { courseId: string };
-}) => {
+const Page = async ({ params }: { params: Promise<{ courseId: string }> }) => {
+	const { courseId } = await params;
 	unstable_noStore();
 	const course = await db.query.courses.findFirst({
 		where: eq(courses.id, courseId),

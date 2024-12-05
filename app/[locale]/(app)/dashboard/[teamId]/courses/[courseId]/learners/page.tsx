@@ -1,7 +1,7 @@
 import CopyButton from "@/components/CopyButton";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { redirect } from "@/lib/navigation";
 import { getAuth, getTeam, getUserRole } from "@/server/auth/actions";
 import { db } from "@/server/db/db";
@@ -69,10 +69,11 @@ const Table = async ({
 };
 
 const Page = async ({
-	params: { courseId, teamId },
+	params,
 }: {
-	params: { courseId: string; teamId: string };
+	params: Promise<{ courseId: string; teamId: string }>;
 }) => {
+	const { courseId, teamId } = await params;
 	const { user } = await getAuth();
 
 	if (!user) {

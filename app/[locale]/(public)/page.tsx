@@ -1,11 +1,12 @@
 import { buttonVariants } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
-import { unstable_setRequestLocale } from "next-intl/server";
+import { Link } from "@/lib/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-const Home = ({ params: { locale } }: { params: { locale: string } }) => {
-	unstable_setRequestLocale(locale);
+const Home = async ({ params }: { params: Promise<{ locale: string }> }) => {
+	const { locale } = await params;
+	setRequestLocale(locale);
 
-	const t = useTranslations("Home");
+	const t = await getTranslations({ locale, namespace: "Home" });
 
 	return (
 		<main className="mx-auto w-full max-w-screen-xl">
@@ -19,14 +20,14 @@ const Home = ({ params: { locale } }: { params: { locale: string } }) => {
 				<div className="mt-6 flex sm:mt-12">
 					<p>{t("description")}</p>
 				</div>
-				<a
+				<Link
 					href="/auth/google"
 					className={buttonVariants({
 						className: "mt-8 sm:mt-12",
 					})}
 				>
 					{t("get-started")}
-				</a>
+				</Link>
 			</div>
 		</main>
 	);

@@ -7,14 +7,15 @@ import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
 const Page = async ({
-	params: { locale, teamId, courseId },
+	params,
 }: {
-	params: {
+	params: Promise<{
 		locale: Language;
 		teamId: string;
 		courseId: string;
-	};
+	}>;
 }) => {
+	const { locale, teamId, courseId } = await params;
 	unstable_noStore();
 	const course = await db.query.courses.findFirst({
 		where: and(eq(courses.id, courseId), eq(courses.teamId, teamId)),

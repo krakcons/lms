@@ -1,11 +1,11 @@
 import { db } from "@/server/db/db";
 import { keys } from "@/server/db/schema";
+import { generateId } from "@/server/helpers";
 import { CreateKeySchema } from "@/types/keys";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { generateId } from "lucia";
 import { authedMiddleware } from "../middleware";
 
 export const keysHandler = new Hono()

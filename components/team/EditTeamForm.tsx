@@ -18,7 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { locales } from "@/i18n";
 import { client } from "@/lib/api";
 import { FileSchema } from "@/lib/module";

@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { coursesData } from "@/server/db/courses";
 import { db } from "@/server/db/db";
 import {
@@ -11,6 +11,7 @@ import {
 	users,
 	usersToTeams,
 } from "@/server/db/schema";
+import { generateId } from "@/server/helpers";
 import { deleteFolder, getPresignedUrl } from "@/server/r2";
 import { resend } from "@/server/resend";
 import {
@@ -23,7 +24,6 @@ import { zValidator } from "@hono/zod-validator";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { generateId } from "lucia";
 import { z } from "zod";
 import {
 	authedMiddleware,

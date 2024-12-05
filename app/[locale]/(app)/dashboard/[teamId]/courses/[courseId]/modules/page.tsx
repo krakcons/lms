@@ -19,10 +19,11 @@ import { redirect } from "next/navigation";
 import DeleteModule from "./DeleteModule";
 
 const Page = async ({
-	params: { courseId, teamId },
+	params,
 }: {
-	params: { courseId: string; teamId: string };
+	params: Promise<{ courseId: string; teamId: string }>;
 }) => {
+	const { courseId, teamId } = await params;
 	unstable_noStore();
 	const { user } = await getAuth();
 

@@ -19,10 +19,3 @@ export const UploadModuleSchema = createInsertSchema(modules).omit({
 	versionNumber: true,
 });
 export type UploadModule = z.infer<typeof UploadModuleSchema>;
-
-export const UpdateModuleSchema = ModuleSchema.pick({
-	id: true,
-	name: true,
-	description: true,
-});
-export type UpdateModule = z.infer<typeof UpdateModuleSchema>;

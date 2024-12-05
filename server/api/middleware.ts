@@ -1,11 +1,10 @@
-import { lucia } from "@/server/auth/lucia";
+import { validateSessionToken } from "@/server/auth";
 import { db } from "@/server/db/db";
 import { keys, usersToTeams } from "@/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { getTeam } from "../auth/actions";
-
 export const authedMiddleware: MiddlewareHandler<{
 	Variables: {
 		teamId: string;
@@ -27,7 +26,7 @@ export const authedMiddleware: MiddlewareHandler<{
 			return c.text("Invalid API key", 401);
 		}
 	} else if (sessionId) {
-		const user = await lucia.validateSession(sessionId);
+		const user = await validateSessionToken(sessionId);
 
 		if (!user.user) {
 			return c.text("Invalid session", 401);
@@ -63,7 +62,7 @@ export const userMiddleware: MiddlewareHandler<{
 	const sessionId = getCookie(c, "auth_session");
 
 	if (sessionId) {
-		const user = await lucia.validateSession(sessionId);
+		const user = await validateSessionToken(sessionId);
 
 		if (!user.user) {
 			return c.text("Invalid session", 401);

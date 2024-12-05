@@ -8,10 +8,11 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 const Page = async ({
-	params: { courseId, locale },
+	params,
 }: {
-	params: { courseId: string; locale: Language };
+	params: Promise<{ courseId: string; locale: Language }>;
 }) => {
+	const { courseId, locale } = await params;
 	const { user } = await getAuth();
 
 	if (!user) {

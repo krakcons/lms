@@ -14,18 +14,20 @@ export const GET = async () => {
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
 
-	const url: URL = await google.createAuthorizationURL(state, codeVerifier, {
-		scopes: ["profile", "email"],
-	});
+	const url: URL = await google.createAuthorizationURL(state, codeVerifier, [
+		"profile",
+		"email",
+	]);
 
-	cookies().set("state", state, {
+	const cookieStore = await cookies();
+	cookieStore.set("state", state, {
 		secure: process.env.NODE_ENV === "production",
 		path: "/",
 		httpOnly: true,
 		maxAge: 60 * 10, // 10 min
 	});
 
-	cookies().set("codeVerifier", codeVerifier, {
+	cookieStore.set("codeVerifier", codeVerifier, {
 		secure: process.env.NODE_ENV === "production",
 		path: "/",
 		httpOnly: true,

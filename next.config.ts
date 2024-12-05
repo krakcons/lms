@@ -1,11 +1,13 @@
 import createMDX from "@next/mdx";
+import { NextConfig } from "next";
 import { withAxiom } from "next-axiom";
 import nextIntl from "next-intl/plugin";
 
+import "./env";
+
 const withNextIntl = nextIntl();
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
 	reactStrictMode: true,
 	pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
 	async rewrites() {
@@ -76,6 +78,7 @@ const nextConfig = {
 		ppr: true,
 		mdxRs: false,
 	},
+	transpilePackages: ["t3-oss/env-nextjs"],
 };
 
 const withMDX = createMDX({

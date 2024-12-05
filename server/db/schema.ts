@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { InferSelectModel, relations, sql } from "drizzle-orm";
 import {
 	boolean,
 	integer,
@@ -10,11 +10,15 @@ import {
 	timestamp,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { generateId } from "lucia";
+import { generateId } from "../helpers";
+
+// Enums
 
 export const moduleTypeEnum = pgEnum("module_type", ["1.2", "2004"]);
 export const languageEnum = pgEnum("language_enum", ["en", "fr"]);
 export const roleEnum = pgEnum("role_enum", ["owner", "member"]);
+
+// Tables
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -22,22 +26,11 @@ export const users = pgTable("users", {
 	googleId: text("googleId").unique(),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-	usersToTeams: many(usersToTeams),
-}));
-
 export const teams = pgTable("teams", {
 	id: text("id").primaryKey(),
 	customDomain: text("customDomain").unique(),
 	resendDomainId: text("resendDomainId"),
 });
-
-export const teamRelations = relations(teams, ({ many }) => ({
-	usersToTeams: many(usersToTeams),
-	courses: many(courses),
-	keys: many(keys),
-	translations: many(teamTranslations),
-}));
 
 export const usersToTeams = pgTable(
 	"users_to_teams",
@@ -48,23 +41,8 @@ export const usersToTeams = pgTable(
 			.notNull()
 			.default(sql`'member'`),
 	},
-	(t) => ({
-		pk: primaryKey({
-			columns: [t.userId, t.teamId],
-		}),
-	})
+	(t) => [primaryKey({ columns: [t.userId, t.teamId] })]
 );
-
-export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
-	user: one(users, {
-		fields: [usersToTeams.userId],
-		references: [users.id],
-	}),
-	team: one(teams, {
-		fields: [usersToTeams.teamId],
-		references: [teams.id],
-	}),
-}));
 
 export const keys = pgTable("keys", {
 	id: text("id")
@@ -75,13 +53,6 @@ export const keys = pgTable("keys", {
 	key: text("key").notNull(),
 });
 
-export const keysRelations = relations(keys, ({ one }) => ({
-	team: one(teams, {
-		fields: [keys.teamId],
-		references: [teams.id],
-	}),
-}));
-
 export const sessions = pgTable("sessions", {
 	id: text("id").primaryKey(),
 	userId: text("userId").notNull(),
@@ -91,14 +62,6 @@ export const sessions = pgTable("sessions", {
 	}).notNull(),
 });
 
-export const sessionRelations = relations(sessions, ({ one }) => ({
-	userId: one(users, {
-		fields: [sessions.userId],
-		references: [users.id],
-		relationName: "userId",
-	}),
-}));
-
 export const collections = pgTable("collections", {
 	id: text("id")
 		.primaryKey()
@@ -107,40 +70,13 @@ export const collections = pgTable("collections", {
 	teamId: text("teamId").notNull(),
 });
 
-export const collectionsRelations = relations(collections, ({ one, many }) => ({
-	team: one(teams, {
-		fields: [collections.teamId],
-		references: [teams.id],
-	}),
-	collectionsToCourses: many(collectionsToCourses),
-	translations: many(collectionTranslations),
-}));
-
 export const collectionsToCourses = pgTable(
 	"collections_to_courses",
 	{
 		collectionId: text("collectionId").notNull(),
 		courseId: text("courseId").notNull(),
 	},
-	(t) => ({
-		pk: primaryKey({
-			columns: [t.collectionId, t.courseId],
-		}),
-	})
-);
-
-export const collectionsToCoursesRelations = relations(
-	collectionsToCourses,
-	({ one }) => ({
-		collection: one(collections, {
-			fields: [collectionsToCourses.collectionId],
-			references: [collections.id],
-		}),
-		course: one(courses, {
-			fields: [collectionsToCourses.courseId],
-			references: [courses.id],
-		}),
-	})
+	(t) => [primaryKey({ columns: [t.collectionId, t.courseId] })]
 );
 
 export const courses = pgTable("courses", {
@@ -154,16 +90,6 @@ export const courses = pgTable("courses", {
 		.default(sql`'passed'`),
 });
 
-export const coursesRelations = relations(courses, ({ one, many }) => ({
-	team: one(teams, {
-		fields: [courses.teamId],
-		references: [teams.id],
-	}),
-	collectionsToCourses: many(collectionsToCourses),
-	modules: many(modules),
-	translations: many(courseTranslations),
-}));
-
 export const modules = pgTable("modules", {
 	id: text("id")
 		.primaryKey()
@@ -174,14 +100,6 @@ export const modules = pgTable("modules", {
 	type: moduleTypeEnum("type").notNull(),
 	versionNumber: integer("versionNumber").notNull().default(1),
 });
-
-export const modulesRelations = relations(modules, ({ many, one }) => ({
-	course: one(courses, {
-		fields: [modules.courseId],
-		references: [courses.id],
-	}),
-	learners: many(learners),
-}));
 
 export const learners = pgTable(
 	"learners",
@@ -210,10 +128,135 @@ export const learners = pgTable(
 			.notNull()
 			.default({}),
 	},
-	(t) => ({
-		unq_learner: uniqueIndex("unq_learner").on(t.courseId, t.email),
+	(t) => [uniqueIndex("unq_learner").on(t.courseId, t.email)]
+);
+
+export const courseTranslations = pgTable(
+	"course_translations",
+	{
+		courseId: text("courseId").notNull(),
+		language: languageEnum("language").notNull(),
+		default: boolean("default").notNull(),
+		name: text("name").notNull(),
+		description: text("description").notNull(),
+	},
+	(t) => [primaryKey({ columns: [t.courseId, t.language] })]
+);
+
+export const teamTranslations = pgTable(
+	"team_translations",
+	{
+		teamId: text("teamId").notNull(),
+		language: languageEnum("language").notNull(),
+		default: boolean("default").notNull(),
+		name: text("name").notNull(),
+		logo: text("logo"),
+		favicon: text("favicon"),
+	},
+	(t) => [primaryKey({ columns: [t.teamId, t.language] })]
+);
+
+export const collectionTranslations = pgTable(
+	"collection_translations",
+	{
+		collectionId: text("collectionId").notNull(),
+		language: languageEnum("language").notNull(),
+		default: boolean("default").notNull(),
+		name: text("name").notNull(),
+		description: text("description").notNull(),
+	},
+	(t) => [primaryKey({ columns: [t.collectionId, t.language] })]
+);
+
+// Relations
+
+export const usersRelations = relations(users, ({ many }) => ({
+	usersToTeams: many(usersToTeams),
+}));
+
+export const teamRelations = relations(teams, ({ many }) => ({
+	usersToTeams: many(usersToTeams),
+	courses: many(courses),
+	keys: many(keys),
+	translations: many(teamTranslations),
+}));
+
+export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
+	user: one(users, {
+		fields: [usersToTeams.userId],
+		references: [users.id],
+	}),
+	team: one(teams, {
+		fields: [usersToTeams.teamId],
+		references: [teams.id],
+	}),
+}));
+
+export const sessionRelations = relations(sessions, ({ one }) => ({
+	userId: one(users, {
+		fields: [sessions.userId],
+		references: [users.id],
+		relationName: "userId",
+	}),
+}));
+
+export const collectionsRelations = relations(collections, ({ one, many }) => ({
+	team: one(teams, {
+		fields: [collections.teamId],
+		references: [teams.id],
+	}),
+	collectionsToCourses: many(collectionsToCourses),
+	translations: many(collectionTranslations),
+}));
+
+export const collectionsToCoursesRelations = relations(
+	collectionsToCourses,
+	({ one }) => ({
+		collection: one(collections, {
+			fields: [collectionsToCourses.collectionId],
+			references: [collections.id],
+		}),
+		course: one(courses, {
+			fields: [collectionsToCourses.courseId],
+			references: [courses.id],
+		}),
 	})
 );
+
+export const modulesRelations = relations(modules, ({ many, one }) => ({
+	course: one(courses, {
+		fields: [modules.courseId],
+		references: [courses.id],
+	}),
+	learners: many(learners),
+}));
+
+export const keysRelations = relations(keys, ({ one }) => ({
+	team: one(teams, {
+		fields: [keys.teamId],
+		references: [teams.id],
+	}),
+}));
+
+export const collectionTranslationsRelations = relations(
+	collectionTranslations,
+	({ one }) => ({
+		collection: one(collections, {
+			fields: [collectionTranslations.collectionId],
+			references: [collections.id],
+		}),
+	})
+);
+
+export const coursesRelations = relations(courses, ({ one, many }) => ({
+	team: one(teams, {
+		fields: [courses.teamId],
+		references: [teams.id],
+	}),
+	collectionsToCourses: many(collectionsToCourses),
+	modules: many(modules),
+	translations: many(courseTranslations),
+}));
 
 export const learnersRelations = relations(learners, ({ one }) => ({
 	module: one(modules, {
@@ -226,18 +269,12 @@ export const learnersRelations = relations(learners, ({ one }) => ({
 	}),
 }));
 
-export const courseTranslations = pgTable(
-	"course_translations",
-	{
-		courseId: text("courseId").notNull(),
-		language: languageEnum("language").notNull(),
-		default: boolean("default").notNull(),
-		name: text("name").notNull(),
-		description: text("description").notNull(),
-	},
-	(t) => ({
-		pk: primaryKey({
-			columns: [t.courseId, t.language],
+export const teamTranslationsRelations = relations(
+	teamTranslations,
+	({ one }) => ({
+		team: one(teams, {
+			fields: [teamTranslations.teamId],
+			references: [teams.id],
 		}),
 	})
 );
@@ -252,55 +289,36 @@ export const courseTranslationsRelations = relations(
 	})
 );
 
-export const teamTranslations = pgTable(
-	"team_translations",
-	{
-		teamId: text("teamId").notNull(),
-		language: languageEnum("language").notNull(),
-		default: boolean("default").notNull(),
-		name: text("name").notNull(),
-		logo: text("logo"),
-		favicon: text("favicon"),
-	},
-	(t) => ({
-		pk: primaryKey({
-			columns: [t.teamId, t.language],
-		}),
-	})
-);
-
-export const teamTranslationsRelations = relations(
-	teamTranslations,
-	({ one }) => ({
-		team: one(teams, {
-			fields: [teamTranslations.teamId],
-			references: [teams.id],
-		}),
-	})
-);
-
-export const collectionTranslations = pgTable(
-	"collection_translations",
-	{
-		collectionId: text("collectionId").notNull(),
-		language: languageEnum("language").notNull(),
-		default: boolean("default").notNull(),
-		name: text("name").notNull(),
-		description: text("description").notNull(),
-	},
-	(t) => ({
-		pk: primaryKey({
-			columns: [t.collectionId, t.language],
-		}),
-	})
-);
-
-export const collectionTranslationsRelations = relations(
+export const tableSchemas = {
+	users,
+	sessions,
+	teams,
+	usersToTeams,
+	keys,
+	collections,
+	collectionsToCourses,
+	courses,
+	modules,
+	learners,
+	courseTranslations,
 	collectionTranslations,
-	({ one }) => ({
-		collection: one(collections, {
-			fields: [collectionTranslations.collectionId],
-			references: [collections.id],
-		}),
-	})
-);
+	teamTranslations,
+};
+
+export const relationSchemas = {
+	usersRelations,
+	sessionRelations,
+	teamRelations,
+	coursesRelations,
+	learnersRelations,
+	usersToTeamsRelations,
+	collectionTranslationsRelations,
+	courseTranslationsRelations,
+	teamTranslationsRelations,
+	collectionsRelations,
+	collectionsToCoursesRelations,
+	modulesRelations,
+};
+
+export type User = InferSelectModel<typeof users>;
+export type Session = InferSelectModel<typeof sessions>;

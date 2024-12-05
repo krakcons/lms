@@ -1,15 +1,16 @@
 "use server";
 
 import { redirect } from "@/lib/navigation";
-import { lucia } from "@/server/auth/lucia";
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { invalidateSession, validateSessionToken } from ".";
 import { db } from "../db/db";
 import { usersToTeams } from "../db/schema";
 
 export const getAuth = cache(async () => {
-	const sessionId = cookies().get("auth_session");
+	const cookieStore = await cookies();
+	const sessionId = cookieStore.get("auth_session");
 
 	if (!sessionId?.value) {
 		return {
@@ -18,16 +19,16 @@ export const getAuth = cache(async () => {
 		};
 	}
 
-	return await lucia.validateSession(sessionId.value);
+	return await validateSessionToken(sessionId.value);
 });
 
 export const logout = async () => {
-	const session = cookies().get("auth_session");
+	const cookieStore = await cookies();
+	const session = await cookieStore.get("auth_session");
 	if (!session?.value) return;
-	const blankCookie = lucia.createBlankSessionCookie();
-	cookies().set(blankCookie.name, blankCookie.value, blankCookie.attributes);
-	cookies().delete("teamId");
-	await lucia.invalidateSession(session.value);
+	await cookieStore.delete("auth_session");
+	await cookieStore.delete("teamId");
+	await invalidateSession(session.value);
 };
 
 export const getTeam = cache(async (id: string, userId: string) => {

@@ -1,6 +1,6 @@
 import { Tailwind } from "@/components/email/Tailwind";
 import { buttonVariants } from "@/components/ui/button";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import {
 	Body,
 	Button,

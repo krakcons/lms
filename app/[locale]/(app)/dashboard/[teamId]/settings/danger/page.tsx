@@ -16,14 +16,10 @@ import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 
-const Page = ({
-	params: { teamId },
-}: {
-	params: {
-		teamId: string;
-	};
-}) => {
+const Page = () => {
+	const { teamId } = useParams<{ teamId: string }>();
 	const router = useRouter();
 	const deleteMutation = useMutation({
 		mutationFn: async () => {

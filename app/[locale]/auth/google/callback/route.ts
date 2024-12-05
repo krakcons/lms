@@ -1,9 +1,8 @@
-import { lucia } from "@/server/auth/lucia";
+import { createSession, generateSessionToken } from "@/server/auth";
 import { google } from "@/server/auth/providers";
-import { db } from "@/server/db/db";
-import { users } from "@/server/db/schema";
+import { db, users } from "@/server/db/db";
+import { generateId } from "@/server/helpers";
 import { eq } from "drizzle-orm";
-import { generateId } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
@@ -23,25 +22,25 @@ const GoogleCallbackSchema = z
 export const GET = async (req: NextRequest) => {
 	// Validation
 	const searchParams = req.nextUrl.searchParams;
+	const cookieStore = await cookies();
 
 	const { code, storedCodeVerifier } = GoogleCallbackSchema.parse({
 		code: searchParams.get("code"),
 		state: searchParams.get("state"),
-		storedState: cookies().get("state")?.value,
-		storedCodeVerifier: cookies().get("codeVerifier")?.value,
+		storedState: cookieStore.get("state")?.value,
+		storedCodeVerifier: cookieStore.get("codeVerifier")?.value,
 	});
-
-	console.log("callback");
 
 	const tokens = await google.validateAuthorizationCode(
 		code,
 		storedCodeVerifier
 	);
+
 	const response = await fetch(
 		"https://openidconnect.googleapis.com/v1/userinfo",
 		{
 			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`,
+				Authorization: `Bearer ${tokens.accessToken()}`,
 			},
 		}
 	);
@@ -69,16 +68,14 @@ export const GET = async (req: NextRequest) => {
 		userId = existingUser.id;
 	}
 
-	const session = await lucia.createSession(userId, {
-		email,
-		googleId,
+	const token = generateSessionToken();
+	await createSession(token, userId);
+	cookieStore.set("auth_session", token, {
+		secure: process.env.NODE_ENV === "production",
+		httpOnly: true,
+		sameSite: "lax",
+		path: "/",
 	});
-	const sessionCookie = lucia.createSessionCookie(session.id);
-	cookies().set(
-		sessionCookie.name,
-		sessionCookie.value,
-		sessionCookie.attributes
-	);
 
 	redirect("/dashboard");
 };

@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
-import { unstable_setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";
 import Providers from "./Providers";
 import "./globals.css";
@@ -17,12 +17,13 @@ export const generateStaticParams = () => {
 
 const RootLayout = async ({
 	children,
-	params: { locale },
+	params,
 }: {
 	children: React.ReactNode;
-	params: { locale: string };
+	params: Promise<{ locale: string }>;
 }) => {
-	unstable_setRequestLocale(locale);
+	const { locale } = await params;
+	setRequestLocale(locale);
 
 	return (
 		<html lang={locale} suppressHydrationWarning>

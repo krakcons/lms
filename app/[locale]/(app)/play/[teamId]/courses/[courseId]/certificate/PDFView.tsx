@@ -1,15 +1,7 @@
 "use client";
 
 import { Certificate, CertificateProps } from "@/components/Certificate";
-import dynamic from "next/dynamic";
-
-const PDFViewer = dynamic(
-	() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer),
-	{
-		ssr: false,
-		loading: () => <p>Loading...</p>,
-	}
-);
+import { PDFViewer } from "@react-pdf/renderer";
 
 const PDFView = ({ certificate }: { certificate: CertificateProps }) => {
 	return (

@@ -1,6 +1,6 @@
 import PDFView from "@/app/[locale]/(app)/play/[teamId]/courses/[courseId]/certificate/PDFView";
 import { Separator } from "@/components/ui/separator";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { formatDate } from "@/lib/date";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
@@ -12,10 +12,11 @@ import { unstable_noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
 const Page = async ({
-	params: { teamId, locale },
+	params,
 }: {
-	params: { teamId: string; locale: Language };
+	params: Promise<{ teamId: string; locale: Language }>;
 }) => {
+	const { teamId, locale } = await params;
 	unstable_noStore();
 	const team = await db.query.teams.findFirst({
 		where: eq(teams.id, teamId),

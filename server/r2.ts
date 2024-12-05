@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { AwsClient } from "aws4fetch";
 import { XMLParser } from "fast-xml-parser";
 

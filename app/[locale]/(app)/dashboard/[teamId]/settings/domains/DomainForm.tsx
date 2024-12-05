@@ -21,7 +21,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { client } from "@/lib/api";
 import { useRouter } from "@/lib/navigation";
 import { Team, validDomainSchema } from "@/types/team";

@@ -11,7 +11,8 @@ const Page = async () => {
 		return redirect("/auth/google");
 	}
 
-	const teamId = cookies().get("teamId");
+	const cookieStore = await cookies();
+	const teamId = cookieStore.get("teamId");
 
 	// If team cookie check for team and redirect
 	if (teamId) {

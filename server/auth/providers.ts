@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { Google } from "arctic";
 
 export const google = new Google(

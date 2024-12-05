@@ -18,6 +18,7 @@ const DownloadLink = ({
 			fileName="certificate.pdf"
 			className={buttonVariants({})}
 		>
+			{/* @ts-ignore */}
 			{() => (
 				<>
 					<FileBadge2 size={20} />

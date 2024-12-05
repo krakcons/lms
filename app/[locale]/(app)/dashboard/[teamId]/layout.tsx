@@ -51,15 +51,16 @@ const TeamSwitcherServer = async ({
 };
 
 const Layout = async ({
-	params: { teamId, locale },
+	params,
 	children,
 }: {
-	params: {
+	params: Promise<{
 		teamId: string;
 		locale: Language;
-	};
+	}>;
 	children: React.ReactNode;
 }) => {
+	const { teamId, locale } = await params;
 	const { user } = await getAuth();
 	if (!user) {
 		return redirect("/auth/google");

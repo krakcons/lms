@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import createIntlMiddleware from "next-intl/middleware";
 import { NextRequest } from "next/server";
-import { env } from "./env.mjs";
-import { defaultLocale, locales } from "./i18n";
+import { env } from "./env";
+import { locales } from "./i18n";
+import { routing } from "./i18n/routing";
 import { db } from "./server/db/db";
 import { teams } from "./server/db/schema";
 
@@ -21,10 +22,7 @@ export default async function middleware(req: NextRequest) {
 		req.nextUrl.pathname = `/${locale}/play/${team?.id}/${segments.join("/")}`;
 	}
 
-	const handleI18nRouting = createIntlMiddleware({
-		locales,
-		defaultLocale,
-	});
+	const handleI18nRouting = createIntlMiddleware(routing);
 	const response = handleI18nRouting(req);
 	return response;
 }

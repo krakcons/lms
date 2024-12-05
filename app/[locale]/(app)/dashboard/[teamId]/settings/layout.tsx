@@ -17,14 +17,15 @@ import { notFound } from "next/navigation";
 
 const Layout = async ({
 	children,
-	params: { teamId, locale },
+	params,
 }: {
 	children: React.ReactNode;
-	params: {
+	params: Promise<{
 		teamId: string;
 		locale: Language;
-	};
+	}>;
 }) => {
+	const { teamId, locale } = await params;
 	const role = await getUserRole(teamId);
 
 	const items = [

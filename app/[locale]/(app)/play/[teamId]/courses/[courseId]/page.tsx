@@ -1,5 +1,5 @@
 import NotFound from "@/app/NotFound";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
 import { learners } from "@/server/db/schema";
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const generateMetadata = async ({
 	params,
 }: {
-	params: { courseId: string; locale: string; teamId: string };
+	params: Promise<{ courseId: string; locale: string; teamId: string }>;
 }) => {
 	return playMetadata({
 		prefix: "",
@@ -72,13 +72,15 @@ const parseCourse = async (url: string) => {
 };
 
 const Page = async ({
-	params: { courseId, locale, teamId },
-	searchParams: { learnerId },
+	params,
+	searchParams,
 }: {
-	params: { courseId: string; locale: string; teamId: string };
-	searchParams: { learnerId?: string };
+	params: Promise<{ courseId: string; locale: string; teamId: string }>;
+	searchParams: Promise<{ learnerId?: string }>;
 }) => {
+	const { courseId, locale, teamId } = await params;
 	unstable_noStore();
+	const { learnerId } = await searchParams;
 	if (!learnerId) {
 		throw new Error("Learner ID not found");
 	}

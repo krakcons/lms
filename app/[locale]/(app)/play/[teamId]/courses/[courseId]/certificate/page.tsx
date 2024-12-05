@@ -2,7 +2,7 @@ import NotFound from "@/app/NotFound";
 import { CertificateProps } from "@/components/Certificate";
 import LanguageToggle from "@/components/LanguageToggle";
 import { Separator } from "@/components/ui/separator";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { formatDate } from "@/lib/date";
 import { translate } from "@/lib/translation";
 import { db } from "@/server/db/db";
@@ -17,9 +17,10 @@ import PDFView from "./PDFView";
 export const generateMetadata = async ({
 	params,
 }: {
-	params: { courseId: string; locale: Language; teamId: string };
+	params: Promise<{ courseId: string; locale: Language; teamId: string }>;
 }) => {
-	const t = await getTranslations({ locale: params.locale });
+	const { locale } = await params;
+	const t = await getTranslations({ locale });
 	return playMetadata({
 		prefix: `${t("Certificate.title")} `,
 		params,
@@ -27,17 +28,19 @@ export const generateMetadata = async ({
 };
 
 const Page = async ({
-	params: { locale, courseId },
-	searchParams: { learnerId },
+	params,
+	searchParams,
 }: {
-	params: {
+	params: Promise<{
 		locale: Language;
 		courseId: string;
-	};
-	searchParams: {
+	}>;
+	searchParams: Promise<{
 		learnerId: string;
-	};
+	}>;
 }) => {
+	const { locale, courseId } = await params;
+	const { learnerId } = await searchParams;
 	const learner = await db.query.learners.findFirst({
 		where: and(eq(learners.id, learnerId), eq(learners.courseId, courseId)),
 		with: {

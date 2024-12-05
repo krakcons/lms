@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { AppType } from "@/server/api/hono";
 import { hc } from "hono/client";
 

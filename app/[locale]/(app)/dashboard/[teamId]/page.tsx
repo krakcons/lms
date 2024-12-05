@@ -22,10 +22,11 @@ import { eq } from "drizzle-orm";
 import { Plus } from "lucide-react";
 
 const Page = async ({
-	params: { teamId, locale },
+	params,
 }: {
-	params: { teamId: string; locale: Language };
+	params: Promise<{ teamId: string; locale: Language }>;
 }) => {
+	const { teamId, locale } = await params;
 	const { user } = await getAuth();
 	if (!user) {
 		return redirect("/auth/google");

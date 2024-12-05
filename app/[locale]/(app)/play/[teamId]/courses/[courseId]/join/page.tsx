@@ -1,13 +1,13 @@
 import NotFound from "@/app/NotFound";
 import LanguageToggle from "@/components/LanguageToggle";
-import { env } from "@/env.mjs";
+import { env } from "@/env";
 import { db } from "@/server/db/db";
 import { courses, learners, modules } from "@/server/db/schema";
 import { BaseLearner } from "@/types/learner";
 import { Module } from "@/types/module";
 import { Language } from "@/types/translations";
 import { and, desc, eq } from "drizzle-orm";
-import { getTranslations, unstable_setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { unstable_noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { playMetadata } from "../metadata";
@@ -16,9 +16,10 @@ import { JoinCourseForm } from "./JoinCourseForm";
 export const generateMetadata = async ({
 	params,
 }: {
-	params: { courseId: string; locale: Language; teamId: string };
+	params: Promise<{ courseId: string; locale: Language; teamId: string }>;
 }) => {
-	const t = await getTranslations({ locale: params.locale });
+	const { locale } = await params;
+	const t = await getTranslations({ locale });
 	return playMetadata({
 		prefix: `${t("Join.join")} `,
 		params,
@@ -26,13 +27,15 @@ export const generateMetadata = async ({
 };
 
 const Page = async ({
-	params: { courseId, locale, teamId },
-	searchParams: { learnerId },
+	params,
+	searchParams,
 }: {
-	params: { courseId: string; locale: Language; teamId: string };
-	searchParams: { learnerId: string };
+	params: Promise<{ courseId: string; locale: Language; teamId: string }>;
+	searchParams: Promise<{ learnerId: string }>;
 }) => {
-	unstable_setRequestLocale(locale);
+	const { courseId, locale, teamId } = await params;
+	const { learnerId } = await searchParams;
+	setRequestLocale(locale);
 	unstable_noStore();
 
 	let initialLearner: BaseLearner | undefined = undefined;
