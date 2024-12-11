@@ -41,6 +41,34 @@ interface DataTableProps<TData, TValue> {
 	deleteMultiplePending?: boolean;
 }
 
+const flattenObject = (obj: any, prefix = ""): Record<string, any> => {
+	return Object.keys(obj).reduce(
+		(acc, key) => {
+			const prefixKey = prefix ? `${prefix}.${key}` : key;
+
+			if (prefixKey === "data") {
+				return acc;
+			}
+
+			if (
+				obj[key] &&
+				typeof obj[key] === "object" &&
+				!Array.isArray(obj[key]) &&
+				!(obj[key] instanceof Date)
+			) {
+				Object.assign(acc, flattenObject(obj[key], prefixKey));
+			} else {
+				acc[prefixKey] =
+					obj[key] instanceof Date
+						? obj[key].toISOString()
+						: obj[key];
+			}
+			return acc;
+		},
+		{} as Record<string, any>
+	);
+};
+
 export const DataTable = <TData, TValue>({
 	columns,
 	data,
@@ -120,7 +148,10 @@ export const DataTable = <TData, TValue>({
 							learners
 						</Button>
 					)}
-					<ExportCSVButton data={data} filename={name} />
+					<ExportCSVButton
+						data={data.map((row) => flattenObject(row))}
+						filename={name}
+					/>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="outline">

@@ -8,7 +8,7 @@ const ExportCSVButton = ({
 	data,
 	filename,
 }: {
-	data: any;
+	data: Record<string, string | number | boolean | null | undefined>[];
 	filename: string;
 }) => {
 	const downloadCSV = () => {
